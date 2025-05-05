@@ -1,0 +1,7 @@
+1. Clean code and architecture hexagonal.
+2. Use Lombok for reducing boilerplate code.
+3. Best practices for good code quality.
+4. When ending a process, always review the code to ensure it is correct.
+5. Name the variables and methods in a way that is easy to understand.
+6. Use comments to explain the code.
+7. Use the same naming convention for variables, methods, and classes.

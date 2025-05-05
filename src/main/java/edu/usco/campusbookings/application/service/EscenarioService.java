@@ -1,17 +1,21 @@
 package edu.usco.campusbookings.application.service;
 
-import edu.usco.campusbookings.application.dto.request.EscenarioRequest;
-import edu.usco.campusbookings.application.dto.response.EscenarioResponse;
-import edu.usco.campusbookings.application.mapper.EscenarioMapper;
-import edu.usco.campusbookings.application.port.input.EscenarioUseCase;
-import edu.usco.campusbookings.application.port.output.EscenarioRepositoryPort;
-import edu.usco.campusbookings.application.exception.EscenarioNotFoundException;
-import edu.usco.campusbookings.domain.model.Escenario;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import edu.usco.campusbookings.application.dto.request.BuscarEscenariosRequest;
+import edu.usco.campusbookings.application.dto.request.EscenarioRequest;
+import edu.usco.campusbookings.application.dto.request.FiltrarEscenariosRequest;
+import edu.usco.campusbookings.application.dto.response.DetalleEscenarioResponse;
+import edu.usco.campusbookings.application.dto.response.EscenarioResponse;
+import edu.usco.campusbookings.application.exception.EscenarioNotFoundException;
+import edu.usco.campusbookings.application.mapper.EscenarioMapper;
+import edu.usco.campusbookings.application.port.input.EscenarioUseCase;
+import edu.usco.campusbookings.application.port.output.EscenarioRepositoryPort;
+import edu.usco.campusbookings.domain.model.Escenario;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Service implementation for managing escenarios.
@@ -105,12 +109,16 @@ public class EscenarioService implements EscenarioUseCase {
     @Override
     @Transactional
     public EscenarioResponse updateEscenario(Long id, EscenarioRequest request) {
-        escenarioRepositoryPort.findById(id)
-                .orElseThrow(() -> new EscenarioNotFoundException("Escenario not found with ID: " + id));
+        Escenario escenario = escenarioRepositoryPort.findById(id)
+                .orElseThrow(() -> new EscenarioNotFoundException("Escenario no encontrado"));
 
+        escenario.setNombre(request.getNombre());
+        escenario.setTipo(request.getTipo());
+        escenario.setUbicacion(request.getUbicacion());
+        escenario.setHorariosDisponibles(request.getHorariosDisponibles());
+        escenario.setReservas(request.getReservas());
 
-        Escenario saved = escenarioRepositoryPort.save(escenarioMapper.toEntity(request));
-
+        Escenario saved = escenarioRepositoryPort.save(escenario);
         return escenarioMapper.toDto(saved);
     }
 
@@ -124,5 +132,35 @@ public class EscenarioService implements EscenarioUseCase {
     @Transactional
     public void deleteById(Long id) {
         escenarioRepositoryPort.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EscenarioResponse> filtrarEscenarios(FiltrarEscenariosRequest request) {
+        List<Escenario> escenarios = escenarioRepositoryPort.findByTipoOrNombreOrUbicacion(
+            request.getTipo(),
+            request.getNombre(),
+            request.getUbicacion()
+        );
+        return escenarioMapper.toDtoList(escenarios);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EscenarioResponse> buscarEscenarios(BuscarEscenariosRequest request) {
+        List<Escenario> escenarios = escenarioRepositoryPort.findByNombreContainingOrUbicacionContainingOrTipoContaining(
+            request.getNombre(),
+            request.getUbicacion(),
+            request.getTipo()
+        );
+        return escenarioMapper.toDtoList(escenarios);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DetalleEscenarioResponse obtenerDetalles(Long id) {
+        Escenario escenario = escenarioRepositoryPort.findById(id)
+                .orElseThrow(() -> new EscenarioNotFoundException("Escenario not found with ID: " + id));
+        return escenarioMapper.toDetalleResponse(escenario);
     }
 }

@@ -1,9 +1,13 @@
 package edu.usco.campusbookings.application.mapper;
 
 import edu.usco.campusbookings.application.dto.request.EscenarioRequest;
+import edu.usco.campusbookings.application.dto.response.DetalleEscenarioResponse;
 import edu.usco.campusbookings.application.dto.response.EscenarioResponse;
 import edu.usco.campusbookings.domain.model.Escenario;
+import edu.usco.campusbookings.domain.model.HorarioDisponible;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -47,4 +51,18 @@ public interface EscenarioMapper {
      * @return the converted list of EscenarioResponse DTOs
      */
     List<EscenarioResponse> toDtoList(List<Escenario> escenario);
+
+    @Mapping(source = "horariosDisponibles", target = "horariosDisponibles", qualifiedByName = "toHorariosString")
+    @Mapping(source = "capacidad", target = "capacidad")
+    @Mapping(source = "descripcion", target = "descripcion")
+    @Mapping(source = "imagenUrl", target = "imagenUrl")
+    @Mapping(source = "recursos", target = "recursos")
+    DetalleEscenarioResponse toDetalleResponse(Escenario escenario);
+
+    @Named("toHorariosString")
+    default List<String> toHorariosString(List<HorarioDisponible> horarios) {
+        return horarios.stream()
+            .map(horario -> horario.getHoraInicio() + " - " + horario.getHoraFin())
+            .toList();
+    }
 }

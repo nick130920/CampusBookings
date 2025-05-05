@@ -4,9 +4,8 @@ import edu.usco.campusbookings.application.dto.request.UsuarioRequest;
 import edu.usco.campusbookings.application.dto.response.UsuarioResponse;
 import edu.usco.campusbookings.domain.model.Usuario;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
-
-import java.util.List;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  * Mapper interface for converting between Usuario entities and DTOs.
@@ -15,22 +14,20 @@ import java.util.List;
  * @componentModel spring - Indicates that the generated implementation should be a Spring bean.
  * 
  * Methods:
- * - toEntity(UsuarioRequest dto): Converts a UsuarioRequest DTO to a Usuario entity.
- * - toDto(Usuario usuario): Converts a Usuario entity to a UsuarioResponse DTO.
- * - toDtoList(List<Usuario> usuario): Converts a list of Usuario entities to a list of UsuarioResponse DTOs.
+ * - toDomain(UsuarioRequest request): Converts a UsuarioRequest DTO to a Usuario entity.
+ * - toResponse(Usuario usuario): Converts a Usuario entity to a UsuarioResponse DTO.
+ * - updateDomain(Usuario usuario, UsuarioRequest request): Updates an existing Usuario entity with the data from a UsuarioRequest DTO.
  */
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
 
-    UsuarioMapper INSTANCE = Mappers.getMapper(UsuarioMapper.class);
-
     /**
      * Converts a UsuarioRequest DTO to a Usuario entity.
      *
-     * @param dto the UsuarioRequest DTO
+     * @param request the UsuarioRequest DTO
      * @return the converted Usuario entity
      */
-    Usuario toEntity(UsuarioRequest dto);
+    Usuario toDomain(UsuarioRequest request);
 
     /**
      * Converts a Usuario entity to a UsuarioResponse DTO.
@@ -38,13 +35,6 @@ public interface UsuarioMapper {
      * @param usuario the Usuario entity
      * @return the converted UsuarioResponse DTO
      */
-    UsuarioResponse toDto(Usuario usuario);
+    UsuarioResponse toResponse(Usuario usuario);
 
-    /**
-     * Converts a list of Usuario entities to a list of UsuarioResponse DTOs.
-     *
-     * @param usuario the list of Usuario entities
-     * @return the converted list of UsuarioResponse DTOs
-     */
-    List<UsuarioResponse> toDtoList(List<Usuario> usuario);
 }

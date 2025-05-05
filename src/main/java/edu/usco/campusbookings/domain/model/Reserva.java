@@ -30,4 +30,6 @@ public class Reserva extends Auditable {
 
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
+
+    private String motivoRechazo;
 }

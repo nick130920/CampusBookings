@@ -2,12 +2,13 @@ package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 
 import edu.usco.campusbookings.application.dto.request.UsuarioRequest;
 import edu.usco.campusbookings.application.dto.response.UsuarioResponse;
-import edu.usco.campusbookings.application.port.input.UsuarioUseCase;
+import edu.usco.campusbookings.application.mapper.UsuarioMapper;
+import edu.usco.campusbookings.application.service.UsuarioService;
+import edu.usco.campusbookings.domain.model.Usuario;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +29,8 @@ import java.util.List;
  * 
  * <p>Dependencies:</p>
  * <ul>
- *   <li>UsuarioUseCase: Service for Usuario operations.</li>
+ *   <li>UsuarioService: Service for Usuario operations.</li>
+ *   <li>UsuarioMapper: Mapper for Usuario operations.</li>
  * </ul>
  * 
  * <p>Annotations:</p>
@@ -36,17 +38,27 @@ import java.util.List;
  *   <li>@RestController: Designates this class as a REST controller.</li>
  *   <li>@RequestMapping: Maps HTTP requests to handler methods in this controller.</li>
  *   <li>@RequiredArgsConstructor: Generates a constructor with required arguments.</li>
- *   <li>@Slf4j: Enables logging.</li>
  * </ul>
  */
 @RestController
-@RequestMapping("/api/usuario")
+@RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
-@Slf4j
-@Tag(name = "Usuario", description = "Operations related to usuario entities")
 public class UsuarioRestController {
 
-    private final UsuarioUseCase usuarioUseCase;
+    private final UsuarioService usuarioService;
+    private final UsuarioMapper usuarioMapper;
+
+    /**
+     * Creates a new Usuario.
+     * 
+     * @param request the Usuario request
+     * @return the created Usuario response
+     */
+    @PostMapping
+    public ResponseEntity<UsuarioResponse> create(@Valid @RequestBody UsuarioRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(usuarioService.createUsuario(request));
+    }
 
     /**
      * Retrieves a Usuario by its ID.
@@ -55,9 +67,8 @@ public class UsuarioRestController {
      * @return the found Usuario response
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Get a Usuario by ID", description = "Retrieves a Usuario entity by its unique ID")
-    public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioUseCase.findById(id));
+    public ResponseEntity<UsuarioResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.findById(id));
     }
 
     /**
@@ -66,46 +77,23 @@ public class UsuarioRestController {
      * @return the list of Usuario responses
      */
     @GetMapping
-    @Operation(summary = "Get all usuarios", description = "Retrieves a list of all Usuario entities")
-    public ResponseEntity<List<UsuarioResponse>> getAllUsuarios() {
-        return ResponseEntity.ok(usuarioUseCase.findAll());
-    }
-
-    /**
-     * Creates a new Usuario.
-     * 
-     * @param usuarioRequest the Usuario request
-     * @return the created Usuario response
-     */
-    @PostMapping
-    @Operation(summary = "Create a new Usuario", description = "Creates a new Usuario entity with the provided data")
-    public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest usuarioRequest) {
-        return ResponseEntity.ok(usuarioUseCase.createUsuario(usuarioRequest));
-    }
-
-    /**
-     * Endpoint to create multiple usuarios in bulk.
-     * 
-     * @param usuarioRequests List of UsuarioRequest objects to create.
-     * @return List of created UsuarioResponse objects.
-     */
-    @PostMapping("/bulk")
-    @Operation(summary = "Create usuarios in bulk", description = "Creates multiple Usuario entities in bulk with the provided data")
-    public ResponseEntity<List<UsuarioResponse>> createUsuarios(@RequestBody List<UsuarioRequest> usuarioRequests) {
-        return ResponseEntity.ok(usuarioUseCase.createUsuarios(usuarioRequests));
+    public ResponseEntity<List<UsuarioResponse>> findAll() {
+        return ResponseEntity.ok(usuarioService.findAll());
     }
 
     /**
      * Updates a Usuario by its ID.
      * 
      * @param id the Usuario ID
-     * @param usuarioRequest the Usuario request
+     * @param request the Usuario request
      * @return the updated Usuario response
      */
     @PutMapping("/{id}")
-    @Operation(summary = "Update a Usuario", description = "Updates an existing Usuario entity with the provided data")
-    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable Long id, @RequestBody UsuarioRequest usuarioRequest) {
-        return ResponseEntity.ok(usuarioUseCase.updateUsuario(id, usuarioRequest));
+    public ResponseEntity<UsuarioResponse> update(
+        @PathVariable Long id,
+        @Valid @RequestBody UsuarioRequest request
+    ) {
+        return ResponseEntity.ok(usuarioService.updateUsuario(id, request));
     }
 
     /**
@@ -115,9 +103,8 @@ public class UsuarioRestController {
      * @return 204 No Content response
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a Usuario", description = "Deletes a Usuario entity by its unique ID")
-    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
-        usuarioUseCase.deleteById(id);
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        usuarioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -20,50 +20,50 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioService implements UsuarioUseCase {
 
-    private final UsuarioRepositoryPort usuarioRepositoryPort;
+    private final UsuarioRepositoryPort usuarioRepository;
     private final UsuarioMapper usuarioMapper;
 
     /**
      * Creates a new usuario.
      *
-     * @param usuarioRequest the usuario request input
+     * @param request the usuario request input
      * @return the created usuario response
      * @throws IllegalArgumentException if the request is null
      */
     @Override
     @Transactional
-    public UsuarioResponse createUsuario(UsuarioRequest usuarioRequest) {
-        if (usuarioRequest == null) {
+    public UsuarioResponse createUsuario(UsuarioRequest request) {
+        if (request == null) {
             throw new IllegalArgumentException("UsuarioRequest cannot be null");
         }
 
-        Usuario usuario = usuarioMapper.toEntity(usuarioRequest);
-        usuario = usuarioRepositoryPort.save(usuario);
-
-        return usuarioMapper.toDto(usuario);
+        Usuario usuario = usuarioMapper.toDomain(request);
+        usuario = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuario);
     }
 
     /**
      * Creates multiple usuarios.
      *
-     * @param usuarioRequests the list of usuario requests
+     * @param requests the list of usuario requests
      * @return the list of created usuario responses
      * @throws IllegalArgumentException if the request list is null or empty
      */
     @Override
     @Transactional
-    public List<UsuarioResponse> createUsuarios(List<UsuarioRequest> usuarioRequests) {
-        if (usuarioRequests == null || usuarioRequests.isEmpty()) {
+    public List<UsuarioResponse> createUsuarios(List<UsuarioRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
             throw new IllegalArgumentException("UsuarioRequests cannot be null or empty");
         }
 
-        List<Usuario> usuarios = usuarioRequests.stream()
-                .map(usuarioMapper::toEntity)
+        List<Usuario> usuarios = requests.stream()
+                .map(usuarioMapper::toDomain)
                 .toList();
 
-        usuarios = usuarioRepositoryPort.saveAll(usuarios);
-
-        return usuarioMapper.toDtoList(usuarios);
+        usuarios = usuarioRepository.saveAll(usuarios);
+        return usuarios.stream()
+                .map(usuarioMapper::toResponse)
+                .toList();
     }
 
     /**
@@ -74,8 +74,8 @@ public class UsuarioService implements UsuarioUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<UsuarioResponse> findAll() {
-        return usuarioRepositoryPort.findAll().stream()
-                .map(usuarioMapper::toDto)
+        return usuarioRepository.findAll().stream()
+                .map(usuarioMapper::toResponse)
                 .toList();
     }
 
@@ -89,9 +89,9 @@ public class UsuarioService implements UsuarioUseCase {
     @Override
     @Transactional(readOnly = true)
     public UsuarioResponse findById(Long id) {
-        return usuarioRepositoryPort.findById(id)
-                .map(usuarioMapper::toDto)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuario not found with ID: " + id));
+        return usuarioRepository.findById(id)
+                .map(usuarioMapper::toResponse)
+                .orElseThrow(() -> new UsuarioNotFoundException(id));
     }
 
     /**
@@ -105,13 +105,14 @@ public class UsuarioService implements UsuarioUseCase {
     @Override
     @Transactional
     public UsuarioResponse updateUsuario(Long id, UsuarioRequest request) {
-        usuarioRepositoryPort.findById(id)
-                .orElseThrow(() -> new UsuarioNotFoundException("Usuario not found with ID: " + id));
+        if (!usuarioRepository.existsById(id)) {
+            throw new UsuarioNotFoundException(id);
+        }
 
-
-        Usuario saved = usuarioRepositoryPort.save(usuarioMapper.toEntity(request));
-
-        return usuarioMapper.toDto(saved);
+        Usuario usuario = usuarioMapper.toDomain(request);
+        usuario.setId(id);
+        usuario = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponse(usuario);
     }
 
     /**
@@ -123,6 +124,32 @@ public class UsuarioService implements UsuarioUseCase {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        usuarioRepositoryPort.deleteById(id);
+        if (!usuarioRepository.existsById(id)) {
+            throw new UsuarioNotFoundException(id);
+        }
+        usuarioRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public Usuario save(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Usuario findByEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNotFoundException(email));
+    }
+
+    @Override
+    @Transactional
+    public Usuario update(Long id, Usuario usuario) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new UsuarioNotFoundException(id);
+        }
+        usuario.setId(id);
+        return usuarioRepository.save(usuario);
     }
 }

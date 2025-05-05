@@ -44,4 +44,26 @@ public interface UsuarioRepositoryPort {
 	 * @param id the id of the Usuario
 	 */
 	void deleteById(Long id);
+	/**
+	 * Find a Usuario by email.
+	 *
+	 * @param email the email of the Usuario
+	 * @return the Usuario if found, optional empty if not found
+	 */
+	Optional<Usuario> findByEmail(String email);
+
+	/**
+	 * Find all usuarios with a specific role.
+	 *
+	 * @param role the role to search for
+	 * @return list of usuarios with the specified role
+	 */
+	List<Usuario> findByRolesContaining(String role);
+	/**
+	 * Check if a Usuario exists by id.
+	 *
+	 * @param id the id of the Usuario
+	 * @return true if the Usuario exists, false otherwise
+	 */
+	boolean existsById(Long id);
 }

@@ -22,6 +22,10 @@ public class Escenario extends Auditable {
     private String nombre;
     private String tipo;
     private String ubicacion;
+    private Integer capacidad;
+    private String descripcion;
+    private String recursos;
+    private String imagenUrl;
 
     @OneToMany(mappedBy = "escenario")
     private List<HorarioDisponible> horariosDisponibles;
