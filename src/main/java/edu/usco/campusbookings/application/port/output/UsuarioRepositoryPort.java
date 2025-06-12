@@ -58,7 +58,7 @@ public interface UsuarioRepositoryPort {
 	 * @param role the role to search for
 	 * @return list of usuarios with the specified role
 	 */
-	List<Usuario> findByRolesContaining(String role);
+	List<Usuario> getUsuariosByRole(String role);
 	/**
 	 * Check if a Usuario exists by id.
 	 *

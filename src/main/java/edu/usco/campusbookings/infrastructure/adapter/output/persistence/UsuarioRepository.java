@@ -94,8 +94,8 @@ public class UsuarioRepository implements UsuarioRepositoryPort {
 	 * @return list of usuarios with the specified role
 	 */
 	@Override
-	public List<Usuario> findByRolesContaining(String role) {
-		return springDataUsuarioRepository.findByRolesContaining(role);
+	public List<Usuario> getUsuariosByRole(String role) {
+		return springDataUsuarioRepository.getUsuariosByRol_Nombre(role);
 	}
 
 }

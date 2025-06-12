@@ -1,17 +1,23 @@
 package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 
-import edu.usco.campusbookings.application.dto.request.UsuarioRequest;
-import edu.usco.campusbookings.application.dto.response.UsuarioResponse;
-import edu.usco.campusbookings.application.mapper.UsuarioMapper;
-import edu.usco.campusbookings.application.service.UsuarioService;
-import edu.usco.campusbookings.domain.model.Usuario;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import edu.usco.campusbookings.application.dto.request.UsuarioRequest;
+import edu.usco.campusbookings.application.dto.response.UsuarioResponse;
+import edu.usco.campusbookings.application.service.UsuarioService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
  /**
  * REST controller for managing Usuario entities.
@@ -22,7 +28,6 @@ import java.util.List;
  *   <li>GET /api/usuario/{id}: Retrieve an Usuario by its ID.</li>
  *   <li>GET /api/usuario: Retrieve all Usuario entities.</li>
  *   <li>POST /api/usuario: Create a new Usuario.</li>
- *   <li>POST /api/usuario/bulk: Create multiple Usuario entities in bulk.</li>
  *   <li>PUT /api/usuario/{id}: Update an existing Usuario by its ID.</li>
  *   <li>DELETE /api/usuario/{id}: Delete an Usuario by its ID.</li>
  * </ul>
@@ -30,7 +35,6 @@ import java.util.List;
  * <p>Dependencies:</p>
  * <ul>
  *   <li>UsuarioService: Service for Usuario operations.</li>
- *   <li>UsuarioMapper: Mapper for Usuario operations.</li>
  * </ul>
  * 
  * <p>Annotations:</p>
@@ -46,7 +50,6 @@ import java.util.List;
 public class UsuarioRestController {
 
     private final UsuarioService usuarioService;
-    private final UsuarioMapper usuarioMapper;
 
     /**
      * Creates a new Usuario.

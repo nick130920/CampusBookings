@@ -11,6 +11,5 @@ public interface SpringDataEscenarioRepository extends JpaRepository<Escenario, 
     List<Escenario> findByTipoOrNombreOrUbicacion(String tipo, String nombre, String ubicacion);
     List<Escenario> findByNombreContainingOrUbicacionContainingOrTipoContaining(String nombre, String ubicacion,
             String tipo);
-    Optional<Escenario> findById(Long id);
     void deleteById(Long id);
 }

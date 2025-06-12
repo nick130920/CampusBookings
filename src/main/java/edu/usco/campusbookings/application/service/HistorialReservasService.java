@@ -40,24 +40,24 @@ public class HistorialReservasService implements HistorialReservasUseCase {
             reservas = reservas.stream()
                     .filter(r -> r.getFechaInicio().isAfter(request.getFechaInicio())
                             && r.getFechaFin().isBefore(request.getFechaFin()))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         if (request.getEstado() != null) {
             reservas = reservas.stream()
                     .filter(r -> r.getEstado().getNombre().equalsIgnoreCase(request.getEstado()))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         if (request.getTipo() != null) {
             reservas = reservas.stream()
                     .filter(r -> r.getEscenario().getTipo().equalsIgnoreCase(request.getTipo()))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         // Convertir a DTO
         return reservas.stream()
                 .map(historialReservasMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

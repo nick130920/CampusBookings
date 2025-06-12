@@ -1,14 +1,13 @@
 package edu.usco.campusbookings.application.dto.request;
 
-import edu.usco.campusbookings.domain.model.Escenario;
-import edu.usco.campusbookings.domain.model.EstadoReserva;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor

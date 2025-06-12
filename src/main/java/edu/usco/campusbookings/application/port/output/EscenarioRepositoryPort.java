@@ -66,11 +66,4 @@ public interface EscenarioRepositoryPort {
 	 */
 	List<Escenario> findByNombreContainingOrUbicacionContainingOrTipoContaining(String nombre, String ubicacion, String tipo);
 
-	/**
-	 * Obtiene los detalles completos de un escenario.
-	 *
-	 * @param id el ID del escenario
-	 * @return detalles del escenario
-	 */
-	DetalleEscenarioResponse obtenerDetalles(Long id);
 }

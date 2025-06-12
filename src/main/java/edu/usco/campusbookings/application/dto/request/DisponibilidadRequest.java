@@ -18,4 +18,5 @@ public class DisponibilidadRequest {
 
     private String tipo;
     private String ubicacion;
+    private String nombre;
 }

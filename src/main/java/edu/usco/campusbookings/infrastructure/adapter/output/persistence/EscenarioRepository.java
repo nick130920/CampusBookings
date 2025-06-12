@@ -56,11 +56,4 @@ public class EscenarioRepository implements EscenarioRepositoryPort {
         return springDataEscenarioRepository.findByNombreContainingOrUbicacionContainingOrTipoContaining(
                 nombre, ubicacion, tipo);
     }
-
-    @Override
-    public DetalleEscenarioResponse obtenerDetalles(Long id) {
-        // Implementación para obtener detalles del escenario
-        // Esto podría incluir información adicional como horarios, disponibilidad, etc.
-        return null; // Implementar según sea necesario
-    }
 }

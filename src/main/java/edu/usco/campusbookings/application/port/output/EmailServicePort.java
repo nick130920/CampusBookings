@@ -1,5 +1,4 @@
 package edu.usco.campusbookings.application.port.output;
-package edu.usco.campusbookings.application.port.output;
 
 import edu.usco.campusbookings.domain.model.Reserva;
 
@@ -29,8 +28,7 @@ public interface EmailServicePort {
      * @param reserva la reserva cancelada
      */
     void enviarCorreoCancelacionReserva(Reserva reserva);
-}
-public interface EmailServicePort {
+
     /**
      * Envía un correo electrónico de confirmación de reserva.
      * 
