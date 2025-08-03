@@ -10,11 +10,12 @@ import java.util.List;
 public interface ReservaUseCase {
     ReservaResponse crearReserva(ReservaRequest request);
     ReservaResponse aprobarReserva(Long id);
-    ReservaResponse rechazarReserva(Long id);
+    ReservaResponse rechazarReserva(Long id, String motivo);
     ReservaResponse cancelarReserva(Long id);
     List<ReservaResponse> obtenerReservasPorUsuario(Long usuarioId);
     List<ReservaResponse> obtenerReservasPorEscenario(Long escenarioId);
     List<ReservaResponse> obtenerReservasPorEstado(String estadoNombre);
+    List<ReservaResponse> obtenerTodasLasReservas();
     
     /**
      * Verifica la disponibilidad de un escenario en tiempo real.

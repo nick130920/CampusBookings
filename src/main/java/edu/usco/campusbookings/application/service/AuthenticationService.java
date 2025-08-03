@@ -54,6 +54,7 @@ public class AuthenticationService {
         
         // Crear claims adicionales para el token
         Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", usuario.getId());
         extraClaims.put("email", usuario.getEmail());
         extraClaims.put("nombre", usuario.getNombre());
         extraClaims.put("apellido", usuario.getApellido());
@@ -93,6 +94,7 @@ public class AuthenticationService {
         
         // Crear claims adicionales para el token
         Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", usuario.getId());
         extraClaims.put("email", usuario.getEmail());
         extraClaims.put("nombre", usuario.getNombre());
         extraClaims.put("apellido", usuario.getApellido());

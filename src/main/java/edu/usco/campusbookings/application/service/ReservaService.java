@@ -20,6 +20,7 @@ import edu.usco.campusbookings.application.exception.InvalidReservaException;
 import edu.usco.campusbookings.application.exception.ReservaNotFoundException;
 import edu.usco.campusbookings.application.mapper.ReservaMapper;
 import edu.usco.campusbookings.application.port.input.ReservaUseCase;
+import edu.usco.campusbookings.application.port.output.EmailServicePort;
 import edu.usco.campusbookings.application.port.output.ReservaPersistencePort;
 import edu.usco.campusbookings.application.service.UsuarioService;
 import edu.usco.campusbookings.domain.model.EstadoReserva;
@@ -40,32 +41,89 @@ public class ReservaService implements ReservaUseCase {
     private final ReservaPersistencePort reservaPersistencePort;
     private final ReservaMapper reservaMapper;
     private final UsuarioService usuarioService;
+    private final EmailServicePort emailService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
     public ReservaResponse crearReserva(ReservaRequest request) {
         log.info("Creating new reservation request for escenario: {}", request.getEscenarioId());
         
+        // Validate required fields
+        if (request.getEscenarioId() == null) {
+            throw new InvalidReservaException("El ID del escenario es obligatorio");
+        }
+        
         // Validate reservation times
         validarTiempoReserva(request.getFechaInicio(), request.getFechaFin());
         
-        // Check escenario availability
-        if (reservaPersistencePort.existsByEscenarioIdAndFechaInicioBetween(
-                request.getEscenarioId(), request.getFechaInicio(), request.getFechaFin())) {
-            throw new InvalidReservaException("El escenario ya está reservado para el horario solicitado");
+        // Get current authenticated user
+        Usuario usuarioActual = getCurrentUser();
+        if (usuarioActual == null) {
+            throw new InvalidReservaException("No se pudo obtener el usuario autenticado");
         }
+        log.debug("Creating reservation for user: {} (ID: {})", usuarioActual.getEmail(), usuarioActual.getId());
+        
+        // Get and validate escenario
+        var escenarioOpt = reservaPersistencePort.findEscenarioById(request.getEscenarioId());
+        if (escenarioOpt.isEmpty()) {
+            throw new InvalidReservaException("El escenario con ID " + request.getEscenarioId() + " no existe");
+        }
+        var escenario = escenarioOpt.get();
+        
+        if (!escenario.getDisponible()) {
+            throw new InvalidReservaException("El escenario no está disponible para reservas");
+        }
+        log.debug("Validated escenario: {} (ID: {})", escenario.getNombre(), escenario.getId());
+        
+        // Check escenario availability for the requested time (only check APPROVED reservations)
+        if (reservaPersistencePort.existsByEscenarioIdAndFechaInicioBetweenAndEstadoNombre(
+                request.getEscenarioId(), request.getFechaInicio(), request.getFechaFin(), "APROBADA")) {
+            throw new InvalidReservaException("El escenario ya tiene una reserva aprobada para el horario solicitado");
+        }
+        
+        log.debug("Time slot available for new reservation (no approved conflicts found)");
         
         // Map the request to entity
         Reserva reserva = reservaMapper.toEntity(request);
         
-        // Set initial state to PENDING_APPROVAL
+        // Set required relationships manually (mapper ignores them)
+        reserva.setUsuario(usuarioActual);
+        reserva.setEscenario(escenario);
+        
+        // Set initial state to PENDING
         EstadoReserva estadoPendiente = reservaPersistencePort.findEstadoByNombre("PENDIENTE")
                 .orElseThrow(() -> new IllegalStateException("No se encontró el estado PENDIENTE en la base de datos"));
         reserva.setEstado(estadoPendiente);
         
+        // Final validation before saving
+        if (reserva.getUsuario() == null || reserva.getEscenario() == null) {
+            throw new IllegalStateException("Error interno: La reserva no puede guardarse sin usuario o escenario");
+        }
+        
         // Save the reservation
         Reserva savedReserva = reservaPersistencePort.save(reserva);
-        log.info("Reservation created successfully with ID: {}", savedReserva.getId());
+        log.info("Reservation created successfully with ID: {} for user: {} and escenario: {}", 
+                savedReserva.getId(), usuarioActual.getEmail(), escenario.getNombre());
+        
+                    // Send notification emails and real-time notifications asynchronously
+            try {
+                // Email de confirmación al usuario
+                emailService.enviarCorreoConfirmacionReserva(savedReserva);
+                log.info("Confirmation email sent to user: {}", savedReserva.getUsuario().getEmail());
+                
+                // Email de notificación al administrador
+                emailService.enviarCorreoNuevaReservaAdmin(savedReserva);
+                log.info("Admin notification email sent for reservation ID: {}", savedReserva.getId());
+                
+                // Notificación en tiempo real al administrador
+                notificationService.notificarNuevaReservaAdmin(savedReserva);
+                log.info("Real-time admin notification sent for reservation ID: {}", savedReserva.getId());
+                
+            } catch (Exception e) {
+                log.error("Error sending notifications for reservation ID: {}", savedReserva.getId(), e);
+                // No lanzamos excepción para no afectar la creación de la reserva
+            }
         
         return reservaMapper.toDto(savedReserva);
     }
@@ -95,6 +153,26 @@ public class ReservaService implements ReservaUseCase {
                     reserva.setEstado(estadoAprobado);
                     Reserva updatedReserva = reservaPersistencePort.save(reserva);
                     log.info("Reservation ID: {} approved by admin: {}", id, currentUser.getEmail());
+                    
+                    // Auto-reject competing pending reservations for the same time slot
+                    autoRejectCompetingReservations(updatedReserva);
+                    
+                    // Send approval notifications (email + real-time)
+                    try {
+                        emailService.enviarCorreoAprobacionReserva(updatedReserva);
+                        log.info("Approval email sent to user: {} for reservation ID: {}", 
+                                updatedReserva.getUsuario().getEmail(), updatedReserva.getId());
+                        
+                        // Notificación en tiempo real al usuario
+                        notificationService.notificarReservaAprobada(updatedReserva);
+                        log.info("Real-time approval notification sent to user: {} for reservation ID: {}", 
+                                updatedReserva.getUsuario().getEmail(), updatedReserva.getId());
+                        
+                    } catch (Exception e) {
+                        log.error("Error sending approval notifications for reservation ID: {}", updatedReserva.getId(), e);
+                        // No lanzamos excepción para no afectar la aprobación
+                    }
+                    
                     return reservaMapper.toDto(updatedReserva);
                 })
                 .orElseThrow(() -> new ReservaNotFoundException("Reserva no encontrada con ID: " + id));
@@ -102,10 +180,10 @@ public class ReservaService implements ReservaUseCase {
 
     @Override
     @Transactional
-    public ReservaResponse rechazarReserva(Long id) {
+    public ReservaResponse rechazarReserva(Long id, String motivo) {
         Usuario currentUser = getCurrentUser();
         validarAdmin(currentUser);
-        log.info("Admin {} rejecting reservation ID: {}", currentUser.getEmail(), id);
+        log.info("Admin {} rejecting reservation ID: {} with reason: {}", currentUser.getEmail(), id, motivo);
         
         return reservaPersistencePort.findById(id)
                 .map(reserva -> {
@@ -114,10 +192,27 @@ public class ReservaService implements ReservaUseCase {
                             .orElseThrow(() -> new IllegalStateException("No se encontró el estado RECHAZADA"));
                     
                     reserva.setEstado(estadoRechazado);
-                    reserva.setMotivoRechazo("Rechazada por el administrador");
+                    reserva.setMotivoRechazo(motivo);
                     
                     Reserva updatedReserva = reservaPersistencePort.save(reserva);
-                    log.info("Reservation ID: {} rejected by admin: {}", id, currentUser.getEmail());
+                    log.info("Reservation ID: {} rejected by admin: {} with reason: {}", id, currentUser.getEmail(), motivo);
+                    
+                    // Send rejection notifications (email + real-time)
+                    try {
+                        emailService.enviarCorreoRechazoReserva(updatedReserva);
+                        log.info("Rejection email sent to user: {} for reservation ID: {}", 
+                                updatedReserva.getUsuario().getEmail(), updatedReserva.getId());
+                        
+                        // Notificación en tiempo real al usuario
+                        notificationService.notificarReservaRechazada(updatedReserva);
+                        log.info("Real-time rejection notification sent to user: {} for reservation ID: {}", 
+                                updatedReserva.getUsuario().getEmail(), updatedReserva.getId());
+                        
+                    } catch (Exception e) {
+                        log.error("Error sending rejection notifications for reservation ID: {}", updatedReserva.getId(), e);
+                        // No lanzamos excepción para no afectar el rechazo
+                    }
+                    
                     return reservaMapper.toDto(updatedReserva);
                 })
                 .orElseThrow(() -> new ReservaNotFoundException("Reserva no encontrada con ID: " + id));
@@ -145,6 +240,17 @@ public class ReservaService implements ReservaUseCase {
                     
                     Reserva updatedReserva = reservaPersistencePort.save(reserva);
                     log.info("Reservation ID: {} canceled by user: {}", id, currentUser.getEmail());
+                    
+                    // Send cancellation notification email to user
+                    try {
+                        emailService.enviarCorreoCancelacionReserva(updatedReserva);
+                        log.info("Cancellation email sent to user: {} for reservation ID: {}", 
+                                updatedReserva.getUsuario().getEmail(), updatedReserva.getId());
+                    } catch (Exception e) {
+                        log.error("Error sending cancellation email for reservation ID: {}", updatedReserva.getId(), e);
+                        // No lanzamos excepción para no afectar la cancelación
+                    }
+                    
                     return reservaMapper.toDto(updatedReserva);
                 })
                 .orElseThrow(() -> new ReservaNotFoundException("Reserva no encontrada con ID: " + id));
@@ -197,6 +303,23 @@ public class ReservaService implements ReservaUseCase {
         }
         
         return reservaPersistencePort.findByEstadoNombre(estadoNombre).stream()
+                .filter(reserva -> !reserva.getEstado().getNombre().equals("ELIMINADA"))
+                .map(reservaMapper::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> obtenerTodasLasReservas() {
+        Usuario currentUser = getCurrentUser();
+        log.debug("Admin {} fetching all reservations", currentUser.getEmail());
+        
+        // Solo los administradores pueden ver todas las reservas
+        if (!currentUser.getRol().getNombre().equals("ADMIN")) {
+            throw new AccessDeniedException("Solo los administradores pueden ver todas las reservas");
+        }
+        
+        return reservaPersistencePort.findAll().stream()
                 .filter(reserva -> !reserva.getEstado().getNombre().equals("ELIMINADA"))
                 .map(reservaMapper::toDto)
                 .collect(Collectors.toList());
@@ -458,5 +581,80 @@ public class ReservaService implements ReservaUseCase {
         }
         
         return alternativas;
+    }
+    
+    /**
+     * Rechaza automáticamente todas las reservas PENDIENTES que compiten con una reserva recién aprobada.
+     * Este método implementa la lógica de "competencia justa" donde múltiples usuarios pueden solicitar
+     * el mismo horario, pero solo una reserva puede ser aprobada.
+     */
+    private void autoRejectCompetingReservations(Reserva approvedReserva) {
+        log.info("Auto-rejecting competing reservations for escenario: {} at time: {} - {}", 
+                approvedReserva.getEscenario().getId(), 
+                approvedReserva.getFechaInicio(), 
+                approvedReserva.getFechaFin());
+        
+        try {
+            // Find all conflicting reservations that are still PENDING
+            List<Reserva> conflictingReservations = reservaPersistencePort.findConflictingReservations(
+                    approvedReserva.getEscenario().getId(),
+                    approvedReserva.getFechaInicio(),
+                    approvedReserva.getFechaFin()
+            );
+            
+            // Filter to only PENDING reservations (excluding the one we just approved)
+            List<Reserva> pendingConflicts = conflictingReservations.stream()
+                    .filter(r -> !r.getId().equals(approvedReserva.getId()))
+                    .filter(r -> "PENDIENTE".equals(r.getEstado().getNombre()))
+                    .toList();
+            
+            if (pendingConflicts.isEmpty()) {
+                log.info("No competing pending reservations found for escenario: {} at the approved time slot", 
+                        approvedReserva.getEscenario().getId());
+                return;
+            }
+            
+            // Get REJECTED state
+            EstadoReserva estadoRechazado = reservaPersistencePort.findEstadoByNombre("RECHAZADA")
+                    .orElseThrow(() -> new IllegalStateException("No se encontró el estado RECHAZADA"));
+            
+            // Auto-reject each competing reservation
+            for (Reserva competingReserva : pendingConflicts) {
+                competingReserva.setEstado(estadoRechazado);
+                competingReserva.setMotivoRechazo(String.format(
+                    "Reserva rechazada automáticamente. El horario fue asignado a otra solicitud (ID: %d) que fue aprobada primero.",
+                    approvedReserva.getId()
+                ));
+                
+                Reserva rejectedReserva = reservaPersistencePort.save(competingReserva);
+                
+                log.info("Auto-rejected competing reservation ID: {} for user: {}", 
+                        rejectedReserva.getId(), rejectedReserva.getUsuario().getEmail());
+                
+                // Send rejection notifications (email + real-time)
+                try {
+                    emailService.enviarCorreoRechazoReserva(rejectedReserva);
+                    log.info("Auto-rejection email sent to user: {} for reservation ID: {}", 
+                            rejectedReserva.getUsuario().getEmail(), rejectedReserva.getId());
+                    
+                    // Notificación en tiempo real al usuario sobre auto-rechazo
+                    notificationService.notificarReservaAutoRechazada(rejectedReserva, approvedReserva.getId());
+                    log.info("Real-time auto-rejection notification sent to user: {} for reservation ID: {}", 
+                            rejectedReserva.getUsuario().getEmail(), rejectedReserva.getId());
+                    
+                } catch (Exception e) {
+                    log.error("Error sending auto-rejection notifications for reservation ID: {}", rejectedReserva.getId(), e);
+                    // No lanzar excepción para no afectar el proceso principal
+                }
+            }
+            
+            log.info("Auto-rejected {} competing reservations for approved reservation ID: {}", 
+                    pendingConflicts.size(), approvedReserva.getId());
+            
+        } catch (Exception e) {
+            log.error("Error during auto-rejection of competing reservations for approved reservation ID: {}", 
+                    approvedReserva.getId(), e);
+            // No lanzar excepción para no afectar la aprobación principal
+        }
     }
 }

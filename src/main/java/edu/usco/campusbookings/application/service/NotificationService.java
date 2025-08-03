@@ -1,17 +1,165 @@
 package edu.usco.campusbookings.application.service;
 
-import edu.usco.campusbookings.application.dto.notification.ReservaNotification;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import edu.usco.campusbookings.application.dto.notification.ReservaNotificationDto;
+import edu.usco.campusbookings.domain.model.Reserva;
+import edu.usco.campusbookings.infrastructure.adapter.input.handler.NotificationWebSocketHandler;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
+/**
+ * Servicio para el manejo de notificaciones en tiempo real via WebSocket nativo
+ */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class NotificationService {
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    public void sendReservaNotification(ReservaNotification notification, String topic) {
-        messagingTemplate.convertAndSend(topic, notification);
+    
+    private final NotificationWebSocketHandler webSocketHandler;
+    
+    /**
+     * Envía notificación cuando una reserva es aprobada
+     */
+    public void notificarReservaAprobada(Reserva reserva) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(reserva.getId())
+                .usuarioId(reserva.getUsuario().getId())
+                .usuarioEmail(reserva.getUsuario().getEmail())
+                .escenarioNombre(reserva.getEscenario().getNombre())
+                .estadoAnterior("PENDIENTE")
+                .estadoNuevo("APROBADA")
+                .mensaje(String.format("Tu reserva para %s ha sido aprobada", reserva.getEscenario().getNombre()))
+                .fechaInicio(reserva.getFechaInicio())
+                .fechaFin(reserva.getFechaFin())
+                .timestamp(LocalDateTime.now())
+                .tipo(ReservaNotificationDto.NotificationType.RESERVA_APROBADA)
+                .build();
+        
+        enviarNotificacionPrivada(reserva.getUsuario().getId(), notification);
+        log.info("Notification sent for approved reservation ID: {} to user: {}", 
+                reserva.getId(), reserva.getUsuario().getEmail());
+    }
+    
+    /**
+     * Envía notificación cuando una reserva es rechazada
+     */
+    public void notificarReservaRechazada(Reserva reserva) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(reserva.getId())
+                .usuarioId(reserva.getUsuario().getId())
+                .usuarioEmail(reserva.getUsuario().getEmail())
+                .escenarioNombre(reserva.getEscenario().getNombre())
+                .estadoAnterior("PENDIENTE")
+                .estadoNuevo("RECHAZADA")
+                .mensaje(String.format("Tu reserva para %s ha sido rechazada", reserva.getEscenario().getNombre()))
+                .motivo(reserva.getMotivoRechazo())
+                .fechaInicio(reserva.getFechaInicio())
+                .fechaFin(reserva.getFechaFin())
+                .timestamp(LocalDateTime.now())
+                .tipo(ReservaNotificationDto.NotificationType.RESERVA_RECHAZADA)
+                .build();
+        
+        enviarNotificacionPrivada(reserva.getUsuario().getId(), notification);
+        log.info("Notification sent for rejected reservation ID: {} to user: {}", 
+                reserva.getId(), reserva.getUsuario().getEmail());
+    }
+    
+    /**
+     * Envía notificación cuando una reserva es cancelada
+     */
+    public void notificarReservaCancelada(Reserva reserva) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(reserva.getId())
+                .usuarioId(reserva.getUsuario().getId())
+                .usuarioEmail(reserva.getUsuario().getEmail())
+                .escenarioNombre(reserva.getEscenario().getNombre())
+                .estadoAnterior(reserva.getEstado().getNombre())
+                .estadoNuevo("CANCELADA")
+                .mensaje(String.format("Tu reserva para %s ha sido cancelada", reserva.getEscenario().getNombre()))
+                .fechaInicio(reserva.getFechaInicio())
+                .fechaFin(reserva.getFechaFin())
+                .timestamp(LocalDateTime.now())
+                .tipo(ReservaNotificationDto.NotificationType.RESERVA_CANCELADA)
+                .build();
+        
+        enviarNotificacionPrivada(reserva.getUsuario().getId(), notification);
+        log.info("Notification sent for cancelled reservation ID: {} to user: {}", 
+                reserva.getId(), reserva.getUsuario().getEmail());
+    }
+    
+    /**
+     * Envía notificación cuando una reserva es auto-rechazada por competencia
+     */
+    public void notificarReservaAutoRechazada(Reserva reserva, Long reservaAprobadaId) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(reserva.getId())
+                .usuarioId(reserva.getUsuario().getId())
+                .usuarioEmail(reserva.getUsuario().getEmail())
+                .escenarioNombre(reserva.getEscenario().getNombre())
+                .estadoAnterior("PENDIENTE")
+                .estadoNuevo("RECHAZADA")
+                .mensaje(String.format("Tu reserva para %s fue rechazada automáticamente", reserva.getEscenario().getNombre()))
+                .motivo(String.format("El horario fue asignado a otra solicitud (ID: %d) que fue aprobada primero", reservaAprobadaId))
+                .fechaInicio(reserva.getFechaInicio())
+                .fechaFin(reserva.getFechaFin())
+                .timestamp(LocalDateTime.now())
+                .tipo(ReservaNotificationDto.NotificationType.RESERVA_AUTO_RECHAZADA)
+                .build();
+        
+        enviarNotificacionPrivada(reserva.getUsuario().getId(), notification);
+        log.info("Auto-rejection notification sent for reservation ID: {} to user: {}", 
+                reserva.getId(), reserva.getUsuario().getEmail());
+    }
+    
+    /**
+     * Envía notificación a administradores sobre nueva reserva
+     */
+    public void notificarNuevaReservaAdmin(Reserva reserva) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(reserva.getId())
+                .usuarioId(reserva.getUsuario().getId())
+                .usuarioEmail(reserva.getUsuario().getEmail())
+                .escenarioNombre(reserva.getEscenario().getNombre())
+                .estadoAnterior(null)
+                .estadoNuevo("PENDIENTE")
+                .mensaje(String.format("Nueva reserva pendiente de %s para %s", 
+                        reserva.getUsuario().getNombre() + " " + reserva.getUsuario().getApellido(),
+                        reserva.getEscenario().getNombre()))
+                .fechaInicio(reserva.getFechaInicio())
+                .fechaFin(reserva.getFechaFin())
+                .timestamp(LocalDateTime.now())
+                .tipo(ReservaNotificationDto.NotificationType.NUEVA_RESERVA_ADMIN)
+                .build();
+        
+        // Enviar a canal de administradores
+        enviarNotificacionAdmin(notification);
+        log.info("Admin notification sent for new reservation ID: {} from user: {}", 
+                reserva.getId(), reserva.getUsuario().getEmail());
+    }
+    
+    /**
+     * Envía notificación privada a un usuario específico
+     */
+    private void enviarNotificacionPrivada(Long usuarioId, ReservaNotificationDto notification) {
+        try {
+            webSocketHandler.sendNotificationToUser(usuarioId, notification);
+            log.info("✅ Native WebSocket notification sent to user {}", usuarioId);
+        } catch (Exception e) {
+            log.error("❌ Error sending private notification to user {}: {}", usuarioId, e.getMessage());
+        }
+    }
+    
+    /**
+     * Envía notificación a canal de administradores
+     */
+    private void enviarNotificacionAdmin(ReservaNotificationDto notification) {
+        try {
+            webSocketHandler.sendNotificationToAllAdmins(notification);
+            log.info("✅ Native WebSocket notification sent to all admins");
+        } catch (Exception e) {
+            log.error("❌ Error sending admin notification: {}", e.getMessage());
+        }
     }
 }

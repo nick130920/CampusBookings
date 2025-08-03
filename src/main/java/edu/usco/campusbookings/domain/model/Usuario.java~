@@ -1,4 +1,4 @@
-package edu.usco.campusbookings.domain.models;
+package edu.usco.campusbookings.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,18 +11,19 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Feedback extends Auditable {
+public class Usuario extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Usuario usuario;
+    private String nombre;
+    private String email;
+    private String password;
 
     @ManyToOne
-    private Escenario escenario;
+    private Rol rol;
 
-    private String comentario;
-    private int calificacion;
+    @OneToMany(mappedBy = "usuario")
+    private List<Reserva> reservas;
 }

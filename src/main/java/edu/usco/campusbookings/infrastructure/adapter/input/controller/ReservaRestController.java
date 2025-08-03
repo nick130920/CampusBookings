@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.usco.campusbookings.application.dto.request.RechazarReservaRequest;
 import edu.usco.campusbookings.application.dto.request.ReporteReservasRequest;
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
 import edu.usco.campusbookings.application.dto.request.VerificarDisponibilidadRequest;
@@ -53,11 +54,12 @@ public class ReservaRestController {
 
     @PutMapping("/{id}/rechazar")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Rechazar una reserva")
+    @Operation(summary = "Rechazar una reserva con motivo específico")
     public ResponseEntity<ReservaResponse> rechazarReserva(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @Valid @RequestBody RechazarReservaRequest request
     ) {
-        return ResponseEntity.ok(reservaUseCase.rechazarReserva(id));
+        return ResponseEntity.ok(reservaUseCase.rechazarReserva(id, request.getMotivo()));
     }
 
     @PutMapping("/{id}/cancelar")
@@ -99,6 +101,13 @@ public class ReservaRestController {
             @PathVariable String nombre
     ) {
         return ResponseEntity.ok(reservaUseCase.obtenerReservasPorEstado(nombre));
+    }
+
+    @GetMapping("/admin/todas")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Obtener todas las reservas (solo administradores)")
+    public ResponseEntity<List<ReservaResponse>> obtenerTodasLasReservas() {
+        return ResponseEntity.ok(reservaUseCase.obtenerTodasLasReservas());
     }
 
     @PostMapping("/verificar-disponibilidad")

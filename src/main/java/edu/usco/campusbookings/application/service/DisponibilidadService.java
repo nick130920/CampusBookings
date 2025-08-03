@@ -51,13 +51,14 @@ public class DisponibilidadService implements DisponibilidadUseCase {
             return List.of();
         }
 
-        // Verificar disponibilidad de cada escenario
+        // Verificar disponibilidad de cada escenario (solo considerar reservas APROBADAS)
         return escenarios.stream()
                 .map(escenario -> {
-                    boolean disponible = !reservaPersistencePort.existsByEscenarioIdAndFechaInicioBetween(
+                    boolean disponible = !reservaPersistencePort.existsByEscenarioIdAndFechaInicioBetweenAndEstadoNombre(
                             escenario.getId(),
                             request.getFechaInicio(),
-                            request.getFechaFin()
+                            request.getFechaFin(),
+                            "APROBADA"
                     );
 
                     return EscenarioDisponibilidadResponse.builder()

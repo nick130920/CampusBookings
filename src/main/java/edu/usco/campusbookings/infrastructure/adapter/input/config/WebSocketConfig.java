@@ -1,26 +1,23 @@
 package edu.usco.campusbookings.infrastructure.adapter.input.config;
 
+import edu.usco.campusbookings.infrastructure.adapter.input.handler.NotificationWebSocketHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+
+    @Autowired
+    private NotificationWebSocketHandler notificationWebSocketHandler;
 
     @Override
-    public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
-                .setAllowedOrigins("*")
-                .withSockJS();
-    }
-
-    @Override
-    public void configureMessageBroker(@NonNull MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/queue");
+    public void registerWebSocketHandlers(@NonNull WebSocketHandlerRegistry registry) {
+        registry.addHandler(notificationWebSocketHandler, "/ws/notifications")
+                .setAllowedOrigins("*");
     }
 }

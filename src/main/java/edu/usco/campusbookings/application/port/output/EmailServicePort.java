@@ -9,11 +9,25 @@ import edu.usco.campusbookings.domain.model.Reserva;
 public interface EmailServicePort {
 
     /**
+     * Envía un correo de confirmación cuando una reserva es creada (estado PENDIENTE).
+     *
+     * @param reserva la nueva reserva pendiente
+     */
+    void enviarCorreoConfirmacionReserva(Reserva reserva);
+
+    /**
      * Envía un correo de confirmación cuando una reserva es aprobada.
      *
      * @param reserva la reserva aprobada
      */
-    void enviarCorreoConfirmacionReserva(Reserva reserva);
+    void enviarCorreoAprobacionReserva(Reserva reserva);
+
+    /**
+     * Envía un correo al administrador notificando una nueva reserva pendiente.
+     *
+     * @param reserva la nueva reserva pendiente
+     */
+    void enviarCorreoNuevaReservaAdmin(Reserva reserva);
 
     /**
      * Envía un correo de notificación cuando una reserva es rechazada.

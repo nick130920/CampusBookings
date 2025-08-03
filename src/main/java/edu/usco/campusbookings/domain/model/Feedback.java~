@@ -1,10 +1,8 @@
-package edu.usco.campusbookings.domain.models;
+package edu.usco.campusbookings.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -13,19 +11,18 @@ import java.util.List;
 @Builder
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Usuario extends Auditable {
+public class Feedback extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String nombre;
-    private String email;
-    private String password;
+    
+    @ManyToOne
+    private Usuario usuario;
 
     @ManyToOne
-    private Rol rol;
+    private Escenario escenario;
 
-    @OneToMany(mappedBy = "usuario")
-    private List<Reserva> reservas;
+    private String comentario;
+    private int calificacion;
 }

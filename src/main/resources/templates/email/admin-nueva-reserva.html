@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Reserva Pendiente - CampusBookings USCO</title>
+    <style>
+        /* Reset y base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333333;
+            line-height: 1.6;
+        }
+        
+        /* Contenedor principal */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Header con branding USCO */
+        .email-header {
+            background: linear-gradient(135deg, #0c5460 0%, #17a2b8 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .usco-logo {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .usco-subtitle {
+            color: #DFD4A6;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Contenido del email */
+        .email-content {
+            padding: 40px 30px;
+        }
+        
+        .email-title {
+            color: #0c5460;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .admin-badge {
+            background: linear-gradient(135deg, #ffc107 0%, #f39c12 100%);
+            color: #856404;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .greeting strong {
+            color: #0c5460;
+        }
+        
+        /* Tarjeta de información de la reserva */
+        .reserva-card {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left: 4px solid #0c5460;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        
+        .usuario-card {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .reserva-info {
+            display: table;
+            width: 100%;
+        }
+        
+        .info-row {
+            display: table-row;
+        }
+        
+        .info-label {
+            display: table-cell;
+            font-weight: bold;
+            color: #0a4149;
+            padding: 8px 15px 8px 0;
+            width: 35%;
+            vertical-align: top;
+        }
+        
+        .info-value {
+            display: table-cell;
+            padding: 8px 0;
+            color: #333333;
+            vertical-align: top;
+        }
+        
+        /* Estados de reserva */
+        .estado-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .estado-pendiente {
+            background-color: #ffc107;
+            color: #856404;
+            box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Botones de acción */
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-approve {
+            background-color: #28a745;
+            color: #ffffff;
+        }
+        
+        .btn-approve:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-reject {
+            background-color: #dc3545;
+            color: #ffffff;
+        }
+        
+        .btn-reject:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-dashboard {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        
+        .btn-dashboard:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        /* Alertas y mensajes especiales */
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        
+        .urgency-banner {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+            to { box-shadow: 0 0 20px rgba(255, 107, 107, 0.8); }
+        }
+        
+        /* Footer */
+        .email-footer {
+            background-color: #4D626C;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .footer-links {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: #DFD4A6;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-copyright {
+            color: #839198;
+            font-size: 11px;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            .email-content {
+                padding: 20px 15px !important;
+            }
+            
+            .email-header {
+                padding: 20px 15px !important;
+            }
+            
+            .reserva-card {
+                padding: 15px !important;
+                margin: 15px 0 !important;
+            }
+            
+            .info-label, .info-value {
+                display: block !important;
+                width: 100% !important;
+                padding: 5px 0 !important;
+            }
+            
+            .info-label {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            
+            .btn {
+                display: block !important;
+                margin: 10px 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="usco-logo">CampusBookings</div>
+            <div class="usco-subtitle">Universidad Surcolombiana</div>
+        </div>
+        
+        <!-- Contenido del email -->
+        <div class="email-content">
+            <div class="admin-badge">🔑 PANEL ADMINISTRATIVO</div>
+            
+            <h1 class="email-title">🔔 Nueva Reserva Pendiente</h1>
+            
+            <div class="urgency-banner">
+                ⚡ <strong>ACCIÓN REQUERIDA</strong> ⚡<br>
+                Una nueva reserva está esperando tu aprobación
+            </div>
+            
+            <div class="greeting">
+                ¡Hola <strong>Administrador</strong>!
+            </div>
+            
+            <p>Se ha recibido una nueva solicitud de reserva que requiere tu <strong style="color: #0c5460;">revisión y aprobación</strong>.</p>
+            
+            <!-- Información del usuario -->
+            <div class="usuario-card">
+                <h3 style="color: #856404; margin-bottom: 15px;">👤 Información del Solicitante</h3>
+                
+                <div class="reserva-info">
+                    <div class="info-row">
+                        <div class="info-label">👤 Nombre Completo:</div>
+                        <div class="info-value"><strong th:text="${nombreUsuario + ' ' + apellidoUsuario}">Juan Pérez</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📧 Email:</div>
+                        <div class="info-value" th:text="${emailUsuario}">juan.perez@usco.edu.co</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📅 Fecha de Solicitud:</div>
+                        <div class="info-value" th:text="${#temporals.format(fechaCreacion, 'dd/MM/yyyy HH:mm')}">02/08/2025 20:30</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información de la reserva -->
+            <div class="reserva-card">
+                <h3 style="color: #0c5460; margin-bottom: 15px;">📋 Detalles de la Solicitud de Reserva</h3>
+                
+                <div class="reserva-info">
+                    <div class="info-row">
+                        <div class="info-label">🆔 ID de Reserva:</div>
+                        <div class="info-value"><strong th:text="${reservaId}">#12345</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🏢 Escenario Solicitado:</div>
+                        <div class="info-value"><strong th:text="${escenarioNombre}">Aula Magna</strong></div>
+                    </div>
+                    <div class="info-row" th:if="${escenarioTipo}">
+                        <div class="info-label">📝 Tipo de Escenario:</div>
+                        <div class="info-value" th:text="${escenarioTipo}">Auditorio</div>
+                    </div>
+                    <div class="info-row" th:if="${escenarioUbicacion}">
+                        <div class="info-label">📍 Ubicación:</div>
+                        <div class="info-value" th:text="${escenarioUbicacion}">Edificio Principal</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📅 Fecha Solicitada:</div>
+                        <div class="info-value"><strong th:text="${fechaReserva}">15 de marzo de 2025</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🕒 Horario Solicitado:</div>
+                        <div class="info-value">
+                            <strong><span th:text="${horaInicio}">14:00</span> - <span th:text="${horaFin}">16:00</span></strong>
+                        </div>
+                    </div>
+                    <div class="info-row" th:if="${observaciones}">
+                        <div class="info-label">💬 Observaciones del Usuario:</div>
+                        <div class="info-value" th:text="${observaciones}">Evento académico para estudiantes de ingeniería</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📊 Estado Actual:</div>
+                        <div class="info-value">
+                            <span class="estado-badge estado-pendiente">⏳ PENDIENTE DE APROBACIÓN</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botones de acción rápida -->
+            <div class="action-buttons">
+                <h3 style="color: #0c5460; margin-bottom: 20px;">⚡ Acciones Rápidas</h3>
+                
+                <a href="http://localhost:4200/dashboard/reservas" class="btn btn-dashboard">
+                    🏠 Ir al Dashboard
+                </a>
+                
+                <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                    Accede al panel administrativo para revisar todos los detalles y tomar una decisión informada.
+                </p>
+            </div>
+            
+            <!-- Información importante para el admin -->
+            <div class="alert alert-warning">
+                <strong>⚠️ Recordatorio para Administradores:</strong><br>
+                • <strong>Revisar disponibilidad:</strong> Verificar que el escenario esté libre<br>
+                • <strong>Validar propósito:</strong> Confirmar que es para uso académico/institucional<br>
+                • <strong>Tiempo de respuesta:</strong> Responder en máximo 48 horas<br>
+                • <strong>Motivo de rechazo:</strong> Si rechazas, incluir razón específica<br>
+                • <strong>Notificación automática:</strong> El usuario será notificado de tu decisión
+            </div>
+            
+            <p style="margin-top: 25px;">
+                <strong>Accede al panel administrativo para revisar la solicitud completa y tomar una decisión.</strong>
+            </p>
+            
+            <p style="margin-top: 15px; color: #666; font-size: 14px;">
+                <strong>Sistema de Notificaciones Automáticas</strong><br>
+                Este email se envía automáticamente cuando se crea una nueva reserva.<br>
+                Equipo Técnico - CampusBookings USCO
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <div class="footer-links">
+                <a href="https://www.usco.edu.co/">USCO</a>
+                <a href="mailto:namc1309@gmail.com">Soporte Técnico</a>
+                <a href="http://localhost:4200/dashboard">Panel Admin</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 Universidad Surcolombiana - CampusBookings<br>
+                Sistema de Gestión de Reservas de Escenarios
+            </div>
+        </div>
+    </div>
+</body>
+</html>
