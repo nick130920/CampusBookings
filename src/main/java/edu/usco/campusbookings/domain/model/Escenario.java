@@ -20,12 +20,19 @@ public class Escenario extends Auditable {
     private Long id;
 
     private String nombre;
-    private String tipo;
-    private String ubicacion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipo_escenario_id", nullable = false)
+    private TipoEscenario tipo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ubicacion_id", nullable = false)
+    private Ubicacion ubicacion;
     private Integer capacidad;
     private String descripcion;
     private String recursos;
     private String imagenUrl;
+    @Builder.Default
+    private Boolean disponible = true;
 
     @OneToMany(mappedBy = "escenario")
     private List<HorarioDisponible> horariosDisponibles;

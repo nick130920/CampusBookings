@@ -1,9 +1,8 @@
 package edu.usco.campusbookings.infrastructure.adapter.output.persistence;
 
-import edu.usco.campusbookings.application.dto.response.DetalleEscenarioResponse;
 import edu.usco.campusbookings.application.port.output.EscenarioRepositoryPort;
 import edu.usco.campusbookings.domain.model.Escenario;
-import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jparepository.SpringDataEscenarioRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataEscenarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -43,17 +42,5 @@ public class EscenarioRepository implements EscenarioRepositoryPort {
     @Override
     public void deleteById(Long id) {
         springDataEscenarioRepository.deleteById(id);
-    }
-
-    @Override
-    public List<Escenario> findByTipoOrNombreOrUbicacion(String tipo, String nombre, String ubicacion) {
-        return springDataEscenarioRepository.findByTipoOrNombreOrUbicacion(tipo, nombre, ubicacion);
-    }
-
-    @Override
-    public List<Escenario> findByNombreContainingOrUbicacionContainingOrTipoContaining(
-            String nombre, String ubicacion, String tipo) {
-        return springDataEscenarioRepository.findByNombreContainingOrUbicacionContainingOrTipoContaining(
-                nombre, ubicacion, tipo);
     }
 }

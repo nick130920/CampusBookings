@@ -2,7 +2,7 @@ package edu.usco.campusbookings.infrastructure.adapter.output.persistence;
 
 import edu.usco.campusbookings.application.port.output.UsuarioRepositoryPort;
 import edu.usco.campusbookings.domain.model.Usuario;
-import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jparepository.SpringDataUsuarioRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package edu.usco.campusbookings.infrastructure.adapter.output.persistence.jparepository;
+package edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa;
 
 import java.time.LocalDateTime;
 import java.util.List;

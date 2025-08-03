@@ -1,0 +1,235 @@
+/**
+ * Colores Oficiales Universidad Surcolombiana (USCO)
+ * Basado en: https://www.usco.edu.co/imagen-institucional/
+ */
+
+:root {
+  /* === COLORES PRINCIPALES USCO === */
+  
+  /* Vino Tinto - Color principal */
+  --usco-vino-tinto: #8F141B;
+  --usco-vino-tinto-light: #B15B60;
+  --usco-vino-tinto-lighter: #E3C5C6;
+  --usco-vino-tinto-lightest: #DDB8BA;
+  --usco-vino-tinto-pale: #F4E7E8;
+  --usco-vino-tinto-dark: #5C0E12;
+  
+  /* Gris */
+  --usco-gris: #4D626C;
+  --usco-gris-light: #839198;
+  --usco-gris-lighter: #A6B1B6;
+  --usco-gris-lightest: #DBE0E2;
+  --usco-gris-pale: #EDEFF0;
+  --usco-gris-dark: #1E262B;
+  
+  /* Ocre */
+  --usco-ocre: #DFD4A6;
+  --usco-ocre-light: #E5DDB8;
+  --usco-ocre-lighter: #EFEAD3;
+  --usco-ocre-lightest: #F5F2E4;
+  --usco-ocre-pale: #F9F6ED;
+  --usco-ocre-dark: #C7B363;
+  
+  /* === COLORES POR FACULTADES === */
+  --usco-juridicas: #7C0B69;
+  --usco-exactas: #9DC107;
+  --usco-sociales: #CE932C;
+  --usco-economia: #003561;
+  --usco-educacion: #AD142E;
+  --usco-ingenieria: #7D9C10;
+  --usco-salud: #00A4B7;
+  
+  /* === ALIASES PARA USO COMÚN === */
+  --primary-color: var(--usco-vino-tinto);
+  --primary-light: var(--usco-vino-tinto-light);
+  --primary-dark: var(--usco-vino-tinto-dark);
+  
+  --secondary-color: var(--usco-gris);
+  --secondary-light: var(--usco-gris-light);
+  --secondary-dark: var(--usco-gris-dark);
+  
+  --accent-color: var(--usco-ocre);
+  --accent-light: var(--usco-ocre-light);
+  --accent-dark: var(--usco-ocre-dark);
+  
+  /* === COLORES FUNCIONALES === */
+  --background-color: var(--usco-gris-pale);
+  --text-color: var(--usco-gris-dark);
+  --text-muted: var(--usco-gris);
+  --border-color: var(--usco-gris-lighter);
+  
+  /* Estados */
+  --success-color: var(--usco-exactas);
+  --warning-color: var(--usco-ocre);
+  --danger-color: var(--usco-vino-tinto);
+  --info-color: var(--usco-salud);
+}
+
+/* === CLASES UTILITARIAS === */
+
+/* Backgrounds */
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-primary-light { background-color: var(--primary-light) !important; }
+.bg-primary-dark { background-color: var(--primary-dark) !important; }
+
+.bg-secondary { background-color: var(--secondary-color) !important; }
+.bg-secondary-light { background-color: var(--secondary-light) !important; }
+.bg-secondary-dark { background-color: var(--secondary-dark) !important; }
+
+.bg-accent { background-color: var(--accent-color) !important; }
+.bg-accent-light { background-color: var(--accent-light) !important; }
+.bg-accent-dark { background-color: var(--accent-dark) !important; }
+
+/* Text Colors */
+.text-primary { color: var(--primary-color) !important; }
+.text-primary-light { color: var(--primary-light) !important; }
+.text-primary-dark { color: var(--primary-dark) !important; }
+
+.text-secondary { color: var(--secondary-color) !important; }
+.text-secondary-light { color: var(--secondary-light) !important; }
+.text-secondary-dark { color: var(--secondary-dark) !important; }
+
+.text-accent { color: var(--accent-color) !important; }
+.text-accent-light { color: var(--accent-light) !important; }
+.text-accent-dark { color: var(--accent-dark) !important; }
+
+/* Borders */
+.border-primary { border-color: var(--primary-color) !important; }
+.border-secondary { border-color: var(--secondary-color) !important; }
+.border-accent { border-color: var(--accent-color) !important; }
+
+/* === COMPONENTES ESPECÍFICOS === */
+
+/* Botones */
+.btn-usco-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.btn-usco-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-usco-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-usco-secondary:hover {
+  background-color: var(--secondary-dark);
+  border-color: var(--secondary-dark);
+}
+
+.btn-usco-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-color: transparent;
+}
+
+.btn-usco-outline-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+/* Cards */
+.card-usco {
+  border: 1px solid var(--border-color);
+  background-color: white;
+}
+
+.card-usco .card-header {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom: 1px solid var(--primary-dark);
+}
+
+/* Navbar */
+.navbar-usco {
+  background-color: var(--primary-color);
+}
+
+.navbar-usco .navbar-brand,
+.navbar-usco .nav-link {
+  color: white !important;
+}
+
+.navbar-usco .nav-link:hover {
+  color: var(--usco-ocre-light) !important;
+}
+
+/* Forms */
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(143, 20, 27, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Alerts */
+.alert-usco-primary {
+  color: var(--primary-dark);
+  background-color: var(--usco-vino-tinto-pale);
+  border-color: var(--primary-light);
+}
+
+.alert-usco-secondary {
+  color: var(--secondary-dark);
+  background-color: var(--usco-gris-pale);
+  border-color: var(--secondary-light);
+}
+
+/* Progress bars */
+.progress-bar-usco {
+  background-color: var(--primary-color);
+}
+
+/* Table */
+.table-usco {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: var(--usco-gris-pale);
+  --bs-table-hover-bg: var(--usco-vino-tinto-pale);
+}
+
+.table-usco thead th {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-dark);
+}
+
+/* === FONDOS POR FACULTAD === */
+.bg-facultad-juridicas { background-color: var(--usco-juridicas) !important; }
+.bg-facultad-exactas { background-color: var(--usco-exactas) !important; }
+.bg-facultad-sociales { background-color: var(--usco-sociales) !important; }
+.bg-facultad-economia { background-color: var(--usco-economia) !important; }
+.bg-facultad-educacion { background-color: var(--usco-educacion) !important; }
+.bg-facultad-ingenieria { background-color: var(--usco-ingenieria) !important; }
+.bg-facultad-salud { background-color: var(--usco-salud) !important; }
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .navbar-usco {
+    background-color: var(--primary-dark);
+  }
+}
+
+/* === ANIMACIONES === */
+.btn-usco-primary,
+.btn-usco-secondary,
+.btn-usco-outline-primary {
+  transition: all 0.3s ease;
+}
+
+.card-usco {
+  transition: box-shadow 0.3s ease;
+}
+
+.card-usco:hover {
+  box-shadow: 0 4px 8px rgba(143, 20, 27, 0.1);
+}

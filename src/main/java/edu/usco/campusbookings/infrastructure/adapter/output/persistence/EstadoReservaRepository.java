@@ -4,10 +4,8 @@ import edu.usco.campusbookings.application.port.output.EstadoReservaRepositoryPo
 import edu.usco.campusbookings.domain.model.EstadoReserva;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.EstadoReservaJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;

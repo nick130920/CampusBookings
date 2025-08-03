@@ -2,8 +2,10 @@ package edu.usco.campusbookings.application.port.input;
 
 import edu.usco.campusbookings.application.dto.request.RolRequest;
 import edu.usco.campusbookings.application.dto.response.RolResponse;
+import edu.usco.campusbookings.domain.model.Rol;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RolUseCase {
 
@@ -54,7 +56,15 @@ public interface RolUseCase {
          *
          * @param id an id
      */
-	void deleteById(Long id);
+	    void deleteById(Long id);
+
+    /**
+     * Find a rol by nombre.
+     *
+     * @param nombre the rol nombre
+     * @return the found rol if exists, empty optional otherwise
+     */
+    Optional<Rol> findByNombre(String nombre);
 
 
 

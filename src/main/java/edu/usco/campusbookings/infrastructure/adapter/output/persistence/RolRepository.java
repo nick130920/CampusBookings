@@ -2,7 +2,7 @@ package edu.usco.campusbookings.infrastructure.adapter.output.persistence;
 
 import edu.usco.campusbookings.application.port.output.RolRepositoryPort;
 import edu.usco.campusbookings.domain.model.Rol;
-import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jparepository.SpringDataRolRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataRolRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -76,6 +76,17 @@ public class RolRepository implements RolRepositoryPort {
 	@Override
 	public void deleteById(Long id) {
 		springDataRolRepository.deleteById(id);
+	}
+
+	/**
+	 * Returns a Rol by its nombre if the Rol exists in the repository.
+	 *
+	 * @param nombre the nombre of the Rol to be found
+	 * @return an optional containing the Rol if found, empty otherwise
+	 */
+	@Override
+	public Optional<Rol> findByNombre(String nombre) {
+		return springDataRolRepository.findByNombre(nombre);
 	}
 
 }

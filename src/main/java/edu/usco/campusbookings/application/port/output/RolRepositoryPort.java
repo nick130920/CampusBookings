@@ -44,4 +44,12 @@ public interface RolRepositoryPort {
 	 * @param id the id of the Rol
 	 */
 	void deleteById(Long id);
+	
+	/**
+	 * Find a Rol by nombre.
+	 *
+	 * @param nombre the nombre of the Rol
+	 * @return the Rol if found, optional empty if not found
+	 */
+	Optional<Rol> findByNombre(String nombre);
 }

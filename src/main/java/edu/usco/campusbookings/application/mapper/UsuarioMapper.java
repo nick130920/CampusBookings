@@ -4,8 +4,7 @@ import edu.usco.campusbookings.application.dto.request.UsuarioRequest;
 import edu.usco.campusbookings.application.dto.response.UsuarioResponse;
 import edu.usco.campusbookings.domain.model.Usuario;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+
 
 /**
  * Mapper interface for converting between Usuario entities and DTOs.

@@ -4,14 +4,13 @@ import edu.usco.campusbookings.application.dto.request.ReporteReservasRequest;
 import edu.usco.campusbookings.application.dto.response.ReporteReservasResponse;
 import edu.usco.campusbookings.application.port.input.ReporteReservasUseCase;
 import edu.usco.campusbookings.application.port.output.EscenarioRepositoryPort;
-import edu.usco.campusbookings.application.port.output.ReservaRepositoryPort;
+import edu.usco.campusbookings.application.port.output.ReservaPersistencePort;
 import edu.usco.campusbookings.domain.model.Escenario;
 import edu.usco.campusbookings.domain.model.Reserva;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,14 +20,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReporteReservasService implements ReporteReservasUseCase {
 
-    private final ReservaRepositoryPort reservaRepositoryPort;
+    private final ReservaPersistencePort reservaPersistencePort;
     private final EscenarioRepositoryPort escenarioRepositoryPort;
 
     @Override
     @Transactional(readOnly = true)
     public List<ReporteReservasResponse> generarReporte(ReporteReservasRequest request) {
         // Obtener todas las reservas en el rango de fechas
-        List<Reserva> reservas = reservaRepositoryPort.findAll();
+        List<Reserva> reservas = reservaPersistencePort.findAll();
         
         if (reservas.isEmpty()) {
             return new ArrayList<>();
@@ -38,15 +37,17 @@ public class ReporteReservasService implements ReporteReservasUseCase {
         reservas = reservas.stream()
                 .filter(r -> r.getFechaInicio().isAfter(request.getFechaInicio())
                         && r.getFechaFin().isBefore(request.getFechaFin()))
-                .collect(Collectors.toList());
+                .toList();
 
         // Filtrar por tipo si se especifica
         if (request.getTipo() != null) {
             List<Escenario> escenarios = escenarioRepositoryPort.findAll();
             List<Long> escenarioIds = escenarios.stream()
-                    .filter(e -> e.getTipo().equalsIgnoreCase(request.getTipo()))
+                    .filter(e -> e.getTipo() != null && 
+                              e.getTipo().getNombre() != null &&
+                              e.getTipo().getNombre().equalsIgnoreCase(request.getTipo()))
                     .map(Escenario::getId)
-                    .collect(Collectors.toList());
+                    .toList();
 
             reservas = reservas.stream()
                     .filter(r -> escenarioIds.contains(r.getEscenario().getId()))
@@ -75,8 +76,8 @@ public class ReporteReservasService implements ReporteReservasUseCase {
             ReporteReservasResponse response = ReporteReservasResponse.builder()
                     .escenarioId(escenarioId)
                     .escenarioNombre(escenario.getNombre())
-                    .tipo(escenario.getTipo())
-                    .estado(reservasEscenario.get(0).getEstado().getNombre())
+                    .tipo(escenario.getTipo() != null ? escenario.getTipo().getNombre() : null)
+                    .estado(reservasEscenario.getFirst().getEstado().getNombre())
                     .fechaInicio(request.getFechaInicio())
                     .fechaFin(request.getFechaFin())
                     .cantidadReservas(reservasEscenario.size())

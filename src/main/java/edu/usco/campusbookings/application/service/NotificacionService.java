@@ -1,7 +1,7 @@
 package edu.usco.campusbookings.application.service;
 
 import edu.usco.campusbookings.application.port.output.EmailServicePort;
-import edu.usco.campusbookings.domain.model.EstadoReserva;
+
 import edu.usco.campusbookings.domain.model.Reserva;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

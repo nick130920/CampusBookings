@@ -1,6 +1,5 @@
-package edu.usco.campusbookings.infrastructure.adapter.output.persistence.jparepository;
+package edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa;
 
-import edu.usco.campusbookings.domain.model.Rol;
 import edu.usco.campusbookings.domain.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

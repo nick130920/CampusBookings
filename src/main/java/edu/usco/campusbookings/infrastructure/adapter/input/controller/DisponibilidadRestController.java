@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.usco.campusbookings.application.dto.request.DisponibilidadRequest;
-import edu.usco.campusbookings.application.dto.response.DisponibilidadResponse;
+import edu.usco.campusbookings.application.dto.response.EscenarioDisponibilidadResponse;
 import edu.usco.campusbookings.application.port.input.DisponibilidadUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +28,7 @@ public class DisponibilidadRestController {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     @Operation(summary = "Consultar disponibilidad de escenarios")
-    public ResponseEntity<List<DisponibilidadResponse>> consultarDisponibilidad(
+    public ResponseEntity<List<EscenarioDisponibilidadResponse>> consultarDisponibilidad(
             @Valid @RequestBody DisponibilidadRequest request
     ) {
         return ResponseEntity.ok(disponibilidadUseCase.consultarDisponibilidad(request));

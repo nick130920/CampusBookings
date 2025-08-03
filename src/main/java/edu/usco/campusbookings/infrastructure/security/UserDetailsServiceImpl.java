@@ -22,10 +22,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Usuario usuario = usuarioService.findByEmail(email);
         
+        // Determinar el rol del usuario
+        String roleName = "ROLE_USER"; // Por defecto
+        if (usuario.getRol() != null) {
+            String userRol = usuario.getRol().getNombre();
+            if ("ADMIN".equals(userRol)) {
+                roleName = "ROLE_ADMIN";
+            } else if ("USUARIO".equals(userRol)) {
+                roleName = "ROLE_USER";
+            }
+        }
+        
         return new User(
             usuario.getEmail(),
             usuario.getPassword(),
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+            Collections.singletonList(new SimpleGrantedAuthority(roleName))
         );
     }
 } 

@@ -28,12 +28,14 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * <p>Endpoints:</p>
  * <ul>
- *   <li>GET /api/escenario/{id}: Retrieve an Escenario by its ID.</li>
- *   <li>GET /api/escenario: Retrieve all Escenario entities.</li>
- *   <li>POST /api/escenario: Create a new Escenario.</li>
- *   <li>POST /api/escenario/bulk: Create multiple Escenario entities in bulk.</li>
- *   <li>PUT /api/escenario/{id}: Update an existing Escenario by its ID.</li>
- *   <li>DELETE /api/escenario/{id}: Delete an Escenario by its ID.</li>
+ *   <li>GET /api/escenarios/tipos: Retrieve all unique scenario types.</li>
+ *   <li>GET /api/escenarios/ubicaciones: Retrieve all unique locations.</li>
+ *   <li>GET /api/escenarios/{id}: Retrieve an Escenario by its ID.</li>
+ *   <li>GET /api/escenarios: Retrieve all Escenario entities.</li>
+ *   <li>POST /api/escenarios: Create a new Escenario.</li>
+ *   <li>POST /api/escenarios/bulk: Create multiple Escenario entities in bulk.</li>
+ *   <li>PUT /api/escenarios/{id}: Update an existing Escenario by its ID.</li>
+ *   <li>DELETE /api/escenarios/{id}: Delete an Escenario by its ID.</li>
  * </ul>
  * 
  * <p>Dependencies:</p>
@@ -50,13 +52,37 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  */
 @RestController
-@RequestMapping("/api/v1/escenario")
+@RequestMapping("/api/v1/escenarios")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Escenario", description = "Operaciones relacionadas con la gestión de escenarios")
 public class EscenarioRestController {
 
     private final EscenarioUseCase escenarioUseCase;
+    
+    /**
+     * Retrieves all unique scenario types.
+     * 
+     * @return the list of unique scenario types
+     */
+    @GetMapping("/tipos")
+    @Operation(summary = "Get all scenario types", 
+               description = "Retrieves a list of all unique scenario types")
+    public ResponseEntity<List<String>> getAllTiposEscenario() {
+        return ResponseEntity.ok(escenarioUseCase.getTiposEscenario());
+    }
+    
+    /**
+     * Retrieves all unique locations.
+     * 
+     * @return the list of unique locations
+     */
+    @GetMapping("/ubicaciones")
+    @Operation(summary = "Get all locations", 
+               description = "Retrieves a list of all unique locations")
+    public ResponseEntity<List<String>> getAllUbicaciones() {
+        return ResponseEntity.ok(escenarioUseCase.getUbicaciones());
+    }
 
     /**
      * Retrieves a Escenario by its ID.
@@ -80,6 +106,7 @@ public class EscenarioRestController {
     public ResponseEntity<List<EscenarioResponse>> getAllEscenarios() {
         return ResponseEntity.ok(escenarioUseCase.findAll());
     }
+
 
     /**
      * Creates a new Escenario.
@@ -128,9 +155,12 @@ public class EscenarioRestController {
      * @return 204 No Content response
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a Escenario", description = "Deletes a Escenario entity by its unique ID")
     public ResponseEntity<Void> deleteEscenario(@PathVariable Long id) {
         escenarioUseCase.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+
 }

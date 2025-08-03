@@ -1,7 +1,5 @@
 package edu.usco.campusbookings.application.service;
 
-import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +12,15 @@ import edu.usco.campusbookings.application.exception.EscenarioNotFoundException;
 import edu.usco.campusbookings.application.mapper.EscenarioMapper;
 import edu.usco.campusbookings.application.port.input.EscenarioUseCase;
 import edu.usco.campusbookings.application.port.output.EscenarioRepositoryPort;
+import edu.usco.campusbookings.application.port.output.TipoEscenarioRepositoryPort;
+import edu.usco.campusbookings.application.port.output.UbicacionRepositoryPort;
 import edu.usco.campusbookings.domain.model.Escenario;
+import edu.usco.campusbookings.domain.model.TipoEscenario;
+import edu.usco.campusbookings.domain.model.Ubicacion;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service implementation for managing escenarios.
@@ -25,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class EscenarioService implements EscenarioUseCase {
 
     private final EscenarioRepositoryPort escenarioRepositoryPort;
+    private final TipoEscenarioRepositoryPort tipoEscenarioRepositoryPort;
+    private final UbicacionRepositoryPort ubicacionRepositoryPort;
     private final EscenarioMapper escenarioMapper;
 
     /**
@@ -38,13 +45,35 @@ public class EscenarioService implements EscenarioUseCase {
     @Transactional
     public EscenarioResponse createEscenario(EscenarioRequest escenarioRequest) {
         if (escenarioRequest == null) {
-            throw new IllegalArgumentException("EscenarioRequest cannot be null");
+            throw new IllegalArgumentException("El escenario no puede ser nulo");
         }
 
-        Escenario escenario = escenarioMapper.toEntity(escenarioRequest);
-        escenario = escenarioRepositoryPort.save(escenario);
+        // Find or create tipo
+        TipoEscenario tipo = tipoEscenarioRepositoryPort.findByNombre(escenarioRequest.getTipo())
+                .orElseGet(() -> {
+                    TipoEscenario newTipo = new TipoEscenario();
+                    newTipo.setNombre(escenarioRequest.getTipo());
+                    return tipoEscenarioRepositoryPort.save(newTipo);
+                });
 
-        return escenarioMapper.toDto(escenario);
+        // Find or create ubicacion
+        Ubicacion ubicacion = ubicacionRepositoryPort.findByNombre(escenarioRequest.getUbicacion())
+                .orElseGet(() -> {
+                    Ubicacion newUbicacion = new Ubicacion();
+                    newUbicacion.setNombre(escenarioRequest.getUbicacion());
+                    return ubicacionRepositoryPort.save(newUbicacion);
+                });
+
+        // Map request to entity
+        Escenario escenario = escenarioMapper.toEntity(escenarioRequest);
+        escenario.setTipo(tipo);
+        escenario.setUbicacion(ubicacion);
+        
+        // Save the escenario
+        Escenario savedEscenario = escenarioRepositoryPort.save(escenario);
+        
+        // Map entity to response
+        return escenarioMapper.toDto(savedEscenario);
     }
 
     /**
@@ -112,11 +141,31 @@ public class EscenarioService implements EscenarioUseCase {
         Escenario escenario = escenarioRepositoryPort.findById(id)
                 .orElseThrow(() -> new EscenarioNotFoundException("Escenario no encontrado"));
 
+        // Find or create tipo
+        TipoEscenario tipo = tipoEscenarioRepositoryPort.findByNombre(request.getTipo())
+                .orElseGet(() -> {
+                    TipoEscenario newTipo = new TipoEscenario();
+                    newTipo.setNombre(request.getTipo());
+                    return tipoEscenarioRepositoryPort.save(newTipo);
+                });
+
+        // Find or create ubicacion
+        Ubicacion ubicacion = ubicacionRepositoryPort.findByNombre(request.getUbicacion())
+                .orElseGet(() -> {
+                    Ubicacion newUbicacion = new Ubicacion();
+                    newUbicacion.setNombre(request.getUbicacion());
+                    return ubicacionRepositoryPort.save(newUbicacion);
+                });
+
+        // Actualizar campos del escenario que existen en el modelo
         escenario.setNombre(request.getNombre());
-        escenario.setTipo(request.getTipo());
-        escenario.setUbicacion(request.getUbicacion());
-        escenario.setHorariosDisponibles(request.getHorariosDisponibles());
-        escenario.setReservas(request.getReservas());
+        escenario.setDescripcion(request.getDescripcion());
+        escenario.setTipo(tipo);
+        escenario.setUbicacion(ubicacion);
+        escenario.setCapacidad(request.getCapacidad());
+        escenario.setDisponible(request.getDisponible());
+        escenario.setRecursos(request.getRecursos());
+        escenario.setImagenUrl(request.getImagenUrl());
 
         Escenario saved = escenarioRepositoryPort.save(escenario);
         return escenarioMapper.toDto(saved);
@@ -137,23 +186,56 @@ public class EscenarioService implements EscenarioUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<EscenarioResponse> filtrarEscenarios(FiltrarEscenariosRequest request) {
-        List<Escenario> escenarios = escenarioRepositoryPort.findByTipoOrNombreOrUbicacion(
-            request.getTipo(),
-            request.getNombre(),
-            request.getUbicacion()
-        );
-        return escenarioMapper.toDtoList(escenarios);
+        List<Escenario> allEscenarios = escenarioRepositoryPort.findAll();
+        
+        return allEscenarios.stream()
+            .filter(escenario -> {
+                boolean matches = true;
+                if (request.getTipo() != null) {
+                    matches = escenario.getTipo() != null && 
+                            escenario.getTipo().getNombre().equalsIgnoreCase(request.getTipo());
+                }
+                if (request.getNombre() != null && matches) {
+                    matches = escenario.getNombre() != null && 
+                            escenario.getNombre().equalsIgnoreCase(request.getNombre());
+                }
+                if (request.getUbicacion() != null && matches) {
+                    matches = escenario.getUbicacion() != null && 
+                            escenario.getUbicacion().getNombre() != null &&
+                            escenario.getUbicacion().getNombre().equalsIgnoreCase(request.getUbicacion());
+                }
+                return matches;
+            })
+            .map(escenarioMapper::toDto)
+            .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<EscenarioResponse> buscarEscenarios(BuscarEscenariosRequest request) {
-        List<Escenario> escenarios = escenarioRepositoryPort.findByNombreContainingOrUbicacionContainingOrTipoContaining(
-            request.getNombre(),
-            request.getUbicacion(),
-            request.getTipo()
-        );
-        return escenarioMapper.toDtoList(escenarios);
+        List<Escenario> allEscenarios = escenarioRepositoryPort.findAll();
+        
+        return allEscenarios.stream()
+            .filter(escenario -> {
+                boolean matches = false;
+                if (request.getNombre() != null) {
+                    matches = escenario.getNombre() != null && 
+                            escenario.getNombre().toLowerCase().contains(request.getNombre().toLowerCase());
+                }
+                if (!matches && request.getUbicacion() != null) {
+                    matches = escenario.getUbicacion() != null && 
+                            escenario.getUbicacion().getNombre() != null &&
+                            escenario.getUbicacion().getNombre().toLowerCase().contains(request.getUbicacion().toLowerCase());
+                }
+                if (!matches && request.getTipo() != null) {
+                    matches = escenario.getTipo() != null && 
+                            escenario.getTipo().getNombre() != null &&
+                            escenario.getTipo().getNombre().toLowerCase().contains(request.getTipo().toLowerCase());
+                }
+                return matches;
+            })
+            .map(escenarioMapper::toDto)
+            .toList();
     }
 
     @Override
@@ -162,5 +244,23 @@ public class EscenarioService implements EscenarioUseCase {
         Escenario escenario = escenarioRepositoryPort.findById(id)
                 .orElseThrow(() -> new EscenarioNotFoundException("Escenario not found with ID: " + id));
         return escenarioMapper.toDetalleResponse(escenario);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getTiposEscenario() {
+        return tipoEscenarioRepositoryPort.findAll().stream()
+                .map(TipoEscenario::getNombre)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getUbicaciones() {
+        return ubicacionRepositoryPort.findAll().stream()
+                .map(Ubicacion::getNombre)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

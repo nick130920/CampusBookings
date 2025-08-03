@@ -10,4 +10,6 @@ public class AuthenticationResponse {
     private String email;
     private String nombre;
     private String apellido;
+    private String rol; // Nuevo campo para el rol del usuario
+    private Long userId; // ID del usuario para referencia
 } 

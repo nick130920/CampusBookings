@@ -1,7 +1,6 @@
 package edu.usco.campusbookings.application.dto.response;
 
-import edu.usco.campusbookings.domain.model.Escenario;
-import edu.usco.campusbookings.domain.model.EstadoReserva;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -21,6 +20,8 @@ public class ReservaResponse {
     private String estadoNombre;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
+    private String observaciones;
+    private String motivoRechazo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 }

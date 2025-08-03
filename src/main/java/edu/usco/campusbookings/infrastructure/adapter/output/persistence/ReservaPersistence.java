@@ -8,8 +8,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.usco.campusbookings.application.exception.ReservaNotFoundException;
-import edu.usco.campusbookings.application.port.output.ReservaRepositoryPort;
+import edu.usco.campusbookings.application.port.output.ReservaPersistencePort;
+import edu.usco.campusbookings.domain.model.Escenario;
+import edu.usco.campusbookings.domain.model.EstadoReserva;
 import edu.usco.campusbookings.domain.model.Reserva;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataEscenarioRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.EstadoReservaJpaRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.ReservaJpaRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -19,9 +23,11 @@ import lombok.RequiredArgsConstructor;
  */
 @Repository
 @RequiredArgsConstructor
-public class ReservaRepository implements ReservaRepositoryPort {
+public class ReservaPersistence implements ReservaPersistencePort {
 
     private final ReservaJpaRepository reservaJpaRepository;
+    private final EstadoReservaJpaRepository estadoReservaJpaRepository;
+    private final SpringDataEscenarioRepository escenarioJpaRepository;
 
     /**
      * Guarda una nueva reserva en el sistema.
@@ -153,6 +159,17 @@ public class ReservaRepository implements ReservaRepositoryPort {
     public List<Reserva> findAll() {
         return reservaJpaRepository.findAll();
     }
+    
+    @Override
+    public boolean existsByEscenarioIdAndFechaInicioBetweenAndEstadoNombre(
+            Long escenarioId,
+            LocalDateTime fechaInicio,
+            LocalDateTime fechaFin,
+            String estadoNombre) {
+        
+        return reservaJpaRepository.existsByEscenarioIdAndFechaInicioBetweenAndEstado_Nombre(
+                escenarioId, fechaInicio, fechaFin, estadoNombre);
+    }
 
     /**
      * Elimina una reserva por su ID.
@@ -187,6 +204,14 @@ public class ReservaRepository implements ReservaRepositoryPort {
         }
         return reservaJpaRepository.existsById(id);
     }
+    
+    @Override
+    public Optional<EstadoReserva> findEstadoByNombre(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del estado no puede estar vacío");
+        }
+        return estadoReservaJpaRepository.findByNombre(nombre);
+    }
 
     @Override
     public boolean existsByEscenarioIdAndFechaInicioLessThanEqualAndFechaFinGreaterThanEqual(Long escenarioId,
@@ -196,5 +221,40 @@ public class ReservaRepository implements ReservaRepositoryPort {
                 fechaFin,
                 fechaInicio
         );
+    }
+
+    /**
+     * Encuentra un escenario por su ID.
+     * 
+     * @param escenarioId ID del escenario a buscar
+     * @return Optional con el escenario encontrado
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Escenario> findEscenarioById(Long escenarioId) {
+        if (escenarioId == null) {
+            throw new IllegalArgumentException("El ID del escenario no puede ser nulo");
+        }
+        return escenarioJpaRepository.findById(escenarioId);
+    }
+
+    /**
+     * Encuentra reservas que entran en conflicto con el rango de fechas especificado.
+     * Solo considera reservas APROBADAS.
+     * 
+     * @param escenarioId ID del escenario
+     * @param fechaInicio Fecha de inicio del rango a verificar
+     * @param fechaFin Fecha de fin del rango a verificar
+     * @return Lista de reservas que entran en conflicto
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Reserva> findConflictingReservations(Long escenarioId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        if (escenarioId == null || fechaInicio == null || fechaFin == null) {
+            throw new IllegalArgumentException("Ningún parámetro puede ser nulo");
+        }
+        
+        // Buscar reservas aprobadas que se solapen con el rango de fechas
+        return reservaJpaRepository.findConflictingReservations(escenarioId, fechaInicio, fechaFin);
     }
 }

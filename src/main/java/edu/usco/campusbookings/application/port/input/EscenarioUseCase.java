@@ -11,18 +11,18 @@ import java.util.List;
 public interface EscenarioUseCase {
 
     /**
-        * Find a Escenario by id.
-        *
-        * @param id a id
-        * @return a EscenarioResponse
-    */
-	EscenarioResponse findById(Long id);
+     * Find a Escenario by id.
+     *
+     * @param id a id
+     * @return a EscenarioResponse
+     */
+    EscenarioResponse findById(Long id);
 
-	/**
-    	 * Get a list of all escenarios.
-    	 *
-    	 * @return a list of EscenarioResponses
-    */
+    /**
+     * Get a list of all escenarios.
+     *
+     * @return a list of EscenarioResponses
+     */
     List<EscenarioResponse> findAll();
 
     /**
@@ -33,58 +33,59 @@ public interface EscenarioUseCase {
      */
     List<EscenarioResponse> buscarEscenarios(BuscarEscenariosRequest request);
 
-	/**
-	 * Create a list of escenarios.
-	 *
-	 * @param requests a list of EscenarioRequests
-	 * @return a list of EscenarioResponses
-	 */
-	List<EscenarioResponse> createEscenarios(List<EscenarioRequest> requests);
+    /**
+     * Creates a new escenario.
+     *
+     * @param escenarioRequest the escenario request input
+     * @return the created escenario response
+     */
+    EscenarioResponse createEscenario(EscenarioRequest escenarioRequest);
 
-	/**
-	 * Create a Escenario.
-	 *
-	 * @param escenarioRequest a EscenarioRequest
-	 * @return a EscenarioResponse
-	 */
-	EscenarioResponse createEscenario(EscenarioRequest escenarioRequest);
+    List<EscenarioResponse> createEscenarios(List<EscenarioRequest> escenarioRequests);
 
+    /**
+     * Updates an existing escenario.
+     *
+     * @param id the escenario ID
+     * @param request the escenario request
+     * @return the updated escenario response
+     */
+    EscenarioResponse updateEscenario(Long id, EscenarioRequest request);
 
+    /**
+     * Delete a Escenario by id.
+     *
+     * @param id the Address ID
+     */
+    void deleteById(Long id);
 
-	/**
-	 * Update a Escenario.
-	 *
-	 * @param id the Address ID
-	 * @param request an EscenarioRequest
-	 * @return a EscenarioResponse
-	 */
-	EscenarioResponse updateEscenario(Long id, EscenarioRequest request);
+    /**
+     * Filtra los escenarios según los criterios especificados.
+     *
+     * @param request los criterios de filtrado
+     * @return lista de escenarios filtrados
+     */
+    List<EscenarioResponse> filtrarEscenarios(FiltrarEscenariosRequest request);
 
-	/**
-	 * Delete a Escenario by id.
-	 *
-	 * @param id the Address ID
-	 */
-	void deleteById(Long id);
+    /**
+     * Get all unique scenario types.
+     *
+     * @return list of unique scenario types
+     */
+    List<String> getTiposEscenario();
 
-	/**
-	 * Filtra los escenarios según los criterios especificados.
-	 *
-	 * @param request los criterios de filtrado
-	 * @return lista de escenarios filtrados
-	 */
-	List<EscenarioResponse> filtrarEscenarios(FiltrarEscenariosRequest request);
+    /**
+     * Get all unique scenario locations.
+     *
+     * @return list of unique scenario locations
+     */
+    List<String> getUbicaciones();
 
-	/**
-	 * Obtiene los detalles completos de un escenario.
-	 *
-	 * @param id el ID del escenario
-	 * @return detalles del escenario
-	 */
-	DetalleEscenarioResponse obtenerDetalles(Long id);
-
-
-
-
-
+    /**
+     * Obtiene los detalles completos de un escenario.
+     *
+     * @param id el ID del escenario
+     * @return detalles del escenario
+     */
+    DetalleEscenarioResponse obtenerDetalles(Long id);
 }

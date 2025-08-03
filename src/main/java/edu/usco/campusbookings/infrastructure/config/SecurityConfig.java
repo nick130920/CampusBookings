@@ -22,8 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,15 +39,64 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            
+            // Headers de seguridad
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.deny())
+                .contentTypeOptions(contentTypeOptions -> {})
+                .httpStrictTransportSecurity(hstsConfig -> hstsConfig
+                    .maxAgeInSeconds(31536000)
+                    .includeSubDomains(true)
+                )
+            )
+            
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // Endpoints públicos
+                .requestMatchers("/api/auth/authenticate", "/api/auth/register").permitAll()
+                .requestMatchers("/api/auth/validate-password", "/api/auth/password-requirements").permitAll()
+                
+                // Documentación API (solo en desarrollo)
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                
+                // WebSocket endpoints
+                .requestMatchers("/ws/**").permitAll()
+                
+                // Endpoints de branding USCO (públicos)
+                .requestMatchers("/api/branding/**").permitAll()
+                
+                // Static resources
+                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                
+                // API protegidas por roles
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/coordinator/**").hasAnyRole("ADMIN", "COORDINATOR")
+                
+                // Cualquier otra request requiere autenticación
                 .anyRequest().authenticated()
             )
+            
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
             )
+            
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            
+            // Manejo de excepciones de autenticación
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Token JWT inválido o expirado\"}");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"No tienes permisos para acceder a este recurso\"}");
+                })
+            );
 
         return http.build();
     }
@@ -55,10 +104,42 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        
+        // Orígenes permitidos (configurables por perfil)
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:4200",      // Angular development
+            "http://localhost:3000",      // React development  
+            "https://campusbookings.usco.edu.co" // Production (ejemplo)
+        ));
+        
+        // Métodos HTTP permitidos
+        configuration.setAllowedMethods(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"
+        ));
+        
+        // Headers permitidos y expuestos
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type", 
+            "X-Requested-With",
+            "Accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers"
+        ));
+        
+        configuration.setExposedHeaders(Arrays.asList(
+            "Authorization",
+            "X-Total-Count",
+            "X-Page-Number",
+            "X-Page-Size"
+        ));
+        
+        // Permitir credenciales
         configuration.setAllowCredentials(true);
+        
+        // Cache preflight por 30 minutos
+        configuration.setMaxAge(1800L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -80,6 +161,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // BCrypt con strength 12 para mayor seguridad (por defecto es 10)
+        return new BCryptPasswordEncoder(12);
     }
 } 

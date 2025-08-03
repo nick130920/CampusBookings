@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.usco.campusbookings.application.dto.request.ReporteReservasRequest;
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
+import edu.usco.campusbookings.application.dto.request.VerificarDisponibilidadRequest;
+import edu.usco.campusbookings.application.dto.response.DisponibilidadResponse;
 import edu.usco.campusbookings.application.dto.response.ReporteReservasResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.port.input.ReporteReservasUseCase;
@@ -97,5 +99,14 @@ public class ReservaRestController {
             @PathVariable String nombre
     ) {
         return ResponseEntity.ok(reservaUseCase.obtenerReservasPorEstado(nombre));
+    }
+
+    @PostMapping("/verificar-disponibilidad")
+    @Operation(summary = "Verificar disponibilidad de un escenario en tiempo real", 
+               description = "Verifica si un escenario está disponible para el horario solicitado, proporcionando alternativas si no está disponible (inspirado en Cal.com)")
+    public ResponseEntity<DisponibilidadResponse> verificarDisponibilidad(
+            @Valid @RequestBody VerificarDisponibilidadRequest request
+    ) {
+        return ResponseEntity.ok(reservaUseCase.verificarDisponibilidad(request));
     }
 }

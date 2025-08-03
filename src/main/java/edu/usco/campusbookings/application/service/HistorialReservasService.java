@@ -4,24 +4,22 @@ import edu.usco.campusbookings.application.dto.request.HistorialReservasRequest;
 import edu.usco.campusbookings.application.dto.response.HistorialReservasResponse;
 import edu.usco.campusbookings.application.mapper.HistorialReservasMapper;
 import edu.usco.campusbookings.application.port.input.HistorialReservasUseCase;
-import edu.usco.campusbookings.application.port.output.ReservaRepositoryPort;
+import edu.usco.campusbookings.application.port.output.ReservaPersistencePort;
 import edu.usco.campusbookings.domain.model.Reserva;
 import edu.usco.campusbookings.domain.model.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class HistorialReservasService implements HistorialReservasUseCase {
 
-    private final ReservaRepositoryPort reservaRepositoryPort;
+    private final ReservaPersistencePort reservaPersistencePort;
     private final HistorialReservasMapper historialReservasMapper;
 
     @Override
@@ -33,7 +31,7 @@ public class HistorialReservasService implements HistorialReservasUseCase {
         usuario.setEmail(userDetails.getUsername());
 
         // Obtener todas las reservas del usuario
-        List<Reserva> reservas = reservaRepositoryPort.findByUsuarioId(usuario.getId());
+        List<Reserva> reservas = reservaPersistencePort.findByUsuarioId(usuario.getId());
 
         // Aplicar filtros
         if (request.getFechaInicio() != null && request.getFechaFin() != null) {
@@ -51,7 +49,9 @@ public class HistorialReservasService implements HistorialReservasUseCase {
 
         if (request.getTipo() != null) {
             reservas = reservas.stream()
-                    .filter(r -> r.getEscenario().getTipo().equalsIgnoreCase(request.getTipo()))
+                    .filter(r -> r.getEscenario().getTipo() != null && 
+                              r.getEscenario().getTipo().getNombre() != null &&
+                              r.getEscenario().getTipo().getNombre().equalsIgnoreCase(request.getTipo()))
                     .toList();
         }
 

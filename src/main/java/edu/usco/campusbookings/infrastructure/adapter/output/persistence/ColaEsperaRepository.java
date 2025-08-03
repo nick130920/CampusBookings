@@ -2,7 +2,7 @@ package edu.usco.campusbookings.infrastructure.adapter.output.persistence;
 
 import edu.usco.campusbookings.application.port.output.ColaEsperaRepositoryPort;
 import edu.usco.campusbookings.domain.model.ColaEspera;
-import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jparepository.SpringDataColaEsperaRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataColaEsperaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

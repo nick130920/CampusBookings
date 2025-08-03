@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service implementation for managing rols.
@@ -124,5 +125,17 @@ public class RolService implements RolUseCase {
     @Transactional
     public void deleteById(Long id) {
         rolRepositoryPort.deleteById(id);
+    }
+
+    /**
+     * Finds a rol by nombre.
+     *
+     * @param nombre the rol nombre
+     * @return the found rol if exists, empty optional otherwise
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Rol> findByNombre(String nombre) {
+        return rolRepositoryPort.findByNombre(nombre);
     }
 }
