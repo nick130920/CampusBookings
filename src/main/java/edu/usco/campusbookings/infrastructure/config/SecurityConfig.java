@@ -109,7 +109,7 @@ public class SecurityConfig {
         
         // Orígenes permitidos (configurables por perfil)
         String allowedOrigins = environment.getProperty("security.cors.allowed-origins", 
-            "http://localhost:4200,http://localhost:3000,https://campusbookings.usco.edu.co");
+            "http://localhost:4200,http://localhost:3000,https://campusbookings.usco.edu.co,https://campus-bookings-front.vercel.app");
         
         configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         
