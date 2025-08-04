@@ -22,8 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.springframework.core.env.Environment;
 
 @Configuration
@@ -108,10 +108,14 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Orígenes permitidos (configurables por perfil)
-        String allowedOrigins = environment.getProperty("security.cors.allowed-origins", 
-            "http://localhost:4200,http://localhost:3000,https://campusbookings.usco.edu.co,https://campus-bookings-front.vercel.app");
+        String allowedOriginsValue = environment.getProperty("security.cors.allowed-origins", 
+            "http://localhost:4200, http://localhost:3000, https://campusbookings.usco.edu.co, https://campus-bookings-front.vercel.app");
         
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        configuration.setAllowedOrigins(
+            Arrays.stream(allowedOriginsValue.split(","))
+                  .map(String::trim)
+                  .collect(Collectors.toList())
+        );
         
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList(
