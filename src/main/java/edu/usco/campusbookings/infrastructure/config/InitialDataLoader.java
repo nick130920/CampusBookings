@@ -27,7 +27,6 @@ import java.util.List;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@Profile({"dev", "local", "default"})
 public class InitialDataLoader {
 
     private final SpringDataRolRepository rolRepository;
