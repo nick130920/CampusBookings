@@ -77,7 +77,7 @@ public class ReporteReservasService implements ReporteReservasUseCase {
                     .escenarioId(escenarioId)
                     .escenarioNombre(escenario.getNombre())
                     .tipo(escenario.getTipo() != null ? escenario.getTipo().getNombre() : null)
-                    .estado(reservasEscenario.getFirst().getEstado().getNombre())
+                    .estado(reservasEscenario.get(0).getEstado().getNombre())
                     .fechaInicio(request.getFechaInicio())
                     .fechaFin(request.getFechaFin())
                     .cantidadReservas(reservasEscenario.size())
