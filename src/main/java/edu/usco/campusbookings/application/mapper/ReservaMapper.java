@@ -29,8 +29,8 @@ public interface ReservaMapper {
     @Mapping(source = "estado", target = "estadoNombre", qualifiedByName = "mapEstadoNombre")
     @Mapping(source = "fechaInicio", target = "fechaInicio")
     @Mapping(source = "fechaFin", target = "fechaFin")
-    @Mapping(target = "fechaCreacion", ignore = true)
-    @Mapping(target = "fechaActualizacion", ignore = true)
+    @Mapping(source = "createdDate", target = "fechaCreacion")
+    @Mapping(source = "modifiedDate", target = "fechaActualizacion")
     ReservaResponse toDto(Reserva reserva);
     
     @Named("mapEstadoId")
