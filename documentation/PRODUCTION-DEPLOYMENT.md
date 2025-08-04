@@ -10,7 +10,7 @@
 ## 🔗 URLs de Producción
 
 ### **Frontend (Vercel):**
-- **URL**: `https://campus-bookings-front-3zp2nqik9-nick130920s-projects.vercel.app`
+- **URL**: `https://campus-bookings-front.vercel.app/`
 - **Repositorio**: `https://github.com/nick130920/CampusBookings-Front`
 
 ### **Backend (Railway):**
