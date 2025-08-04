@@ -1,6 +1,7 @@
 package edu.usco.campusbookings.infrastructure.exception;
 
 import edu.usco.campusbookings.application.exception.UsuarioNotFoundException;
+import edu.usco.campusbookings.application.exception.DisponibilidadValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,18 @@ public class GlobalExceptionHandler {
             ex.getMessage()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DisponibilidadValidationException.class)
+    public ResponseEntity<ErrorResponse> handleDisponibilidadValidationException(DisponibilidadValidationException ex) {
+        logger.warn("Error de validación de disponibilidad: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "Bad Request",
+            ex.getMessage()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

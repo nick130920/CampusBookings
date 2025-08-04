@@ -32,18 +32,17 @@ public class DatabaseConfig {
 
     @Bean
     @Primary
-    @ConditionalOnProperty(name = "DATABASE_URL")
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
         
-        // Si DATABASE_URL está presente, usarla directamente
-        if (databaseUrl != null && !databaseUrl.isEmpty()) {
+        // Si DATABASE_URL está presente (Railway), usarla directamente
+        if (databaseUrl != null && !databaseUrl.isEmpty() && databaseUrl.startsWith("postgresql://")) {
             // Railway proporciona DATABASE_URL en formato: postgresql://user:pass@host:port/db
             // Convertir a formato JDBC: jdbc:postgresql://host:port/db
             String jdbcUrl = databaseUrl.replace("postgresql://", "jdbc:postgresql://");
             dataSource.setJdbcUrl(jdbcUrl);
         } else {
-            // Fallback a configuración manual
+            // Fallback a configuración manual (desarrollo local)
             dataSource.setJdbcUrl("jdbc:postgresql://" + dbHost + ":" + dbPort + "/" + dbName);
             dataSource.setUsername(dbUser);
             dataSource.setPassword(dbPassword);
