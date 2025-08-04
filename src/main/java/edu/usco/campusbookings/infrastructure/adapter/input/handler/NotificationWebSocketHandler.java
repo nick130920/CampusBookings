@@ -16,13 +16,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NotificationWebSocketHandler implements WebSocketHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationWebSocketHandler.class);
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    
+    // Inyectar el ObjectMapper configurado por Spring Boot (incluye JSR310)
+    private final ObjectMapper objectMapper;
     
     // Mapa para mantener las sesiones activas: userId -> WebSocketSession
     private final Map<Long, WebSocketSession> userSessions = new ConcurrentHashMap<>();
     
     // Mapa para mantener las sesiones de administradores
     private final Map<Long, WebSocketSession> adminSessions = new ConcurrentHashMap<>();
+
+    // Constructor para inyección del ObjectMapper configurado
+    public NotificationWebSocketHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) throws Exception {
