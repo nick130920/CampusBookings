@@ -187,7 +187,7 @@ GET https://campusbookings-production.up.railway.app/swagger-ui/
 
 ```bash
 # Aplicación principal
-https://campus-bookings-front-3zp2nqik9-nick130920s-projects.vercel.app
+https://campus-bookings-front.vercel.app/
 
 # Verificar comunicación con backend
 # Abrir DevTools → Network → Intentar login
