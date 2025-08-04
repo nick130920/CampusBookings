@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,26 +25,31 @@ public class ReporteReservasService implements ReporteReservasUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<ReporteReservasResponse> generarReporte(ReporteReservasRequest request) {
-        // Obtener todas las reservas en el rango de fechas
+        // Obtener todas las reservas
         List<Reserva> reservas = reservaPersistencePort.findAll();
         
         if (reservas.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // Filtrar por fecha
+        // Filtrar por fechas de manera inclusiva (reservas que se solapan con el rango)
         reservas = reservas.stream()
-                .filter(r -> r.getFechaInicio().isAfter(request.getFechaInicio())
-                        && r.getFechaFin().isBefore(request.getFechaFin()))
+                .filter(r -> {
+                    // Una reserva está en el rango si:
+                    // - Su fecha de inicio es antes o igual al fin del rango Y
+                    // - Su fecha de fin es después o igual al inicio del rango
+                    return !r.getFechaInicio().isAfter(request.getFechaFin()) && 
+                           !r.getFechaFin().isBefore(request.getFechaInicio());
+                })
                 .toList();
 
         // Filtrar por tipo si se especifica
-        if (request.getTipo() != null) {
+        if (request.getTipo() != null && !request.getTipo().trim().isEmpty()) {
             List<Escenario> escenarios = escenarioRepositoryPort.findAll();
             List<Long> escenarioIds = escenarios.stream()
                     .filter(e -> e.getTipo() != null && 
                               e.getTipo().getNombre() != null &&
-                              e.getTipo().getNombre().equalsIgnoreCase(request.getTipo()))
+                              e.getTipo().getNombre().equalsIgnoreCase(request.getTipo().trim()))
                     .map(Escenario::getId)
                     .toList();
 
@@ -55,36 +59,27 @@ public class ReporteReservasService implements ReporteReservasUseCase {
         }
 
         // Filtrar por estado si se especifica
-        if (request.getEstado() != null) {
+        if (request.getEstado() != null && !request.getEstado().trim().isEmpty()) {
             reservas = reservas.stream()
-                    .filter(r -> r.getEstado().getNombre().equalsIgnoreCase(request.getEstado()))
+                    .filter(r -> r.getEstado().getNombre().equalsIgnoreCase(request.getEstado().trim()))
                     .collect(Collectors.toList());
         }
 
-        // Agrupar por escenario y generar el reporte
-        Map<Long, List<Reserva>> reservasPorEscenario = reservas.stream()
-                .collect(Collectors.groupingBy(r -> r.getEscenario().getId()));
-
-        List<ReporteReservasResponse> reporte = new ArrayList<>();
-        for (Map.Entry<Long, List<Reserva>> entry : reservasPorEscenario.entrySet()) {
-            Long escenarioId = entry.getKey();
-            List<Reserva> reservasEscenario = entry.getValue();
-
-            Escenario escenario = escenarioRepositoryPort.findById(escenarioId)
-                    .orElseThrow(() -> new RuntimeException("Escenario no encontrado"));
-
-            ReporteReservasResponse response = ReporteReservasResponse.builder()
-                    .escenarioId(escenarioId)
-                    .escenarioNombre(escenario.getNombre())
-                    .tipo(escenario.getTipo() != null ? escenario.getTipo().getNombre() : null)
-                    .estado(reservasEscenario.get(0).getEstado().getNombre())
-                    .fechaInicio(request.getFechaInicio())
-                    .fechaFin(request.getFechaFin())
-                    .cantidadReservas(reservasEscenario.size())
-                    .build();
-
-            reporte.add(response);
-        }
+        // Crear reporte detallado por reserva individual
+        List<ReporteReservasResponse> reporte = reservas.stream()
+                .map(reserva -> ReporteReservasResponse.builder()
+                        .escenarioId(reserva.getEscenario().getId())
+                        .escenarioNombre(reserva.getEscenario().getNombre())
+                        .tipo(reserva.getEscenario().getTipo() != null ? 
+                              reserva.getEscenario().getTipo().getNombre() : "Sin tipo")
+                        .estado(reserva.getEstado().getNombre())
+                        .fechaInicio(reserva.getFechaInicio())
+                        .fechaFin(reserva.getFechaFin())
+                        .cantidadReservas(1) // Cada fila representa una reserva
+                        .usuarioEmail(reserva.getUsuario().getEmail())
+                        .observaciones(reserva.getObservaciones())
+                        .build())
+                .collect(Collectors.toList());
 
         return reporte;
     }

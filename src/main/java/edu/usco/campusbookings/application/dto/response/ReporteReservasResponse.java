@@ -15,4 +15,6 @@ public class ReporteReservasResponse {
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
     private Integer cantidadReservas;
+    private String usuarioEmail;
+    private String observaciones;
 }
