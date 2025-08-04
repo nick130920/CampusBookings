@@ -24,6 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import org.springframework.core.env.Environment;
 
 @Configuration
 @EnableWebSecurity
@@ -33,6 +34,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final Environment environment;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -106,11 +108,10 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Orígenes permitidos (configurables por perfil)
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:4200",      // Angular development
-            "http://localhost:3000",      // React development  
-            "https://campusbookings.usco.edu.co" // Production (ejemplo)
-        ));
+        String allowedOrigins = environment.getProperty("security.cors.allowed-origins", 
+            "http://localhost:4200,http://localhost:3000,https://campusbookings.usco.edu.co");
+        
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList(
