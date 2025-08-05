@@ -63,4 +63,23 @@ public class DiagnosticController {
         
         return ResponseEntity.ok(info);
     }
+
+    @GetMapping("/environment")
+    public ResponseEntity<Map<String, Object>> getEnvironmentInfo() {
+        Map<String, Object> info = new HashMap<>();
+        
+        // Variables de entorno relacionadas con zona horaria
+        info.put("TZ", System.getenv("TZ"));
+        info.put("USER_TIMEZONE", System.getProperty("user.timezone"));
+        info.put("JAVA_TIMEZONE", System.getProperty("java.util.timezone"));
+        
+        // Variables de Railway
+        info.put("RAILWAY_ENVIRONMENT", System.getenv("RAILWAY_ENVIRONMENT"));
+        info.put("RAILWAY_PROJECT_ID", System.getenv("RAILWAY_PROJECT_ID"));
+        
+        // Variables de PostgreSQL que podrían afectar
+        info.put("PGTZ", System.getenv("PGTZ"));
+        
+        return ResponseEntity.ok(info);
+    }
 }

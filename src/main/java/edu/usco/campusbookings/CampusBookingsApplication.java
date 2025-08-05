@@ -5,19 +5,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.TimeZone;
-import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
 @EnableJpaAuditing
 public class CampusBookingsApplication {
 
-    @PostConstruct
-    public void init() {
-        // Establecer zona horaria de Colombia para toda la aplicación
-        TimeZone.setDefault(TimeZone.getTimeZone("America/Bogota"));
-    }
-
     public static void main(String[] args) {
+        // Configurar zona horaria antes de iniciar la aplicación
+        System.setProperty("user.timezone", "America/Bogota");
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Bogota"));
+        
         SpringApplication.run(CampusBookingsApplication.class, args);
     }
 }
