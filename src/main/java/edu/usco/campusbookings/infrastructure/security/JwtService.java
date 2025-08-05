@@ -82,6 +82,45 @@ public class JwtService {
         return buildToken(claims, userDetails, refreshExpiration);
     }
 
+    /**
+     * Renovar token con nueva fecha de expiración (para actividad)
+     * Mantiene todos los claims originales pero actualiza las fechas
+     */
+    public String renewToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            
+            // Crear nuevo token con los mismos claims pero fechas actualizadas
+            return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setIssuer("CampusBookings-USCO")
+                .setAudience("CampusBookings-Frontend")
+                .signWith(getSignInKey(), SignatureAlgorithm.HS512)
+                .compact();
+        } catch (Exception e) {
+            log.error("Error renovando token: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Verificar si el token necesita renovación (ej: si está a menos de 10 minutos de expirar)
+     */
+    public boolean shouldRenewToken(String token) {
+        try {
+            Date expiration = extractExpiration(token);
+            Date now = new Date();
+            long timeUntilExpiration = expiration.getTime() - now.getTime();
+            long tenMinutesInMs = 10 * 60 * 1000; // 10 minutos
+            
+            return timeUntilExpiration <= tenMinutesInMs && timeUntilExpiration > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts
             .builder()

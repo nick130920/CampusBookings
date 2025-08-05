@@ -73,6 +73,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     
+                    // Renovar token si está próximo a expirar (actividad del usuario)
+                    if (jwtService.shouldRenewToken(jwt)) {
+                        String renewedToken = jwtService.renewToken(jwt);
+                        if (renewedToken != null) {
+                            // Agregar el nuevo token al header de respuesta
+                            response.setHeader("X-New-Token", renewedToken);
+                            log.debug("Token renovado para usuario: {} en endpoint: {}", userEmail, requestURI);
+                        }
+                    }
+                    
                     log.debug("Usuario autenticado exitosamente: {} para endpoint: {}", userEmail, requestURI);
                 } else {
                     log.warn("Token JWT inválido para usuario: {}", userEmail);
