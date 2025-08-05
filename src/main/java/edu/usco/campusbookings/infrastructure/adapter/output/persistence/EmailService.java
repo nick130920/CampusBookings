@@ -214,4 +214,91 @@ public class EmailService implements EmailServicePort {
             context
         );
     }
+
+    @Override
+    public void sendPasswordResetEmail(String destinatario, String nombre, String codigo) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setTo(destinatario);
+            helper.setSubject(subjectPrefix + " 🔐 Código de recuperación de contraseña");
+            helper.setFrom(fromEmail);
+            
+            // Crear el contenido HTML del email
+            String htmlContent = buildPasswordResetEmailContent(nombre, codigo);
+            helper.setText(htmlContent, true);
+            
+            javaMailSender.send(message);
+            log.info("Email de recuperación de contraseña enviado exitosamente a: {}", destinatario);
+        } catch (Exception e) {
+            log.error("Error enviando email de recuperación a {}: {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error enviando email de recuperación de contraseña", e);
+        }
+    }
+
+    private String buildPasswordResetEmailContent(String nombre, String codigo) {
+        return """
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Recuperación de Contraseña</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #8B1538 0%, #A91D3A 100%); color: white; padding: 30px 20px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">🔐 Recuperación de Contraseña</h1>
+                        <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Universidad Surcolombiana</p>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #333; margin: 0 0 20px 0; font-size: 20px;">Hola %s,</h2>
+                        
+                        <p style="color: #555; line-height: 1.6; margin: 0 0 20px 0;">
+                            Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en CampusBookings.
+                        </p>
+                        
+                        <p style="color: #555; line-height: 1.6; margin: 0 0 30px 0;">
+                            Tu código de verificación es:
+                        </p>
+                        
+                        <!-- Código -->
+                        <div style="background-color: #f8f9fa; border: 2px dashed #8B1538; border-radius: 8px; padding: 20px; text-align: center; margin: 0 0 30px 0;">
+                            <div style="font-size: 32px; font-weight: bold; color: #8B1538; letter-spacing: 4px; font-family: 'Courier New', monospace;">
+                                %s
+                            </div>
+                            <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">
+                                Este código expira en 15 minutos
+                            </p>
+                        </div>
+                        
+                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px 0;">
+                            <p style="margin: 0; color: #856404; font-size: 14px;">
+                                <strong>⚠️ Importante:</strong> Si no solicitaste este cambio, puedes ignorar este email. Tu contraseña no será modificada.
+                            </p>
+                        </div>
+                        
+                        <p style="color: #555; line-height: 1.6; margin: 0;">
+                            Si tienes problemas, contacta al soporte técnico de CampusBookings.
+                        </p>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e9ecef;">
+                        <p style="margin: 0; color: #6c757d; font-size: 12px;">
+                            Sistema de Reservas CampusBookings<br>
+                            Universidad Surcolombiana<br>
+                            Este es un email automático, no responder.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.formatted(nombre, codigo);
+    }
 }

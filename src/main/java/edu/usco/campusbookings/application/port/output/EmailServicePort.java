@@ -51,4 +51,12 @@ public interface EmailServicePort {
      * @param body Cuerpo del correo
      */
     void sendConfirmationEmail(String to, String subject, String body);
+    
+    /**
+     * Envía un email con código de verificación para recuperación de contraseña
+     * @param destinatario Email del usuario
+     * @param nombre Nombre del usuario
+     * @param codigo Código de verificación de 6 dígitos
+     */
+    void sendPasswordResetEmail(String destinatario, String nombre, String codigo);
 }

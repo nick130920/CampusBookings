@@ -12,6 +12,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.dao.DataAccessException;
+import org.springframework.transaction.TransactionException;
 
 import java.time.LocalDateTime;
 
@@ -69,8 +71,44 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException ex) {
+        logger.error("Error de acceso a datos: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Database Error",
+            "Error de conexión con la base de datos. Intente nuevamente."
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(TransactionException.class)
+    public ResponseEntity<ErrorResponse> handleTransactionException(TransactionException ex) {
+        logger.error("Error de transacción: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Transaction Error",
+            "Error en la transacción de base de datos. Intente nuevamente."
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        // Verificar si el error de autenticación es causado por problemas de DB
+        if (ex.getMessage() != null && ex.getMessage().contains("Unable to commit")) {
+            logger.error("Error de autenticación causado por problema de DB: {}", ex.getMessage(), ex);
+            ErrorResponse errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Unavailable",
+                "Servicio temporalmente no disponible. Intente nuevamente en unos momentos."
+            );
+            return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        
         logger.warn("Error de autenticación: {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
             LocalDateTime.now(),
