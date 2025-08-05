@@ -319,7 +319,29 @@ public class ReservaService implements ReservaUseCase {
             throw new AccessDeniedException("Solo los administradores pueden ver todas las reservas");
         }
         
-        return reservaPersistencePort.findAll().stream()
+        // Logging temporal para diagnóstico de fechas
+        log.info("TIMEZONE DIAGNOSTIC - Sistema: {}", java.util.TimeZone.getDefault().getID());
+        log.info("TIMEZONE DIAGNOSTIC - ZoneId: {}", java.time.ZoneId.systemDefault().getId());
+        log.info("TIMEZONE DIAGNOSTIC - Hora actual: {}", LocalDateTime.now());
+        
+        List<Reserva> reservas = reservaPersistencePort.findAll();
+        log.info("TIMEZONE DIAGNOSTIC - Encontradas {} reservas", reservas.size());
+        
+        // Log de la primera reserva para diagnóstico
+        if (!reservas.isEmpty()) {
+            Reserva primeraReserva = reservas.get(0);
+            log.info("TIMEZONE DIAGNOSTIC - Primera reserva ID: {}", primeraReserva.getId());
+            log.info("TIMEZONE DIAGNOSTIC - CreatedDate BD: {}", primeraReserva.getCreatedDate());
+            log.info("TIMEZONE DIAGNOSTIC - ModifiedDate BD: {}", primeraReserva.getModifiedDate());
+            log.info("TIMEZONE DIAGNOSTIC - FechaInicio BD: {}", primeraReserva.getFechaInicio());
+            
+            // Mapear y ver qué sale
+            ReservaResponse response = reservaMapper.toDto(primeraReserva);
+            log.info("TIMEZONE DIAGNOSTIC - FechaCreacion DTO: {}", response.getFechaCreacion());
+            log.info("TIMEZONE DIAGNOSTIC - FechaActualizacion DTO: {}", response.getFechaActualizacion());
+        }
+        
+        return reservas.stream()
                 .filter(reserva -> !reserva.getEstado().getNombre().equals("ELIMINADA"))
                 .map(reservaMapper::toDto)
                 .collect(Collectors.toList());
