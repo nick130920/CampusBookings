@@ -6,8 +6,6 @@ import edu.usco.campusbookings.application.port.input.RolUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,7 +41,6 @@ import java.util.List;
 @RequestMapping("/api/rol")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Rol", description = "Operations related to rol entities")
 public class RolRestController {
 
     private final RolUseCase rolUseCase;
@@ -55,7 +52,6 @@ public class RolRestController {
      * @return the found Rol response
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Get a Rol by ID", description = "Retrieves a Rol entity by its unique ID")
     public ResponseEntity<RolResponse> getRol(@PathVariable Long id) {
         return ResponseEntity.ok(rolUseCase.findById(id));
     }
@@ -66,7 +62,6 @@ public class RolRestController {
      * @return the list of Rol responses
      */
     @GetMapping
-    @Operation(summary = "Get all rols", description = "Retrieves a list of all Rol entities")
     public ResponseEntity<List<RolResponse>> getAllRols() {
         return ResponseEntity.ok(rolUseCase.findAll());
     }
@@ -78,7 +73,6 @@ public class RolRestController {
      * @return the created Rol response
      */
     @PostMapping
-    @Operation(summary = "Create a new Rol", description = "Creates a new Rol entity with the provided data")
     public ResponseEntity<RolResponse> createRol(@RequestBody RolRequest rolRequest) {
         return ResponseEntity.ok(rolUseCase.createRol(rolRequest));
     }
@@ -90,7 +84,6 @@ public class RolRestController {
      * @return List of created RolResponse objects.
      */
     @PostMapping("/bulk")
-    @Operation(summary = "Create rols in bulk", description = "Creates multiple Rol entities in bulk with the provided data")
     public ResponseEntity<List<RolResponse>> createRols(@RequestBody List<RolRequest> rolRequests) {
         return ResponseEntity.ok(rolUseCase.createRols(rolRequests));
     }
@@ -103,7 +96,6 @@ public class RolRestController {
      * @return the updated Rol response
      */
     @PutMapping("/{id}")
-    @Operation(summary = "Update a Rol", description = "Updates an existing Rol entity with the provided data")
     public ResponseEntity<RolResponse> updateRol(@PathVariable Long id, @RequestBody RolRequest rolRequest) {
         return ResponseEntity.ok(rolUseCase.updateRol(id, rolRequest));
     }
@@ -115,7 +107,6 @@ public class RolRestController {
      * @return 204 No Content response
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a Rol", description = "Deletes a Rol entity by its unique ID")
     public ResponseEntity<Void> deleteRol(@PathVariable Long id) {
         rolUseCase.deleteById(id);
         return ResponseEntity.noContent().build();

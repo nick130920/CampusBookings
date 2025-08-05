@@ -23,6 +23,7 @@ public class MemoryController {
     public ResponseEntity<Map<String, Object>> getMemoryInfo() {
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
         MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+        MemoryUsage nonHeapUsage = memoryBean.getNonHeapMemoryUsage();
         
         Runtime runtime = Runtime.getRuntime();
         
@@ -33,8 +34,16 @@ public class MemoryController {
         heap.put("used", formatBytes(heapUsage.getUsed()));
         heap.put("committed", formatBytes(heapUsage.getCommitted()));
         heap.put("max", formatBytes(heapUsage.getMax()));
+        heap.put("init", formatBytes(heapUsage.getInit()));
         heap.put("usage_percentage", String.format("%.2f%%", 
             (heapUsage.getUsed() * 100.0) / heapUsage.getMax()));
+        
+        // Información de Non-Heap (metaspace, etc.)
+        Map<String, String> nonHeap = new HashMap<>();
+        nonHeap.put("used", formatBytes(nonHeapUsage.getUsed()));
+        nonHeap.put("committed", formatBytes(nonHeapUsage.getCommitted()));
+        nonHeap.put("max", nonHeapUsage.getMax() == -1 ? "Unlimited" : formatBytes(nonHeapUsage.getMax()));
+        nonHeap.put("init", formatBytes(nonHeapUsage.getInit()));
         
         // Información del Runtime
         Map<String, String> runtimeInfo = new HashMap<>();
@@ -51,6 +60,7 @@ public class MemoryController {
         
         memoryInfo.put("timestamp", System.currentTimeMillis());
         memoryInfo.put("heap", heap);
+        memoryInfo.put("non_heap", nonHeap);
         memoryInfo.put("runtime", runtimeInfo);
         memoryInfo.put("system", system);
         

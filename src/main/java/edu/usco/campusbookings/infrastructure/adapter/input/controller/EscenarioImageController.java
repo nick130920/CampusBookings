@@ -19,11 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import edu.usco.campusbookings.application.service.ImageStorageService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/escenarios/images")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Escenario Images", description = "Operaciones para gestión de imágenes de escenarios")
 public class EscenarioImageController {
 
     private final ImageStorageService imageStorageService;
@@ -56,14 +50,9 @@ public class EscenarioImageController {
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(
         summary = "Upload scenario image", 
         description = "Uploads a single image for a scenario. Supports JPEG, PNG, and WebP formats. Max size: 5MB.",
         responses = {
-            @ApiResponse(responseCode = "200", description = "Image uploaded successfully",
-                content = @Content(schema = @Schema(implementation = ImageUploadResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid file format or size"),
-            @ApiResponse(responseCode = "500", description = "Error uploading image")
         }
     )
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
@@ -109,13 +98,9 @@ public class EscenarioImageController {
      */
     @PostMapping(value = "/upload/multiple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(
         summary = "Upload multiple scenario images", 
         description = "Uploads multiple images for a scenario. Supports JPEG, PNG, and WebP formats. Max size per file: 5MB.",
         responses = {
-            @ApiResponse(responseCode = "200", description = "Images uploaded successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid file format or size"),
-            @ApiResponse(responseCode = "500", description = "Error uploading images")
         }
     )
     public ResponseEntity<?> uploadMultipleImages(@RequestParam("files") MultipartFile[] files) {
@@ -192,13 +177,9 @@ public class EscenarioImageController {
      */
     @DeleteMapping("/{filename}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(
         summary = "Delete scenario image", 
         description = "Deletes an uploaded scenario image by filename",
         responses = {
-            @ApiResponse(responseCode = "200", description = "Image deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Image not found"),
-            @ApiResponse(responseCode = "500", description = "Error deleting image")
         }
     )
     public ResponseEntity<?> deleteImage(@PathVariable String filename) {
@@ -236,7 +217,6 @@ public class EscenarioImageController {
      * @return image upload configuration
      */
     @GetMapping("/config")
-    @Operation(
         summary = "Get image upload configuration", 
         description = "Returns the allowed file types, maximum size, and other upload constraints"
     )
@@ -282,24 +262,17 @@ public class EscenarioImageController {
     /**
      * Response DTO for image upload operations.
      */
-    @Schema(description = "Respuesta de upload de imagen")
     public static class ImageUploadResponse {
-        @Schema(description = "URL de la imagen subida")
         private String imageUrl;
         
-        @Schema(description = "Nombre original del archivo")
         private String originalName;
         
-        @Schema(description = "Tamaño del archivo en bytes")
         private Long size;
         
-        @Schema(description = "Tipo de contenido del archivo")
         private String contentType;
         
-        @Schema(description = "Indica si la operación fue exitosa")
         private boolean success;
         
-        @Schema(description = "Mensaje de resultado")
         private String message;
 
         // Builder pattern

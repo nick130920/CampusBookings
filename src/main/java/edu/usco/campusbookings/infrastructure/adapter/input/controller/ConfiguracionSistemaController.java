@@ -4,12 +4,6 @@ import edu.usco.campusbookings.application.dto.request.ActualizarConfiguracionRe
 import edu.usco.campusbookings.application.dto.response.ConfiguracionResponse;
 import edu.usco.campusbookings.application.port.input.ConfiguracionSistemaUseCase;
 import edu.usco.campusbookings.infrastructure.exception.ErrorResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/configuracion")
-@Tag(name = "Configuración del Sistema", description = "API para gestionar la configuración del sistema")
 @CrossOrigin(origins = "*")
 public class ConfiguracionSistemaController {
 
@@ -35,15 +28,7 @@ public class ConfiguracionSistemaController {
     }
 
     @GetMapping("/reservas")
-    @Operation(summary = "Obtener configuración de reservas", 
                description = "Obtiene la configuración actual de límites para reservas")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Configuración obtenida exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ConfiguracionResponse.class))),
-        @ApiResponse(responseCode = "500", description = "Error interno del servidor",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ConfiguracionResponse> obtenerConfiguracionReservas() {
         try {
@@ -62,20 +47,7 @@ public class ConfiguracionSistemaController {
 
     @PutMapping("/reservas")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Actualizar configuración de reservas", 
                description = "Actualiza los límites de días para realizar reservas")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Configuración actualizada exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ConfiguracionResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ErrorResponse.class))),
-        @ApiResponse(responseCode = "401", description = "No autorizado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requieren permisos de administrador"),
-        @ApiResponse(responseCode = "500", description = "Error interno del servidor",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ConfiguracionResponse> actualizarConfiguracionReservas(
             @Valid @RequestBody ActualizarConfiguracionRequest request) {
@@ -98,20 +70,7 @@ public class ConfiguracionSistemaController {
 
     @PostMapping("/reservas/inicializar")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Inicializar configuración por defecto", 
                description = "Crea la configuración por defecto si no existe")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Configuración inicializada exitosamente",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ConfiguracionResponse.class))),
-        @ApiResponse(responseCode = "200", description = "Configuración ya existe",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ConfiguracionResponse.class))),
-        @ApiResponse(responseCode = "401", description = "No autorizado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requieren permisos de administrador"),
-        @ApiResponse(responseCode = "500", description = "Error interno del servidor",
-                    content = @Content(mediaType = "application/json", 
-                                     schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ConfiguracionResponse> inicializarConfiguracionPorDefecto() {
         try {

@@ -21,22 +21,18 @@ import edu.usco.campusbookings.application.dto.response.ReporteReservasResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.port.input.ReporteReservasUseCase;
 import edu.usco.campusbookings.application.port.input.ReservaUseCase;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/reservas")
 @RequiredArgsConstructor
-@Tag(name = "Reservas", description = "Operaciones relacionadas con la gestión de reservas")
 public class ReservaRestController {
 
     private final ReservaUseCase reservaUseCase;
     private final ReporteReservasUseCase reporteReservasUseCase;
 
     @PostMapping
-    @Operation(summary = "Crear una nueva reserva")
     public ResponseEntity<ReservaResponse> crearReserva(
             @Valid @RequestBody ReservaRequest request
     ) {
@@ -45,7 +41,6 @@ public class ReservaRestController {
 
     @PutMapping("/{id}/aprobar")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Aprobar una reserva")
     public ResponseEntity<ReservaResponse> aprobarReserva(
             @PathVariable Long id
     ) {
@@ -54,7 +49,6 @@ public class ReservaRestController {
 
     @PutMapping("/{id}/rechazar")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Rechazar una reserva con motivo específico")
     public ResponseEntity<ReservaResponse> rechazarReserva(
             @PathVariable Long id,
             @Valid @RequestBody RechazarReservaRequest request
@@ -63,7 +57,6 @@ public class ReservaRestController {
     }
 
     @PutMapping("/{id}/cancelar")
-    @Operation(summary = "Cancelar una reserva")
     public ResponseEntity<ReservaResponse> cancelarReserva(
             @PathVariable Long id
     ) {
@@ -71,7 +64,6 @@ public class ReservaRestController {
     }
 
     @GetMapping("/usuario/{id}")
-    @Operation(summary = "Obtener reservas por usuario")
     public ResponseEntity<List<ReservaResponse>> obtenerReservasPorUsuario(
             @PathVariable Long id
     ) {
@@ -80,7 +72,6 @@ public class ReservaRestController {
 
     @PostMapping("/reporte")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Generar reporte de reservas")
     public ResponseEntity<List<ReporteReservasResponse>> generarReporte(
             @Valid @RequestBody ReporteReservasRequest request
     ) {
@@ -88,7 +79,6 @@ public class ReservaRestController {
     }
 
     @GetMapping("/escenario/{id}")
-    @Operation(summary = "Obtener reservas por escenario")
     public ResponseEntity<List<ReservaResponse>> obtenerReservasPorEscenario(
             @PathVariable Long id
     ) {
@@ -96,7 +86,6 @@ public class ReservaRestController {
     }
 
     @GetMapping("/estado/{nombre}")
-    @Operation(summary = "Obtener reservas por estado")
     public ResponseEntity<List<ReservaResponse>> obtenerReservasPorEstado(
             @PathVariable String nombre
     ) {
@@ -105,13 +94,11 @@ public class ReservaRestController {
 
     @GetMapping("/admin/todas")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Obtener todas las reservas (solo administradores)")
     public ResponseEntity<List<ReservaResponse>> obtenerTodasLasReservas() {
         return ResponseEntity.ok(reservaUseCase.obtenerTodasLasReservas());
     }
 
     @PostMapping("/verificar-disponibilidad")
-    @Operation(summary = "Verificar disponibilidad de un escenario en tiempo real", 
                description = "Verifica si un escenario está disponible para el horario solicitado, proporcionando alternativas si no está disponible (inspirado en Cal.com)")
     public ResponseEntity<DisponibilidadResponse> verificarDisponibilidad(
             @Valid @RequestBody VerificarDisponibilidadRequest request
