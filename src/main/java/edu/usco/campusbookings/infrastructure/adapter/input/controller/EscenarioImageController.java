@@ -50,11 +50,6 @@ public class EscenarioImageController {
      */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-        summary = "Upload scenario image", 
-        description = "Uploads a single image for a scenario. Supports JPEG, PNG, and WebP formats. Max size: 5MB.",
-        responses = {
-        }
-    )
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             // Validar archivo
@@ -98,11 +93,6 @@ public class EscenarioImageController {
      */
     @PostMapping(value = "/upload/multiple", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-        summary = "Upload multiple scenario images", 
-        description = "Uploads multiple images for a scenario. Supports JPEG, PNG, and WebP formats. Max size per file: 5MB.",
-        responses = {
-        }
-    )
     public ResponseEntity<?> uploadMultipleImages(@RequestParam("files") MultipartFile[] files) {
         if (files.length == 0) {
             return ResponseEntity.badRequest()
@@ -177,11 +167,6 @@ public class EscenarioImageController {
      */
     @DeleteMapping("/{filename}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-        summary = "Delete scenario image", 
-        description = "Deletes an uploaded scenario image by filename",
-        responses = {
-        }
-    )
     public ResponseEntity<?> deleteImage(@PathVariable String filename) {
         try {
             boolean deleted = imageStorageService.deleteImage(filename);
@@ -217,9 +202,6 @@ public class EscenarioImageController {
      * @return image upload configuration
      */
     @GetMapping("/config")
-        summary = "Get image upload configuration", 
-        description = "Returns the allowed file types, maximum size, and other upload constraints"
-    )
     public ResponseEntity<?> getUploadConfig() {
         return ResponseEntity.ok(Map.of(
             "allowedFileTypes", ALLOWED_FILE_TYPES,

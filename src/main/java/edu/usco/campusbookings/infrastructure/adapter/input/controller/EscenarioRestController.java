@@ -63,7 +63,6 @@ public class EscenarioRestController {
      * @return the list of unique scenario types
      */
     @GetMapping("/tipos")
-               description = "Retrieves a list of all unique scenario types")
     public ResponseEntity<List<String>> getAllTiposEscenario() {
         return ResponseEntity.ok(escenarioUseCase.getTiposEscenario());
     }
@@ -74,7 +73,6 @@ public class EscenarioRestController {
      * @return the list of unique locations
      */
     @GetMapping("/ubicaciones")
-               description = "Retrieves a list of all unique locations")
     public ResponseEntity<List<String>> getAllUbicaciones() {
         return ResponseEntity.ok(escenarioUseCase.getUbicaciones());
     }

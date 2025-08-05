@@ -28,8 +28,6 @@ public class ConfiguracionSistemaController {
     }
 
     @GetMapping("/reservas")
-               description = "Obtiene la configuración actual de límites para reservas")
-    })
     public ResponseEntity<ConfiguracionResponse> obtenerConfiguracionReservas() {
         try {
             logger.info("GET /api/configuracion/reservas - Obteniendo configuración de reservas");
@@ -47,8 +45,6 @@ public class ConfiguracionSistemaController {
 
     @PutMapping("/reservas")
     @PreAuthorize("hasRole('ADMIN')")
-               description = "Actualiza los límites de días para realizar reservas")
-    })
     public ResponseEntity<ConfiguracionResponse> actualizarConfiguracionReservas(
             @Valid @RequestBody ActualizarConfiguracionRequest request) {
         try {
@@ -70,8 +66,6 @@ public class ConfiguracionSistemaController {
 
     @PostMapping("/reservas/inicializar")
     @PreAuthorize("hasRole('ADMIN')")
-               description = "Crea la configuración por defecto si no existe")
-    })
     public ResponseEntity<ConfiguracionResponse> inicializarConfiguracionPorDefecto() {
         try {
             logger.info("POST /api/configuracion/reservas/inicializar - Inicializando configuración por defecto");

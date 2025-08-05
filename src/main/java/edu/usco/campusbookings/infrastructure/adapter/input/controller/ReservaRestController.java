@@ -99,7 +99,6 @@ public class ReservaRestController {
     }
 
     @PostMapping("/verificar-disponibilidad")
-               description = "Verifica si un escenario está disponible para el horario solicitado, proporcionando alternativas si no está disponible (inspirado en Cal.com)")
     public ResponseEntity<DisponibilidadResponse> verificarDisponibilidad(
             @Valid @RequestBody VerificarDisponibilidadRequest request
     ) {
