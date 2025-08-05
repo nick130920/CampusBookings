@@ -22,5 +22,10 @@ public abstract class Auditable {
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
 
+    @Column(name = "created_by")
+    private String createdBy = "SYSTEM";
+
+    @Column(name = "modified_by")
+    private String modifiedBy = "SYSTEM";
 
 }
