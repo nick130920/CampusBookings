@@ -19,5 +19,18 @@ COPY --from=build /app/target/*.jar ./application.jar
 # Expose the port the application will run on
 EXPOSE 8081
 
-# Command to run the application
-CMD ["java", "-jar", "application.jar"]
+# Command to run the application with optimized JVM settings
+CMD ["java", \
+     "-server", \
+     "-Xms128m", \
+     "-Xmx512m", \
+     "-XX:+UseG1GC", \
+     "-XX:MaxGCPauseMillis=200", \
+     "-XX:+UnlockExperimentalVMOptions", \
+     "-XX:+UseContainerSupport", \
+     "-XX:MaxRAMPercentage=75.0", \
+     "-XX:+ExitOnOutOfMemoryError", \
+     "-Djava.awt.headless=true", \
+     "-Dfile.encoding=UTF-8", \
+     "-Dspring.profiles.active=prod", \
+     "-jar", "application.jar"]

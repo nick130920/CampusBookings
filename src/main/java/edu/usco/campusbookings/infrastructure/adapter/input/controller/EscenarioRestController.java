@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.usco.campusbookings.application.dto.request.EscenarioRequest;
 import edu.usco.campusbookings.application.dto.response.EscenarioResponse;
 import edu.usco.campusbookings.application.port.input.EscenarioUseCase;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +53,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/escenarios")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Escenario", description = "Operaciones relacionadas con la gestión de escenarios")
 public class EscenarioRestController {
 
     private final EscenarioUseCase escenarioUseCase;
@@ -66,7 +63,6 @@ public class EscenarioRestController {
      * @return the list of unique scenario types
      */
     @GetMapping("/tipos")
-    @Operation(summary = "Get all scenario types", 
                description = "Retrieves a list of all unique scenario types")
     public ResponseEntity<List<String>> getAllTiposEscenario() {
         return ResponseEntity.ok(escenarioUseCase.getTiposEscenario());
@@ -78,7 +74,6 @@ public class EscenarioRestController {
      * @return the list of unique locations
      */
     @GetMapping("/ubicaciones")
-    @Operation(summary = "Get all locations", 
                description = "Retrieves a list of all unique locations")
     public ResponseEntity<List<String>> getAllUbicaciones() {
         return ResponseEntity.ok(escenarioUseCase.getUbicaciones());
@@ -91,7 +86,6 @@ public class EscenarioRestController {
      * @return the found Escenario response
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Get a Escenario by ID", description = "Retrieves a Escenario entity by its unique ID")
     public ResponseEntity<EscenarioResponse> getEscenarioById(@PathVariable Long id) {
         return ResponseEntity.ok(escenarioUseCase.findById(id));
     }
@@ -102,7 +96,6 @@ public class EscenarioRestController {
      * @return the list of Escenario responses
      */
     @GetMapping
-    @Operation(summary = "Get all escenarios", description = "Retrieves a list of all Escenario entities")
     public ResponseEntity<List<EscenarioResponse>> getAllEscenarios() {
         return ResponseEntity.ok(escenarioUseCase.findAll());
     }
@@ -116,7 +109,6 @@ public class EscenarioRestController {
      */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Create a new Escenario", description = "Creates a new Escenario entity with the provided data")
     public ResponseEntity<EscenarioResponse> createEscenario(@Valid @RequestBody EscenarioRequest escenarioRequest) {
         return ResponseEntity.ok(escenarioUseCase.createEscenario(escenarioRequest));
     }
@@ -129,7 +121,6 @@ public class EscenarioRestController {
      */
     @PostMapping("/bulk")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Create escenarios in bulk", description = "Creates multiple Escenario entities in bulk with the provided data")
     public ResponseEntity<List<EscenarioResponse>> createEscenarios(@Valid@RequestBody List<EscenarioRequest> escenarioRequests) {
         return ResponseEntity.ok(escenarioUseCase.createEscenarios(escenarioRequests));
     }
@@ -143,7 +134,6 @@ public class EscenarioRestController {
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Update a Escenario", description = "Updates an existing Escenario entity with the provided data")
     public ResponseEntity<EscenarioResponse> updateEscenario(@PathVariable Long id, @RequestBody EscenarioRequest escenarioRequest) {
         return ResponseEntity.ok(escenarioUseCase.updateEscenario(id, escenarioRequest));
     }
@@ -156,7 +146,6 @@ public class EscenarioRestController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Delete a Escenario", description = "Deletes a Escenario entity by its unique ID")
     public ResponseEntity<Void> deleteEscenario(@PathVariable Long id) {
         escenarioUseCase.deleteById(id);
         return ResponseEntity.noContent().build();

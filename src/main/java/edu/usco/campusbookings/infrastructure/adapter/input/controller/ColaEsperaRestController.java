@@ -6,8 +6,6 @@ import edu.usco.campusbookings.application.port.input.ColaEsperaUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,7 +41,6 @@ import java.util.List;
 @RequestMapping("/api/colaespera")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "ColaEspera", description = "Operations related to colaespera entities")
 public class ColaEsperaRestController {
 
     private final ColaEsperaUseCase colaesperaUseCase;
@@ -55,7 +52,6 @@ public class ColaEsperaRestController {
      * @return the found ColaEspera response
      */
     @GetMapping("/{id}")
-    @Operation(summary = "Get a ColaEspera by ID", description = "Retrieves a ColaEspera entity by its unique ID")
     public ResponseEntity<ColaEsperaResponse> getColaEspera(@PathVariable Long id) {
         return ResponseEntity.ok(colaesperaUseCase.findById(id));
     }
@@ -66,7 +62,6 @@ public class ColaEsperaRestController {
      * @return the list of ColaEspera responses
      */
     @GetMapping
-    @Operation(summary = "Get all colaesperas", description = "Retrieves a list of all ColaEspera entities")
     public ResponseEntity<List<ColaEsperaResponse>> getAllColaEsperas() {
         return ResponseEntity.ok(colaesperaUseCase.findAll());
     }
@@ -78,7 +73,6 @@ public class ColaEsperaRestController {
      * @return the created ColaEspera response
      */
     @PostMapping
-    @Operation(summary = "Create a new ColaEspera", description = "Creates a new ColaEspera entity with the provided data")
     public ResponseEntity<ColaEsperaResponse> createColaEspera(@RequestBody ColaEsperaRequest colaesperaRequest) {
         return ResponseEntity.ok(colaesperaUseCase.createColaEspera(colaesperaRequest));
     }
@@ -90,7 +84,6 @@ public class ColaEsperaRestController {
      * @return List of created ColaEsperaResponse objects.
      */
     @PostMapping("/bulk")
-    @Operation(summary = "Create colaesperas in bulk", description = "Creates multiple ColaEspera entities in bulk with the provided data")
     public ResponseEntity<List<ColaEsperaResponse>> createColaEsperas(@RequestBody List<ColaEsperaRequest> colaesperaRequests) {
         return ResponseEntity.ok(colaesperaUseCase.createColaEsperas(colaesperaRequests));
     }
@@ -103,7 +96,6 @@ public class ColaEsperaRestController {
      * @return the updated ColaEspera response
      */
     @PutMapping("/{id}")
-    @Operation(summary = "Update a ColaEspera", description = "Updates an existing ColaEspera entity with the provided data")
     public ResponseEntity<ColaEsperaResponse> updateColaEspera(@PathVariable Long id, @RequestBody ColaEsperaRequest colaesperaRequest) {
         return ResponseEntity.ok(colaesperaUseCase.updateColaEspera(id, colaesperaRequest));
     }
@@ -115,7 +107,6 @@ public class ColaEsperaRestController {
      * @return 204 No Content response
      */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a ColaEspera", description = "Deletes a ColaEspera entity by its unique ID")
     public ResponseEntity<Void> deleteColaEspera(@PathVariable Long id) {
         colaesperaUseCase.deleteById(id);
         return ResponseEntity.noContent().build();

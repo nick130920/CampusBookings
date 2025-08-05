@@ -2,8 +2,6 @@ package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 
 import edu.usco.campusbookings.domain.model.constants.USCOColors;
 import edu.usco.campusbookings.infrastructure.config.USCOBrandingProperties;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +15,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/branding")
 @RequiredArgsConstructor
-@Tag(name = "Branding USCO", description = "Información de imagen institucional y colores oficionales USCO")
 public class USCOBrandingController {
 
     private final USCOBrandingProperties brandingProperties;
 
     @GetMapping("/colors")
-    @Operation(summary = "Obtener paleta de colores oficiales USCO")
     public ResponseEntity<Map<String, Object>> getUSCOColors() {
         Map<String, Object> response = new HashMap<>();
         
@@ -35,7 +31,6 @@ public class USCOBrandingController {
     }
 
     @GetMapping("/colors/facultad/{nombre}")
-    @Operation(summary = "Obtener color específico de una facultad")
     public ResponseEntity<Map<String, String>> getColorFacultad(@PathVariable String nombre) {
         String color = brandingProperties.getFacultadColor(nombre);
         
@@ -47,7 +42,6 @@ public class USCOBrandingController {
     }
 
     @PostMapping("/colors/validate")
-    @Operation(summary = "Validar si un color pertenece a la paleta oficial USCO")
     public ResponseEntity<Map<String, Object>> validateUSCOColor(@RequestBody Map<String, String> request) {
         String color = request.get("color");
         
@@ -69,7 +63,6 @@ public class USCOBrandingController {
     }
 
     @PostMapping("/colors/convert")
-    @Operation(summary = "Convertir color entre formatos hex y RGB")
     public ResponseEntity<Map<String, Object>> convertColor(@RequestBody Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         
@@ -104,7 +97,6 @@ public class USCOBrandingController {
     }
 
     @GetMapping("/info")
-    @Operation(summary = "Obtener información general de branding USCO")
     public ResponseEntity<Map<String, Object>> getBrandingInfo() {
         Map<String, Object> info = new HashMap<>();
         
@@ -151,7 +143,6 @@ public class USCOBrandingController {
     }
 
     @GetMapping("/logos/{tipo}")
-    @Operation(summary = "Obtener URL de logo específico")
     public ResponseEntity<Map<String, String>> getLogo(
             @PathVariable String tipo,
             @RequestParam(defaultValue = "base") String tamaño) {

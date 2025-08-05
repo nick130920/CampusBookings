@@ -16,15 +16,12 @@ import edu.usco.campusbookings.application.dto.response.CalendarioDisponibilidad
 import edu.usco.campusbookings.application.dto.response.EscenarioDisponibilidadResponse;
 import edu.usco.campusbookings.application.port.input.CalendarioDisponibilidadUseCase;
 import edu.usco.campusbookings.application.port.input.DisponibilidadUseCase;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/disponibilidad")
 @RequiredArgsConstructor
-@Tag(name = "Disponibilidad", description = "Operaciones relacionadas con la consulta de disponibilidad de escenarios")
 public class DisponibilidadRestController {
 
     private final DisponibilidadUseCase disponibilidadUseCase;
@@ -32,7 +29,6 @@ public class DisponibilidadRestController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    @Operation(summary = "Consultar disponibilidad de escenarios")
     public ResponseEntity<List<EscenarioDisponibilidadResponse>> consultarDisponibilidad(
             @Valid @RequestBody DisponibilidadRequest request
     ) {
@@ -41,7 +37,6 @@ public class DisponibilidadRestController {
 
     @PostMapping("/calendario")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    @Operation(summary = "Consultar disponibilidad de calendario para múltiples escenarios")
     public ResponseEntity<List<CalendarioDisponibilidadResponse>> consultarDisponibilidadCalendario(
             @Valid @RequestBody DisponibilidadRequest request
     ) {
@@ -50,7 +45,6 @@ public class DisponibilidadRestController {
 
     @GetMapping("/calendario/{escenarioId}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    @Operation(summary = "Consultar disponibilidad de calendario para un escenario específico")
     public ResponseEntity<CalendarioDisponibilidadResponse> consultarDisponibilidadCalendarioEscenario(
             @PathVariable Long escenarioId,
             @Valid DisponibilidadRequest request
