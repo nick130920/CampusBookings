@@ -60,4 +60,14 @@ public interface ReservaPersistencePort {
      * @return Lista de reservas que entran en conflicto
      */
     List<Reserva> findConflictingReservations(Long escenarioId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    
+    /**
+     * Encuentra todas las reservas de un escenario en un rango de fechas específico.
+     * Incluye reservas APROBADAS y PENDIENTES.
+     * @param escenarioId ID del escenario
+     * @param fechaInicio Fecha de inicio del rango
+     * @param fechaFin Fecha de fin del rango
+     * @return Lista de reservas en el rango especificado
+     */
+    List<Reserva> findByEscenarioIdAndFechaRange(Long escenarioId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
 }

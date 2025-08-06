@@ -257,4 +257,24 @@ public class ReservaPersistence implements ReservaPersistencePort {
         // Buscar reservas aprobadas que se solapen con el rango de fechas
         return reservaJpaRepository.findConflictingReservations(escenarioId, fechaInicio, fechaFin);
     }
+
+    /**
+     * Encuentra todas las reservas de un escenario en un rango de fechas específico.
+     * Incluye reservas APROBADAS y PENDIENTES.
+     * 
+     * @param escenarioId ID del escenario
+     * @param fechaInicio Fecha de inicio del rango
+     * @param fechaFin Fecha de fin del rango
+     * @return Lista de reservas en el rango especificado
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Reserva> findByEscenarioIdAndFechaRange(Long escenarioId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        if (escenarioId == null || fechaInicio == null || fechaFin == null) {
+            throw new IllegalArgumentException("Ningún parámetro puede ser nulo");
+        }
+        
+        // Buscar reservas activas (aprobadas y pendientes) que se solapen con el rango de fechas
+        return reservaJpaRepository.findByEscenarioIdAndFechaRange(escenarioId, fechaInicio, fechaFin);
+    }
 }

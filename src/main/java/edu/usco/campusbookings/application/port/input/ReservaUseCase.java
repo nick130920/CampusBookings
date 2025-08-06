@@ -1,8 +1,10 @@
 package edu.usco.campusbookings.application.port.input;
 
+import edu.usco.campusbookings.application.dto.request.OcupacionesDiaRequest;
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
 import edu.usco.campusbookings.application.dto.request.VerificarDisponibilidadRequest;
 import edu.usco.campusbookings.application.dto.response.DisponibilidadResponse;
+import edu.usco.campusbookings.application.dto.response.OcupacionesDiaResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 
 import java.util.List;
@@ -22,4 +24,10 @@ public interface ReservaUseCase {
      * Inspirado en las verificaciones instantáneas de Cal.com.
      */
     DisponibilidadResponse verificarDisponibilidad(VerificarDisponibilidadRequest request);
+    
+    /**
+     * Obtiene todas las ocupaciones de un escenario en un día específico.
+     * Optimización para evitar múltiples consultas de disponibilidad.
+     */
+    OcupacionesDiaResponse obtenerOcupacionesDia(OcupacionesDiaRequest request);
 }

@@ -1,7 +1,9 @@
 package edu.usco.campusbookings.application.service;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,9 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.usco.campusbookings.application.dto.request.OcupacionesDiaRequest;
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
 import edu.usco.campusbookings.application.dto.request.VerificarDisponibilidadRequest;
 import edu.usco.campusbookings.application.dto.response.DisponibilidadResponse;
+import edu.usco.campusbookings.application.dto.response.OcupacionesDiaResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.exception.InvalidReservaException;
 import edu.usco.campusbookings.application.exception.ReservaNotFoundException;
@@ -678,5 +682,57 @@ public class ReservaService implements ReservaUseCase {
                     approvedReserva.getId(), e);
             // No lanzar excepción para no afectar la aprobación principal
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OcupacionesDiaResponse obtenerOcupacionesDia(OcupacionesDiaRequest request) {
+        log.debug("Obteniendo ocupaciones para escenario: {} en fecha: {}", 
+                 request.getEscenarioId(), request.getFecha());
+
+        // Verificar que el escenario existe
+        var escenario = reservaPersistencePort.findEscenarioById(request.getEscenarioId());
+        if (escenario.isEmpty()) {
+            throw new IllegalArgumentException("Escenario no encontrado con ID: " + request.getEscenarioId());
+        }
+
+        // Calcular el rango de tiempo para todo el día
+        LocalDateTime inicioDelDia = request.getFecha().atTime(LocalTime.MIN);
+        LocalDateTime finDelDia = request.getFecha().atTime(LocalTime.MAX);
+
+        // Obtener todas las reservas activas (aprobadas y pendientes) para el día
+        List<Reserva> reservasDelDia = reservaPersistencePort.findByEscenarioIdAndFechaRange(
+                request.getEscenarioId(), inicioDelDia, finDelDia);
+
+        // Filtrar solo las reservas que están aprobadas o pendientes de aprobación
+        List<Reserva> reservasActivas = reservasDelDia.stream()
+                .filter(reserva -> {
+                    String estadoNombre = reserva.getEstado().getNombre();
+                    return "APROBADA".equals(estadoNombre) || "PENDIENTE".equals(estadoNombre);
+                })
+                .collect(Collectors.toList());
+
+        // Convertir a bloques ocupados
+        List<OcupacionesDiaResponse.BloqueOcupado> bloquesOcupados = reservasActivas.stream()
+                .map(reserva -> OcupacionesDiaResponse.BloqueOcupado.builder()
+                        .horaInicio(reserva.getFechaInicio())
+                        .horaFin(reserva.getFechaFin())
+                        .motivo(String.format("Reserva de %s %s", 
+                                reserva.getUsuario().getNombre(), 
+                                reserva.getUsuario().getApellido()))
+                        .estado(reserva.getEstado().getNombre())
+                        .reservaId(reserva.getId())
+                        .build())
+                .collect(Collectors.toList());
+
+        log.debug("Encontrados {} bloques ocupados para escenario {} en fecha {}", 
+                 bloquesOcupados.size(), request.getEscenarioId(), request.getFecha());
+
+        return OcupacionesDiaResponse.builder()
+                .escenarioId(request.getEscenarioId())
+                .escenarioNombre(escenario.get().getNombre())
+                .fecha(request.getFecha())
+                .bloquesOcupados(bloquesOcupados)
+                .build();
     }
 }

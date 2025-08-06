@@ -14,7 +14,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -80,56 +79,52 @@ public class InitialDataLoader {
     private void createTipoEscenarios() {
         List<TipoEscenario> tipos = Arrays.asList(
                 TipoEscenario.builder()
-                        .nombre("Aula de Clase")
-                        .descripcion("Aula estándar para clases teóricas")
-                        .build(),
-                TipoEscenario.builder()
-                        .nombre("Laboratorio de Computación")
-                        .descripcion("Laboratorio equipado con computadores")
-                        .build(),
-                TipoEscenario.builder()
-                        .nombre("Laboratorio de Ciencias")
-                        .descripcion("Laboratorio para prácticas de ciencias básicas")
-                        .build(),
-                TipoEscenario.builder()
-                        .nombre("Laboratorio Especializado")
-                        .descripcion("Laboratorio de investigación avanzada")
+                        .nombre("Deportivo")
+                        .descripcion("Espacios destinados a actividades deportivas y recreativas")
                         .build(),
                 TipoEscenario.builder()
                         .nombre("Auditorio")
-                        .descripcion("Espacio para eventos y presentaciones")
+                        .descripcion("Espacios para eventos, conferencias y presentaciones")
                         .build(),
                 TipoEscenario.builder()
-                        .nombre("Sala de Reuniones")
-                        .descripcion("Espacio para reuniones y trabajo en grupo")
+                        .nombre("Laboratorio/Didáctico")
+                        .descripcion("Espacios de aprendizaje práctico y experimentación")
                         .build(),
                 TipoEscenario.builder()
-                        .nombre("Cancha Deportiva")
-                        .descripcion("Espacio para actividades deportivas")
+                        .nombre("Laboratorio")
+                        .descripcion("Laboratorios especializados para investigación y práctica")
                         .build(),
                 TipoEscenario.builder()
                         .nombre("Biblioteca")
-                        .descripcion("Espacio de estudio y consulta")
+                        .descripcion("Espacios de estudio, consulta y recursos bibliográficos")
                         .build(),
                 TipoEscenario.builder()
-                        .nombre("Gimnasio")
-                        .descripcion("Espacio para actividades físicas")
-                        .build(),
-                TipoEscenario.builder()
-                        .nombre("Piscina")
-                        .descripcion("Escenario acuático para natación")
-                        .build(),
-                TipoEscenario.builder()
-                        .nombre("Centro Tecnológico")
-                        .descripcion("Centro de innovación y tecnología avanzada")
+                        .nombre("Sala de Cómputo")
+                        .descripcion("Salas equipadas con computadores y tecnología")
                         .build(),
                 TipoEscenario.builder()
                         .nombre("Restaurante")
-                        .descripcion("Espacio de alimentación estudiantil")
+                        .descripcion("Espacios de alimentación estudiantil y universitaria")
                         .build(),
                 TipoEscenario.builder()
                         .nombre("Cafetería")
-                        .descripcion("Espacio de encuentro y alimentación informal")
+                        .descripcion("Espacios de encuentro y alimentación informal")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Administrativo")
+                        .descripcion("Espacios destinados a actividades administrativas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Bloque Académico")
+                        .descripcion("Conjuntos de aulas para clases y actividades académicas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Edificio Académico")
+                        .descripcion("Edificios completos destinados a actividades académicas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Investigación/Práctica")
+                        .descripcion("Espacios destinados a investigación y prácticas especializadas")
                         .build()
         );
 
@@ -138,32 +133,32 @@ public class InitialDataLoader {
     }
 
     private void createUbicaciones() {
-        // Sede Principal Neiva - Subsede Central
-        Ubicacion central = Ubicacion.builder()
-                .nombre("Subsede Central")
+        // Sede Central
+        Ubicacion sedeCentral = Ubicacion.builder()
+                .nombre("Sede Central")
                 .direccion("Avenida Pastrana Borrero - Carrera 1")
                 .ciudad("Neiva")
                 .pais("Colombia")
                 .build();
 
-        // Sede Principal Neiva - Torre Administrativa y Postgrados
-        Ubicacion torreAdmin = Ubicacion.builder()
-                .nombre("Torre Administrativa y Postgrados")
-                .direccion("Carrera 5 No. 23-40")
-                .ciudad("Neiva")
-                .pais("Colombia")
-                .build();
-
-        // Sede Principal Neiva - Subsede Salud
-        Ubicacion salud = Ubicacion.builder()
+        // Subsede Salud
+        Ubicacion subsedeSalud = Ubicacion.builder()
                 .nombre("Subsede Salud")
                 .direccion("Calle 9 # 14-03")
                 .ciudad("Neiva")
                 .pais("Colombia")
                 .build();
 
+        // Sede Neiva Centro (Torre Administrativa)
+        Ubicacion sedeNeivaCentro = Ubicacion.builder()
+                .nombre("Sede Neiva Centro")
+                .direccion("Carrera 5 No. 23-40")
+                .ciudad("Neiva")
+                .pais("Colombia")
+                .build();
+
         // Sede Garzón
-        Ubicacion garzon = Ubicacion.builder()
+        Ubicacion sedeGarzon = Ubicacion.builder()
                 .nombre("Sede Garzón")
                 .direccion("Vereda Las Termitas")
                 .ciudad("Garzón")
@@ -171,7 +166,7 @@ public class InitialDataLoader {
                 .build();
 
         // Sede Pitalito
-        Ubicacion pitalito = Ubicacion.builder()
+        Ubicacion sedePitalito = Ubicacion.builder()
                 .nombre("Sede Pitalito")
                 .direccion("Kilómetro 1 vía Vereda El Macal")
                 .ciudad("Pitalito")
@@ -179,14 +174,14 @@ public class InitialDataLoader {
                 .build();
 
         // Sede La Plata
-        Ubicacion laPlata = Ubicacion.builder()
+        Ubicacion sedeLaPlata = Ubicacion.builder()
                 .nombre("Sede La Plata")
                 .direccion("Kilómetro 1 vía a Fátima")
                 .ciudad("La Plata")
                 .pais("Colombia")
                 .build();
 
-        List<Ubicacion> ubicaciones = List.of(central, torreAdmin, salud, garzon, pitalito, laPlata);
+        List<Ubicacion> ubicaciones = List.of(sedeCentral, subsedeSalud, sedeNeivaCentro, sedeGarzon, sedePitalito, sedeLaPlata);
         ubicacionRepository.saveAll(ubicaciones);
         log.info("Created {} initial locations", ubicaciones.size());
     }
@@ -214,232 +209,388 @@ public class InitialDataLoader {
     }
 
     private void createEscenariosUSCO() {
-        // Obtener ubicaciones y tipos existentes
-        Ubicacion central = ubicacionRepository.findByNombre("Subsede Central").orElse(null);
-        Ubicacion salud = ubicacionRepository.findByNombre("Subsede Salud").orElse(null);
-        Ubicacion garzon = ubicacionRepository.findByNombre("Sede Garzón").orElse(null);
-        Ubicacion pitalito = ubicacionRepository.findByNombre("Sede Pitalito").orElse(null);
-        Ubicacion laPlata = ubicacionRepository.findByNombre("Sede La Plata").orElse(null);
+        // Obtener ubicaciones
+        Ubicacion sedeCentral = ubicacionRepository.findByNombre("Sede Central").orElse(null);
+        Ubicacion subsedeSalud = ubicacionRepository.findByNombre("Subsede Salud").orElse(null);
+        Ubicacion sedeNeivaCentro = ubicacionRepository.findByNombre("Sede Neiva Centro").orElse(null);
+        Ubicacion sedeGarzon = ubicacionRepository.findByNombre("Sede Garzón").orElse(null);
+        Ubicacion sedePitalito = ubicacionRepository.findByNombre("Sede Pitalito").orElse(null);
+        Ubicacion sedeLaPlata = ubicacionRepository.findByNombre("Sede La Plata").orElse(null);
 
-        // Tipos de escenario
-        TipoEscenario aula = tipoEscenarioRepository.findByNombre("Aula de Clase").orElse(null);
+        // Obtener tipos de escenario
+        TipoEscenario deportivo = tipoEscenarioRepository.findByNombre("Deportivo").orElse(null);
         TipoEscenario auditorio = tipoEscenarioRepository.findByNombre("Auditorio").orElse(null);
-        TipoEscenario labComputacion = tipoEscenarioRepository.findByNombre("Laboratorio de Computación").orElse(null);
-        TipoEscenario labCiencias = tipoEscenarioRepository.findByNombre("Laboratorio de Ciencias").orElse(null);
-        TipoEscenario labEspecializado = tipoEscenarioRepository.findByNombre("Laboratorio Especializado").orElse(null);
-        TipoEscenario cancha = tipoEscenarioRepository.findByNombre("Cancha Deportiva").orElse(null);
+        TipoEscenario laboratorioDida = tipoEscenarioRepository.findByNombre("Laboratorio/Didáctico").orElse(null);
+        TipoEscenario laboratorio = tipoEscenarioRepository.findByNombre("Laboratorio").orElse(null);
         TipoEscenario biblioteca = tipoEscenarioRepository.findByNombre("Biblioteca").orElse(null);
-        TipoEscenario piscina = tipoEscenarioRepository.findByNombre("Piscina").orElse(null);
-        TipoEscenario centroTecnologico = tipoEscenarioRepository.findByNombre("Centro Tecnológico").orElse(null);
+        TipoEscenario salaComputo = tipoEscenarioRepository.findByNombre("Sala de Cómputo").orElse(null);
         TipoEscenario restaurante = tipoEscenarioRepository.findByNombre("Restaurante").orElse(null);
         TipoEscenario cafeteria = tipoEscenarioRepository.findByNombre("Cafetería").orElse(null);
+        TipoEscenario administrativo = tipoEscenarioRepository.findByNombre("Administrativo").orElse(null);
+        TipoEscenario bloqueAcademico = tipoEscenarioRepository.findByNombre("Bloque Académico").orElse(null);
+        TipoEscenario edificioAcademico = tipoEscenarioRepository.findByNombre("Edificio Académico").orElse(null);
+        TipoEscenario investigacionPractica = tipoEscenarioRepository.findByNombre("Investigación/Práctica").orElse(null);
 
         List<Escenario> escenarios = Arrays.asList(
-            // === ESCENARIOS DEPORTIVOS ===
-            
-            // Cancha de Microfútbol
+            // Escenarios basados en el CSV oficial de la USCO
+
+            // Escenarios Deportivos
             Escenario.builder()
                 .nombre("Cancha de Microfútbol")
-                .tipo(cancha)
-                .ubicacion(central)
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
                 .capacidad(200)
-                .descripcion("Primer escenario deportivo al ingresar por la entrada principal. Superficie de concreto con demarcación certificada por FIFA para fútbol de salón.")
-                .recursos("Dos arcos para fútbol sala, agujeros para postes de tenis de campo, pared de concreto para práctica de tenis, graderías")
+                .descripcion("Cancha de concreto 40x20m con graderías; arcos fútbol sala; pared tenis; normativa FIFA.")
+                .recursos("Área deportiva, cancha de concreto, graderías, arcos de fútbol sala")
                 .disponible(true)
                 .build(),
 
-            // Piscina
             Escenario.builder()
                 .nombre("Piscina")
-                .tipo(piscina)
-                .ubicacion(central)
-                .capacidad(50)
-                .descripcion("Escenario acuático de 25x10 metros con profundidad variable de 1.20 a 2.10 metros. Cumple normativa Ley 1209 de 2008.")
-                .recursos("Seis plataformas de salida, encerramiento con reja, baños y vestiers para hombres y mujeres")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
+                .capacidad(50) // No especificada en CSV
+                .descripcion("Piscina semiolímpica 25x10m; profundidad 1.2-2.1m; seis poyetes; baños y vestiers.")
+                .recursos("Área deportiva, piscina semiolímpica, baños, vestiers")
                 .disponible(true)
                 .build(),
 
-            // Coliseo César Eduardo Medina Perdomo
             Escenario.builder()
                 .nombre("Coliseo César Eduardo Medina Perdomo")
-                .tipo(cancha)
-                .ubicacion(central)
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
                 .capacidad(500)
-                .descripcion("Coliseo cubierto de 20.7x31.70 metros con piso portátil tipo NBA certificado por FIBA.")
-                .recursos("Piso Robbins All-Star Plus, 2 tableros de vidrio templado, demarcación para baloncesto y voleibol, baños, vestiers y duchas")
+                .descripcion("Coliseo cubierto 20.7x31.7m; piso NBA Robbins; tableros vidrio; demarcación baloncesto y voleibol.")
+                .recursos("Bloque 21, coliseo cubierto, piso NBA, tableros de vidrio")
                 .disponible(true)
                 .build(),
 
-            // Campo de Vóley-Playa
             Escenario.builder()
-                .nombre("Campo de Vóley-Playa")
-                .tipo(cancha)
-                .ubicacion(central)
+                .nombre("Cancha de Vóley-Playa")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
                 .capacidad(200)
-                .descripcion("Cancha de voleibol playa al aire libre de 34x25 metros con malla permanente disponible 24 horas.")
-                .recursos("Malla permanente, graderías, iluminación nocturna")
+                .descripcion("Cancha 34x25m de arena; malla permanente; graderías.")
+                .recursos("Área deportiva, cancha de arena, malla permanente, graderías")
                 .disponible(true)
                 .build(),
 
-            // Polideportivo
             Escenario.builder()
                 .nombre("Polideportivo")
-                .tipo(cancha)
-                .ubicacion(central)
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
                 .capacidad(200)
-                .descripcion("Escenario techado multideportivo de 28x15 metros con demarcación para múltiples deportes.")
-                .recursos("Cancha techada multiuso, demarcación para baloncesto, voleibol, microfútbol y balonmano, graderías")
+                .descripcion("Escenario techado 28x15m multipropósito; baloncesto, voleibol, microfútbol.")
+                .recursos("Área deportiva, escenario techado, multipropósito")
                 .disponible(true)
                 .build(),
 
-            // === ESCENARIOS ACADÉMICOS ===
+            Escenario.builder()
+                .nombre("Campo de Fútbol")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Campo profesional de césped; rodeado por pista atlética.")
+                .recursos("Área deportiva, campo de césped, pista atlética")
+                .disponible(true)
+                .build(),
 
-            // Auditorio Olga Tony Vidales
+            Escenario.builder()
+                .nombre("Pista Atlética")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Pista 400m; 6 carriles de arena de arcilla; placas marcadoras cada 100m.")
+                .recursos("Área deportiva, pista de 400m, 6 carriles")
+                .disponible(true)
+                .build(),
+
+            // Auditorios
             Escenario.builder()
                 .nombre("Auditorio Olga Tony Vidales")
                 .tipo(auditorio)
-                .ubicacion(central)
+                .ubicacion(sedeCentral)
                 .capacidad(300)
-                .descripcion("Auditorio emblemático recientemente renovado con inversión de 92 millones de pesos.")
-                .recursos("Nuevo techo interno y externo, sistema eléctrico renovado, tableros electrónicos, sistema de sonido")
+                .descripcion("Auditorio renovado; sistema audiovisual moderno; nuevo techo y electricidad.")
+                .recursos("Bloque 02, sistema audiovisual, techo renovado")
                 .disponible(true)
                 .build(),
 
-            // Nuevo Auditorio Facultad de Economía
             Escenario.builder()
-                .nombre("Auditorio Facultad de Economía y Administración")
+                .nombre("Auditorio Facultad Economía y Administración")
                 .tipo(auditorio)
-                .ubicacion(central)
-                .capacidad(650)
-                .descripcion("El auditorio más moderno y grande del departamento del Huila con inversión de más de 5.000 millones de pesos.")
-                .recursos("860m² acondicionamiento acústico, aire acondicionado 87 toneladas, proyector láser, sistema sonido última generación, pantallas grandes")
+                .ubicacion(sedeCentral)
+                .capacidad(700)
+                .descripcion("Auditorio 860m2 acústica; 260m2 aislamiento; aire 87Tn; proyector láser; sonido e iluminación profesional.")
+                .recursos("Bloque 30, acústica profesional, aire acondicionado, proyector láser")
                 .disponible(true)
                 .build(),
 
-            // Centro STEM+
+            // Laboratorios y Centros Especializados
             Escenario.builder()
                 .nombre("Centro STEM+")
-                .tipo(centroTecnologico)
-                .ubicacion(central)
-                .capacidad(40)
-                .descripcion("Centro de última generación para ciencia, tecnología, ingeniería y matemáticas con inversión de 3.570 millones.")
-                .recursos("31 computadores especializados en diseño 3D e IA, 20 gafas VR, 2 pantallas táctiles, cámaras 360, sensores, Alexa, conexión metaverso")
+                .tipo(laboratorioDida)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("31 PCs diseño 3D; 20 gafas VR; pantallas táctiles; cámaras 360; IA; metaverso.")
+                .recursos("Bloque 30, 31 PCs especializados, 20 gafas VR, pantallas táctiles")
                 .disponible(true)
                 .build(),
 
-            // === LABORATORIOS ESPECIALIZADOS ===
-
-            // Laboratorio de Biodiversidad Molecular
             Escenario.builder()
-                .nombre("Laboratorio de Biodiversidad Molecular y Citogenética")
-                .tipo(labEspecializado)
-                .ubicacion(central)
-                .capacidad(15)
-                .descripcion("Laboratorio de investigación de última generación para estudios de diversidad genética y análisis de especies.")
-                .recursos("Neveras con cámaras y acceso internet, esterilizadores con control digital, centrifugadoras termo-científicas, incubadoras, balanza analítica")
+                .nombre("Laboratorio Biodiversidad Molecular y Citogenética")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Neveras conectadas; esterilizadores digitales; centrifugadoras; incubadoras; balanza analítica.")
+                .recursos("Bloque 10, neveras especializadas, esterilizadores, centrifugadoras")
                 .disponible(true)
                 .build(),
 
-            // Laboratorio de Biología
             Escenario.builder()
-                .nombre("Laboratorio de Biología")
-                .tipo(labCiencias)
-                .ubicacion(central)
-                .capacidad(25)
-                .descripcion("Laboratorio de ciencias básicas con dotación de 243 millones de pesos.")
-                .recursos("Espectrofotómetro, purificador de agua tipo I ultrapura y tipo 3 destilada, equipos para prácticas de biología y bioquímica")
+                .nombre("Laboratorio Biología")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(30)
+                .descripcion("Dotación 243M COP; espectrofotómetro; purificador agua Tipo I/III.")
+                .recursos("Bloque 10, espectrofotómetro, purificador de agua")
                 .disponible(true)
                 .build(),
 
-            // Laboratorio de Simulación Científica
             Escenario.builder()
-                .nombre("Laboratorio de Simulación Científica")
-                .tipo(labComputacion)
-                .ubicacion(central)
-                .capacidad(20)
-                .descripcion("Laboratorio computacional de alta tecnología con inversión de 455 millones de pesos.")
-                .recursos("10 estaciones de trabajo configuradas, software especializado simulaciones, fibra óptica, tableros trifásicos, aire acondicionado")
+                .nombre("Laboratorio Química")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(30)
+                .descripcion("Dotación 51M COP; bomba vacío; pH-metro digital; reactivos especializados.")
+                .recursos("Bloque 10, bomba de vacío, pH-metro digital, reactivos")
                 .disponible(true)
                 .build(),
 
-            // === ESPACIOS DE BIENESTAR ===
+            Escenario.builder()
+                .nombre("Laboratorio Microbiología")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(30)
+                .descripcion("Dotación 104M COP; incubadora; colorímetro; autoclave; bacto-incinerador.")
+                .recursos("Bloque 10, incubadora, colorímetro, autoclave")
+                .disponible(true)
+                .build(),
 
-            // Biblioteca Central
+            Escenario.builder()
+                .nombre("Laboratorio Simulación Científica")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(10)
+                .descripcion("455M COP; 10 estaciones de trabajo; software simulaciones; aire acondicionado.")
+                .recursos("Bloque 10, 10 estaciones de trabajo, software especializado")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Laboratorio Multimedia")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("334M COP; producción audiovisual y multimedia.")
+                .recursos("Bloque 10, equipos de producción audiovisual")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Laboratorio Arqueología")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("160M COP; análisis arqueológicos; investigación patrimonial.")
+                .recursos("Bloque 10, equipos de análisis arqueológico")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Laboratorio Suelos (LABGAA)")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Análisis físico-químico de suelos; planes de fertilización.")
+                .recursos("Bloque 27, equipos análisis de suelos")
+                .disponible(true)
+                .build(),
+
+            // Bibliotecas
             Escenario.builder()
                 .nombre("Biblioteca Central Rafael Cortés Murcia")
                 .tipo(biblioteca)
-                .ubicacion(central)
-                .capacidad(150)
-                .descripcion("Biblioteca principal del sistema bibliotecario con horario extendido de lunes a sábado.")
-                .recursos("Salas de estudio, internet, bases de datos, colecciones general y especializada, hemeroteca, trabajos de grado")
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Sala general; hemeroteca; sala virtual Ecopetrol; bases de datos.")
+                .recursos("Biblioteca, sala general, hemeroteca, bases de datos")
                 .disponible(true)
                 .build(),
 
-            // Biblioteca de Salud
             Escenario.builder()
-                .nombre("Biblioteca de Salud Gloria Gutiérrez Andrade")
+                .nombre("Biblioteca Salud Gloria Gutiérrez Andrade")
                 .tipo(biblioteca)
-                .ubicacion(salud)
-                .capacidad(80)
-                .descripcion("Biblioteca especializada en ciencias de la salud con bases de datos médicas especializadas.")
-                .recursos("Bases de datos médicas Ovid y de enfermería Doyma, colección especializada en salud")
+                .ubicacion(subsedeSalud)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Biblioteca especializada en ciencias de la salud; bases de datos médicas.")
+                .recursos("Bloque 51, bases de datos médicas especializadas")
                 .disponible(true)
                 .build(),
 
-            // Restaurante La Venada
+            // Salas de Cómputo
+            Escenario.builder()
+                .nombre("Sala Virtual Ecopetrol")
+                .tipo(salaComputo)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Sala de PCs; conexión a bases de datos; horario extendido.")
+                .recursos("Biblioteca Central, PCs, bases de datos")
+                .disponible(true)
+                .build(),
+
+            // Restaurantes y Cafeterías
             Escenario.builder()
                 .nombre("Restaurante La Venada")
                 .tipo(restaurante)
-                .ubicacion(central)
+                .ubicacion(sedeCentral)
                 .capacidad(600)
-                .descripcion("Restaurante principal con capacidad para 260 desayunos, 600 almuerzos y 340 cenas diarias.")
-                .recursos("Cocina industrial, comedor amplio, subsidio del 80% por parte de la Universidad, servicio de lunes a domingo")
+                .descripcion("Servicio subvencionado: 260 desayunos; 600 almuerzos; 340 cenas diarias.")
+                .recursos("Bloque 20, cocina industrial, comedor")
                 .disponible(true)
                 .build(),
 
-            // Cafetería Café y Letras
+            Escenario.builder()
+                .nombre("Restaurante Facultad Salud")
+                .tipo(restaurante)
+                .ubicacion(subsedeSalud)
+                .capacidad(180)
+                .descripcion("Restaurante: 100 desayunos; 180 almuerzos; 80 cenas diarias.")
+                .recursos("Bloque 52, cocina, comedor")
+                .disponible(true)
+                .build(),
+
             Escenario.builder()
                 .nombre("Cafetería Café y Letras")
                 .tipo(cafeteria)
-                .ubicacion(central)
-                .capacidad(50)
-                .descripcion("Espacio de encuentro estudiantil rodeado de árboles con ambiente universitario.")
-                .recursos("Mesas sencillas, zona de lectura, ambiente natural, espacio de socialización")
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Cafetería al aire libre; zona de lectura y socialización.")
+                .recursos("Bloque 15, zona al aire libre, área de lectura")
                 .disponible(true)
                 .build(),
 
-            // === ESPACIOS EN SEDES REGIONALES ===
-
-            // Aulas Sede Garzón
+            // Espacios Administrativos
             Escenario.builder()
-                .nombre("Nuevo Bloque de Aulas Garzón")
-                .tipo(aula)
-                .ubicacion(garzon)
+                .nombre("Torre Administrativa")
+                .tipo(administrativo)
+                .ubicacion(sedeNeivaCentro)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Rectoría; Vicerrectorías; Secretaría; restaurante y fotocopiado.")
+                .recursos("TAD, oficinas administrativas, restaurante")
+                .disponible(true)
+                .build(),
+
+            // Bloques Académicos - Sede Central
+            Escenario.builder()
+                .nombre("Bloque 09 Aulas UNO")
+                .tipo(bloqueAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Conjunto de aulas A-09-XXX; capacidades variables.")
+                .recursos("Bloque 09, aulas múltiples")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Bloque 14 Aulas DOS")
+                .tipo(bloqueAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Conjunto de aulas A-14-XXX; clases generales.")
+                .recursos("Bloque 14, aulas generales")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Bloque 16 Aulas TRES")
+                .tipo(bloqueAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Conjunto de aulas A-16-XXX.")
+                .recursos("Bloque 16, aulas")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Bloque 17 Aulas CUATRO")
+                .tipo(bloqueAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Conjunto de aulas A-17-XXX.")
+                .recursos("Bloque 17, aulas")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Bloque 18 Aulas CINCO")
+                .tipo(bloqueAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Conjunto de aulas A-18-XXX.")
+                .recursos("Bloque 18, aulas")
+                .disponible(true)
+                .build(),
+
+            // Edificios Académicos
+            Escenario.builder()
+                .nombre("Edificio Facultad Educación e ILEUSCO")
+                .tipo(edificioAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Dos bloques; 5 pisos; 44 aulas; auditorio; biblioteca; laboratorios.")
+                .recursos("Nuevo Edificio Educación, 44 aulas, auditorio, biblioteca")
+                .disponible(true)
+                .build(),
+
+            // Sedes Regionales
+            Escenario.builder()
+                .nombre("Bloque 01 GAR Aulas")
+                .tipo(edificioAcademico)
+                .ubicacion(sedeGarzon)
                 .capacidad(260)
-                .descripcion("Edificio de 1.040 metros cuadrados con 8 aulas modernas y capacidad para 260 personas simultáneas.")
-                .recursos("8 aulas modernas, escaleras, rampa, ascensor, 6 baterías sanitarias, inversión de 2.541 millones")
+                .descripcion("Nuevo bloque 1,040m²; 8 aulas; rampas y ascensor.")
+                .recursos("Garzón Bloque Aulas, 8 aulas, accesibilidad")
                 .disponible(true)
                 .build(),
 
-            // Biblioteca Sede Pitalito
             Escenario.builder()
-                .nombre("Biblioteca Sede Pitalito")
+                .nombre("Bloque 02 PIT Aulas")
+                .tipo(edificioAcademico)
+                .ubicacion(sedePitalito)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("19 aulas; salas audiovisuales; sistemas; auditorios.")
+                .recursos("Pitalito Bloque 02, 19 aulas, salas audiovisuales")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Biblioteca Pitalito (en construcción)")
                 .tipo(biblioteca)
-                .ubicacion(pitalito)
-                .capacidad(100)
-                .descripcion("Nueva biblioteca de 600 metros cuadrados en dos niveles, avance del 73% en construcción.")
-                .recursos("Dos niveles, salas de estudio, área de consulta, colección especializada regional")
-                .disponible(true)
+                .ubicacion(sedePitalito)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("600m²; dos niveles; avance 73%.")
+                .recursos("Pitalito Biblioteca, dos niveles")
+                .disponible(false) // En construcción
                 .build(),
 
-            // Laboratorio Sede La Plata
             Escenario.builder()
-                .nombre("Laboratorio de Ciencias Básicas La Plata")
-                .tipo(labCiencias)
-                .ubicacion(laPlata)
-                .capacidad(20)
-                .descripcion("Laboratorio multidisciplinario del nuevo bloque académico-administrativo entregado en 2024.")
-                .recursos("Áreas de química, biología, bioquímica, calidad de aguas, fisiología vegetal, equipos de última generación")
+                .nombre("Granja Experimental Ecológica")
+                .tipo(investigacionPractica)
+                .ubicacion(sedeLaPlata)
+                .capacidad(null) // No especificada en CSV
+                .descripcion("Espacio agropecuario para prácticas y experimentación.")
+                .recursos("Sede La Plata, espacio agropecuario")
                 .disponible(true)
                 .build()
         );

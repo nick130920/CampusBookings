@@ -59,4 +59,17 @@ public interface ReservaJpaRepository extends JpaRepository<Reserva, Long> {
             @Param("fechaInicio") LocalDateTime fechaInicio,
             @Param("fechaFin") LocalDateTime fechaFin
     );
+    
+    /**
+     * Encuentra todas las reservas de un escenario en un rango de fechas específico.
+     * Incluye reservas APROBADAS y PENDIENTES (excluye CANCELADAS y RECHAZADAS).
+     */
+    @Query("SELECT r FROM Reserva r WHERE r.escenario.id = :escenarioId " +
+           "AND r.estado.nombre IN ('APROBADA', 'PENDIENTE') " +
+           "AND ((r.fechaInicio < :fechaFin AND r.fechaFin > :fechaInicio))")
+    List<Reserva> findByEscenarioIdAndFechaRange(
+            @Param("escenarioId") Long escenarioId,
+            @Param("fechaInicio") LocalDateTime fechaInicio,
+            @Param("fechaFin") LocalDateTime fechaFin
+    );
 }
