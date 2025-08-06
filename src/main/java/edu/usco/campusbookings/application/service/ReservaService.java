@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -15,10 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.usco.campusbookings.application.dto.request.OcupacionesDiaRequest;
+import edu.usco.campusbookings.application.dto.request.OcupacionesMesRequest;
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
 import edu.usco.campusbookings.application.dto.request.VerificarDisponibilidadRequest;
 import edu.usco.campusbookings.application.dto.response.DisponibilidadResponse;
 import edu.usco.campusbookings.application.dto.response.OcupacionesDiaResponse;
+import edu.usco.campusbookings.application.dto.response.OcupacionesMesResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.exception.InvalidReservaException;
 import edu.usco.campusbookings.application.exception.ReservaNotFoundException;
@@ -733,6 +737,68 @@ public class ReservaService implements ReservaUseCase {
                 .escenarioNombre(escenario.get().getNombre())
                 .fecha(request.getFecha())
                 .bloquesOcupados(bloquesOcupados)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OcupacionesMesResponse obtenerOcupacionesMes(OcupacionesMesRequest request) {
+        log.debug("Obteniendo ocupaciones para escenario: {} en mes: {}/{}", 
+                 request.getEscenarioId(), request.getMes(), request.getAño());
+
+        // Verificar que el escenario existe
+        var escenario = reservaPersistencePort.findEscenarioById(request.getEscenarioId());
+        if (escenario.isEmpty()) {
+            throw new IllegalArgumentException("Escenario no encontrado con ID: " + request.getEscenarioId());
+        }
+
+        // Calcular el rango de tiempo para todo el mes
+        LocalDateTime inicioDelMes = LocalDateTime.of(request.getAño(), request.getMes(), 1, 0, 0, 0);
+        LocalDateTime finDelMes = inicioDelMes.plusMonths(1).minusSeconds(1);
+
+        // Obtener todas las reservas activas (aprobadas y pendientes) para el mes
+        List<Reserva> reservasDelMes = reservaPersistencePort.findByEscenarioIdAndFechaRange(
+                request.getEscenarioId(), inicioDelMes, finDelMes);
+
+        // Filtrar solo las reservas que están aprobadas o pendientes de aprobación
+        List<Reserva> reservasActivas = reservasDelMes.stream()
+                .filter(reserva -> {
+                    String estadoNombre = reserva.getEstado().getNombre();
+                    return "APROBADA".equals(estadoNombre) || "PENDIENTE".equals(estadoNombre);
+                })
+                .collect(Collectors.toList());
+
+        // Convertir a bloques ocupados
+        List<OcupacionesMesResponse.BloqueOcupado> bloquesOcupados = reservasActivas.stream()
+                .map(reserva -> {
+                    int diaDelMes = reserva.getFechaInicio().getDayOfMonth();
+                    return OcupacionesMesResponse.BloqueOcupado.builder()
+                            .horaInicio(reserva.getFechaInicio())
+                            .horaFin(reserva.getFechaFin())
+                            .motivo(String.format("Reserva de %s %s", 
+                                    reserva.getUsuario().getNombre(), 
+                                    reserva.getUsuario().getApellido()))
+                            .estado(reserva.getEstado().getNombre())
+                            .reservaId(reserva.getId())
+                            .diaDelMes(diaDelMes)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        // Agrupar por día del mes para facilitar el acceso desde el frontend
+        Map<Integer, List<OcupacionesMesResponse.BloqueOcupado>> ocupacionesPorDia = bloquesOcupados.stream()
+                .collect(Collectors.groupingBy(OcupacionesMesResponse.BloqueOcupado::getDiaDelMes));
+
+        log.debug("Encontrados {} bloques ocupados distribuidos en {} días para escenario {} en {}/{}", 
+                 bloquesOcupados.size(), ocupacionesPorDia.size(), request.getEscenarioId(), request.getMes(), request.getAño());
+
+        return OcupacionesMesResponse.builder()
+                .escenarioId(request.getEscenarioId())
+                .escenarioNombre(escenario.get().getNombre())
+                .año(request.getAño())
+                .mes(request.getMes())
+                .ocupacionesPorDia(ocupacionesPorDia)
+                .todasLasOcupaciones(bloquesOcupados)
                 .build();
     }
 }

@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.usco.campusbookings.application.dto.request.OcupacionesDiaRequest;
+import edu.usco.campusbookings.application.dto.request.OcupacionesMesRequest;
 import edu.usco.campusbookings.application.dto.request.RechazarReservaRequest;
 import edu.usco.campusbookings.application.dto.request.ReporteReservasRequest;
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
 import edu.usco.campusbookings.application.dto.request.VerificarDisponibilidadRequest;
 import edu.usco.campusbookings.application.dto.response.DisponibilidadResponse;
 import edu.usco.campusbookings.application.dto.response.OcupacionesDiaResponse;
+import edu.usco.campusbookings.application.dto.response.OcupacionesMesResponse;
 import edu.usco.campusbookings.application.dto.response.ReporteReservasResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.port.input.ReporteReservasUseCase;
@@ -112,5 +114,12 @@ public class ReservaRestController {
             @Valid @RequestBody OcupacionesDiaRequest request
     ) {
         return ResponseEntity.ok(reservaUseCase.obtenerOcupacionesDia(request));
+    }
+
+    @PostMapping("/ocupaciones-mes")
+    public ResponseEntity<OcupacionesMesResponse> obtenerOcupacionesMes(
+            @Valid @RequestBody OcupacionesMesRequest request
+    ) {
+        return ResponseEntity.ok(reservaUseCase.obtenerOcupacionesMes(request));
     }
 }
