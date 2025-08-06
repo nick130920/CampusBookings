@@ -3,7 +3,9 @@ package edu.usco.campusbookings.domain.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
@@ -22,10 +24,12 @@ public abstract class Auditable {
     @Column(name = "modified_date")
     private LocalDateTime modifiedDate;
 
+    @CreatedBy
     @Column(name = "created_by")
-    private String createdBy = "SYSTEM";
+    private String createdBy;
 
+    @LastModifiedBy
     @Column(name = "modified_by")
-    private String modifiedBy = "SYSTEM";
+    private String modifiedBy;
 
 }
