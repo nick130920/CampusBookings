@@ -57,6 +57,7 @@ public class SecurityConfig {
                 // Endpoints públicos
                 .requestMatchers("/api/auth/authenticate", "/api/auth/register").permitAll()
                 .requestMatchers("/api/auth/validate-password", "/api/auth/password-requirements").permitAll()
+                .requestMatchers("/api/auth/forgot-password/**").permitAll()
                 
                 // Documentación API (solo en desarrollo)
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
