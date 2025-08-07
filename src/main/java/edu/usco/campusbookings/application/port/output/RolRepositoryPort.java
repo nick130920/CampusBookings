@@ -52,4 +52,50 @@ public interface RolRepositoryPort {
 	 * @return the Rol if found, optional empty if not found
 	 */
 	Optional<Rol> findByNombre(String nombre);
+
+	/**
+	 * Find all active rols.
+	 *
+	 * @return all active rols
+	 */
+	List<Rol> findByActivoTrue();
+
+	/**
+	 * Find a Rol by id with permissions loaded.
+	 *
+	 * @param id the id of the Rol
+	 * @return the Rol with permissions if found, optional empty if not found
+	 */
+	Optional<Rol> findByIdWithPermissions(Long id);
+
+	/**
+	 * Find a Rol by nombre with permissions loaded.
+	 *
+	 * @param nombre the nombre of the Rol
+	 * @return the Rol with permissions if found, optional empty if not found
+	 */
+	Optional<Rol> findByNombreWithPermissions(String nombre);
+
+	/**
+	 * Search rols by a search term.
+	 *
+	 * @param searchTerm the search term
+	 * @return matching rols
+	 */
+	List<Rol> searchRoles(String searchTerm);
+
+	/**
+	 * Delete a Rol.
+	 *
+	 * @param rol the Rol to delete
+	 */
+	void delete(Rol rol);
+
+	/**
+	 * Check if a Rol exists by nombre.
+	 *
+	 * @param nombre the nombre to check
+	 * @return true if exists, false otherwise
+	 */
+	boolean existsByNombre(String nombre);
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.usco.campusbookings.application.dto.request.EscenarioRequest;
 import edu.usco.campusbookings.application.dto.response.EscenarioResponse;
 import edu.usco.campusbookings.application.port.input.EscenarioUseCase;
+import edu.usco.campusbookings.infrastructure.security.annotation.RequiresPermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,7 @@ public class EscenarioRestController {
      * @return the found Escenario response
      */
     @GetMapping("/{id}")
+    @RequiresPermission(resource = "ESCENARIOS", action = "READ")
     public ResponseEntity<EscenarioResponse> getEscenarioById(@PathVariable Long id) {
         return ResponseEntity.ok(escenarioUseCase.findById(id));
     }
@@ -94,6 +96,7 @@ public class EscenarioRestController {
      * @return the list of Escenario responses
      */
     @GetMapping
+    @RequiresPermission(resource = "ESCENARIOS", action = "READ")
     public ResponseEntity<List<EscenarioResponse>> getAllEscenarios() {
         return ResponseEntity.ok(escenarioUseCase.findAll());
     }
@@ -106,7 +109,7 @@ public class EscenarioRestController {
      * @return the created Escenario response
      */
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequiresPermission(resource = "ESCENARIOS", action = "CREATE")
     public ResponseEntity<EscenarioResponse> createEscenario(@Valid @RequestBody EscenarioRequest escenarioRequest) {
         return ResponseEntity.ok(escenarioUseCase.createEscenario(escenarioRequest));
     }
@@ -118,7 +121,7 @@ public class EscenarioRestController {
      * @return List of created EscenarioResponse objects.
      */
     @PostMapping("/bulk")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequiresPermission(resource = "ESCENARIOS", action = "CREATE")
     public ResponseEntity<List<EscenarioResponse>> createEscenarios(@Valid@RequestBody List<EscenarioRequest> escenarioRequests) {
         return ResponseEntity.ok(escenarioUseCase.createEscenarios(escenarioRequests));
     }
@@ -131,7 +134,7 @@ public class EscenarioRestController {
      * @return the updated Escenario response
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequiresPermission(resource = "ESCENARIOS", action = "UPDATE")
     public ResponseEntity<EscenarioResponse> updateEscenario(@PathVariable Long id, @RequestBody EscenarioRequest escenarioRequest) {
         return ResponseEntity.ok(escenarioUseCase.updateEscenario(id, escenarioRequest));
     }
@@ -143,7 +146,7 @@ public class EscenarioRestController {
      * @return 204 No Content response
      */
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequiresPermission(resource = "ESCENARIOS", action = "DELETE")
     public ResponseEntity<Void> deleteEscenario(@PathVariable Long id) {
         escenarioUseCase.deleteById(id);
         return ResponseEntity.noContent().build();

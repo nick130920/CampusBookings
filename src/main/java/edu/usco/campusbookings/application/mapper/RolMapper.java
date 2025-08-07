@@ -1,50 +1,60 @@
 package edu.usco.campusbookings.application.mapper;
 
-import edu.usco.campusbookings.application.dto.request.RolRequest;
+import edu.usco.campusbookings.application.dto.request.CreateRolRequest;
+import edu.usco.campusbookings.application.dto.response.RolDetailResponse;
 import edu.usco.campusbookings.application.dto.response.RolResponse;
 import edu.usco.campusbookings.domain.model.Rol;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Mapper interface for converting between Rol entities and DTOs.
- * This interface uses MapStruct for automatic implementation generation.
- * 
- * @componentModel spring - Indicates that the generated implementation should be a Spring bean.
- * 
- * Methods:
- * - toEntity(RolRequest dto): Converts a RolRequest DTO to a Rol entity.
- * - toDto(Rol rol): Converts a Rol entity to a RolResponse DTO.
- * - toDtoList(List<Rol> rol): Converts a list of Rol entities to a list of RolResponse DTOs.
- */
-@Mapper(componentModel = "spring")
-public interface RolMapper {
+@Component
+@RequiredArgsConstructor
+public class RolMapper {
 
-    RolMapper INSTANCE = Mappers.getMapper(RolMapper.class);
+    private final PermissionMapper permissionMapper;
 
-    /**
-     * Converts a RolRequest DTO to a Rol entity.
-     *
-     * @param dto the RolRequest DTO
-     * @return the converted Rol entity
-     */
-    Rol toEntity(RolRequest dto);
+    public Rol toEntity(CreateRolRequest request) {
+        return Rol.builder()
+                .nombre(request.getNombre())
+                .descripcion(request.getDescripcion())
+                .activo(request.getActivo() != null ? request.getActivo() : true)
+                .build();
+    }
 
-    /**
-     * Converts a Rol entity to a RolResponse DTO.
-     *
-     * @param rol the Rol entity
-     * @return the converted RolResponse DTO
-     */
-    RolResponse toDto(Rol rol);
+    public RolResponse toResponse(Rol rol) {
+        return RolResponse.builder()
+                .id(rol.getId())
+                .nombre(rol.getNombre())
+                .descripcion(rol.getDescripcion())
+                .activo(rol.getActivo())
+                .usuariosCount(rol.getUsuarios() != null ? rol.getUsuarios().size() : 0)
+                .permissionsCount(rol.getPermissions() != null ? rol.getPermissions().size() : 0)
+                .createdAt(rol.getCreatedDate())
+                .updatedAt(rol.getModifiedDate())
+                .build();
+    }
 
-    /**
-     * Converts a list of Rol entities to a list of RolResponse DTOs.
-     *
-     * @param rol the list of Rol entities
-     * @return the converted list of RolResponse DTOs
-     */
-    List<RolResponse> toDtoList(List<Rol> rol);
+    public RolDetailResponse toDetailResponse(Rol rol) {
+        return RolDetailResponse.builder()
+                .id(rol.getId())
+                .nombre(rol.getNombre())
+                .descripcion(rol.getDescripcion())
+                .activo(rol.getActivo())
+                .usuariosCount(rol.getUsuarios() != null ? rol.getUsuarios().size() : 0)
+                .permissions(rol.getPermissions() != null ? 
+                    permissionMapper.toResponseList(rol.getPermissions().stream().collect(Collectors.toList())) : 
+                    List.of())
+                .createdAt(rol.getCreatedDate())
+                .updatedAt(rol.getModifiedDate())
+                .build();
+    }
+
+    public List<RolResponse> toResponseList(List<Rol> roles) {
+        return roles.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
 }

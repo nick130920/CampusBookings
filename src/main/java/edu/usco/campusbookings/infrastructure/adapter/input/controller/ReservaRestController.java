@@ -25,6 +25,7 @@ import edu.usco.campusbookings.application.dto.response.ReporteReservasResponse;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.port.input.ReporteReservasUseCase;
 import edu.usco.campusbookings.application.port.input.ReservaUseCase;
+import edu.usco.campusbookings.infrastructure.security.annotation.RequiresPermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ public class ReservaRestController {
     private final ReporteReservasUseCase reporteReservasUseCase;
 
     @PostMapping
+    @RequiresPermission(resource = "RESERVAS", action = "CREATE")
     public ResponseEntity<ReservaResponse> crearReserva(
             @Valid @RequestBody ReservaRequest request
     ) {
@@ -44,7 +46,7 @@ public class ReservaRestController {
     }
 
     @PutMapping("/{id}/aprobar")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequiresPermission(resource = "RESERVAS", action = "MANAGE")
     public ResponseEntity<ReservaResponse> aprobarReserva(
             @PathVariable Long id
     ) {

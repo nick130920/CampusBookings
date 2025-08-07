@@ -11,14 +11,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RolResponse {
+public class PermissionResponse {
 
     private Long id;
-    private String nombre;
-    private String descripcion;
-    private Boolean activo;
-    private Integer usuariosCount;
-    private Integer permissionsCount;
+    private String name;
+    private String description;
+    private String resource;
+    private String action;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -1,6 +1,7 @@
 package edu.usco.campusbookings.application.port.input;
 
-import edu.usco.campusbookings.application.dto.request.RolRequest;
+import edu.usco.campusbookings.application.dto.request.CreateRolRequest;
+import edu.usco.campusbookings.application.dto.request.UpdateRolRequest;
 import edu.usco.campusbookings.application.dto.response.RolResponse;
 import edu.usco.campusbookings.domain.model.Rol;
 
@@ -30,7 +31,7 @@ public interface RolUseCase {
 	 * @param requests a list of RolRequests
 	 * @return a list of RolResponses
 	 */
-	List<RolResponse> createRols(List<RolRequest> requests);
+	List<RolResponse> createRols(List<CreateRolRequest> requests);
 
 	/**
 	 * Create a Rol.
@@ -38,7 +39,7 @@ public interface RolUseCase {
 	 * @param rolRequest a RolRequest
 	 * @return a RolResponse
 	 */
-	RolResponse createRol(RolRequest rolRequest);
+	RolResponse createRol(CreateRolRequest rolRequest);
 
 
 
@@ -49,7 +50,7 @@ public interface RolUseCase {
 	 * @param request an RolRequest
 	 * @return a RolResponse
 	 */
-	RolResponse updateRol(Long id, RolRequest request);
+	RolResponse updateRol(Long id, UpdateRolRequest request);
 
     /**
          * Delete a Rol.

@@ -89,4 +89,68 @@ public class RolRepository implements RolRepositoryPort {
 		return springDataRolRepository.findByNombre(nombre);
 	}
 
+	/**
+	 * Returns a list of active rols in the repository.
+	 *
+	 * @return a list of active rols
+	 */
+	@Override
+	public List<Rol> findByActivoTrue() {
+		return springDataRolRepository.findByActivoTrue();
+	}
+
+	/**
+	 * Returns a Rol by its ID with permissions loaded.
+	 *
+	 * @param id the ID of the Rol to be found
+	 * @return an optional containing the Rol with permissions if found, empty otherwise
+	 */
+	@Override
+	public Optional<Rol> findByIdWithPermissions(Long id) {
+		return springDataRolRepository.findByIdWithPermissions(id);
+	}
+
+	/**
+	 * Returns a Rol by its nombre with permissions loaded.
+	 *
+	 * @param nombre the nombre of the Rol to be found
+	 * @return an optional containing the Rol with permissions if found, empty otherwise
+	 */
+	@Override
+	public Optional<Rol> findByNombreWithPermissions(String nombre) {
+		return springDataRolRepository.findByNombreWithPermissions(nombre);
+	}
+
+	/**
+	 * Searches for rols by a search term in nombre or descripcion.
+	 *
+	 * @param searchTerm the search term
+	 * @return a list of matching rols
+	 */
+	@Override
+	public List<Rol> searchRoles(String searchTerm) {
+		return springDataRolRepository.findBySearchTerm(searchTerm);
+	}
+
+	/**
+	 * Deletes a Rol from the repository.
+	 *
+	 * @param rol the Rol to be deleted
+	 */
+	@Override
+	public void delete(Rol rol) {
+		springDataRolRepository.delete(rol);
+	}
+
+	/**
+	 * Checks if a Rol exists by its nombre.
+	 *
+	 * @param nombre the nombre to check
+	 * @return true if exists, false otherwise
+	 */
+	@Override
+	public boolean existsByNombre(String nombre) {
+		return springDataRolRepository.findByNombre(nombre).isPresent();
+	}
+
 }

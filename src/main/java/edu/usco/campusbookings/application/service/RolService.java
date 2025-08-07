@@ -1,6 +1,7 @@
 package edu.usco.campusbookings.application.service;
 
-import edu.usco.campusbookings.application.dto.request.RolRequest;
+import edu.usco.campusbookings.application.dto.request.CreateRolRequest;
+import edu.usco.campusbookings.application.dto.request.UpdateRolRequest;
 import edu.usco.campusbookings.application.dto.response.RolResponse;
 import edu.usco.campusbookings.application.mapper.RolMapper;
 import edu.usco.campusbookings.application.port.input.RolUseCase;
@@ -33,15 +34,15 @@ public class RolService implements RolUseCase {
      */
     @Override
     @Transactional
-    public RolResponse createRol(RolRequest rolRequest) {
+    public RolResponse createRol(CreateRolRequest rolRequest) {
         if (rolRequest == null) {
-            throw new IllegalArgumentException("RolRequest cannot be null");
+            throw new IllegalArgumentException("CreateRolRequest cannot be null");
         }
 
         Rol rol = rolMapper.toEntity(rolRequest);
         rol = rolRepositoryPort.save(rol);
 
-        return rolMapper.toDto(rol);
+        return rolMapper.toResponse(rol);
     }
 
     /**
@@ -53,9 +54,9 @@ public class RolService implements RolUseCase {
      */
     @Override
     @Transactional
-    public List<RolResponse> createRols(List<RolRequest> rolRequests) {
+    public List<RolResponse> createRols(List<CreateRolRequest> rolRequests) {
         if (rolRequests == null || rolRequests.isEmpty()) {
-            throw new IllegalArgumentException("RolRequests cannot be null or empty");
+            throw new IllegalArgumentException("CreateRolRequests cannot be null or empty");
         }
 
         List<Rol> rols = rolRequests.stream()
@@ -64,7 +65,7 @@ public class RolService implements RolUseCase {
 
         rols = rolRepositoryPort.saveAll(rols);
 
-        return rolMapper.toDtoList(rols);
+        return rolMapper.toResponseList(rols);
     }
 
     /**
@@ -76,7 +77,7 @@ public class RolService implements RolUseCase {
     @Transactional(readOnly = true)
     public List<RolResponse> findAll() {
         return rolRepositoryPort.findAll().stream()
-                .map(rolMapper::toDto)
+                .map(rolMapper::toResponse)
                 .toList();
     }
 
@@ -91,7 +92,7 @@ public class RolService implements RolUseCase {
     @Transactional(readOnly = true)
     public RolResponse findById(Long id) {
         return rolRepositoryPort.findById(id)
-                .map(rolMapper::toDto)
+                .map(rolMapper::toResponse)
                 .orElseThrow(() -> new RolNotFoundException("Rol not found with ID: " + id));
     }
 
@@ -105,14 +106,19 @@ public class RolService implements RolUseCase {
      */
     @Override
     @Transactional
-    public RolResponse updateRol(Long id, RolRequest request) {
-        rolRepositoryPort.findById(id)
+    public RolResponse updateRol(Long id, UpdateRolRequest request) {
+        Rol existingRol = rolRepositoryPort.findById(id)
                 .orElseThrow(() -> new RolNotFoundException("Rol not found with ID: " + id));
 
+        // Update fields
+        existingRol.setNombre(request.getNombre());
+        existingRol.setDescripcion(request.getDescripcion());
+        if (request.getActivo() != null) {
+            existingRol.setActivo(request.getActivo());
+        }
 
-        Rol saved = rolRepositoryPort.save(rolMapper.toEntity(request));
-
-        return rolMapper.toDto(saved);
+        Rol saved = rolRepositoryPort.save(existingRol);
+        return rolMapper.toResponse(saved);
     }
 
     /**

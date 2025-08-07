@@ -1,6 +1,7 @@
 package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 
-import edu.usco.campusbookings.application.dto.request.RolRequest;
+import edu.usco.campusbookings.application.dto.request.CreateRolRequest;
+import edu.usco.campusbookings.application.dto.request.UpdateRolRequest;
 import edu.usco.campusbookings.application.dto.response.RolResponse;
 import edu.usco.campusbookings.application.port.input.RolUseCase;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,7 @@ public class RolRestController {
      * @return the created Rol response
      */
     @PostMapping
-    public ResponseEntity<RolResponse> createRol(@RequestBody RolRequest rolRequest) {
+    public ResponseEntity<RolResponse> createRol(@RequestBody CreateRolRequest rolRequest) {
         return ResponseEntity.ok(rolUseCase.createRol(rolRequest));
     }
 
@@ -84,7 +85,7 @@ public class RolRestController {
      * @return List of created RolResponse objects.
      */
     @PostMapping("/bulk")
-    public ResponseEntity<List<RolResponse>> createRols(@RequestBody List<RolRequest> rolRequests) {
+    public ResponseEntity<List<RolResponse>> createRols(@RequestBody List<CreateRolRequest> rolRequests) {
         return ResponseEntity.ok(rolUseCase.createRols(rolRequests));
     }
 
@@ -96,7 +97,7 @@ public class RolRestController {
      * @return the updated Rol response
      */
     @PutMapping("/{id}")
-    public ResponseEntity<RolResponse> updateRol(@PathVariable Long id, @RequestBody RolRequest rolRequest) {
+    public ResponseEntity<RolResponse> updateRol(@PathVariable Long id, @RequestBody UpdateRolRequest rolRequest) {
         return ResponseEntity.ok(rolUseCase.updateRol(id, rolRequest));
     }
 
