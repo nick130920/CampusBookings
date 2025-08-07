@@ -35,6 +35,10 @@ Estándares y mejores prácticas para el desarrollo del frontend en Angular con 
 - Cada característica debe tener su propio módulo cuando sea necesario
 - Mantén servicios específicos cerca de los componentes que los usan
 
+## Prime NG
+- Utiliza PrimeNg cuando sea necesario, en la versión actual, verifica que versión se esta usando y trata de ser acorde a esa version.
+- Actualmente la versión usada de primeng es la 20
+
 ### Ejemplos de Control Flow:
 ```typescript
 // Correcto - Usando @if
