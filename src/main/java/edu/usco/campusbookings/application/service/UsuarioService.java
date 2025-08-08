@@ -91,7 +91,7 @@ public class UsuarioService implements UsuarioUseCase {
     public UsuarioResponse findById(Long id) {
         return usuarioRepository.findById(id)
                 .map(usuarioMapper::toResponse)
-                .orElseThrow(() -> new UsuarioNotFoundException(id));
+                .orElseThrow(() -> UsuarioNotFoundException.withId(id));
     }
 
     /**
@@ -106,7 +106,7 @@ public class UsuarioService implements UsuarioUseCase {
     @Transactional
     public UsuarioResponse updateUsuario(Long id, UsuarioRequest request) {
         if (!usuarioRepository.existsById(id)) {
-            throw new UsuarioNotFoundException(id);
+            throw UsuarioNotFoundException.withId(id);
         }
 
         Usuario usuario = usuarioMapper.toDomain(request);
@@ -125,7 +125,7 @@ public class UsuarioService implements UsuarioUseCase {
     @Transactional
     public void deleteById(Long id) {
         if (!usuarioRepository.existsById(id)) {
-            throw new UsuarioNotFoundException(id);
+            throw UsuarioNotFoundException.withId(id);
         }
         usuarioRepository.deleteById(id);
     }
@@ -140,14 +140,14 @@ public class UsuarioService implements UsuarioUseCase {
     @Transactional(readOnly = true)
     public Usuario findByEmail(String email) {
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new UsuarioNotFoundException(email));
+                .orElseThrow(() -> UsuarioNotFoundException.withEmail(email));
     }
 
     @Override
     @Transactional
     public Usuario update(Long id, Usuario usuario) {
         if (!usuarioRepository.existsById(id)) {
-            throw new UsuarioNotFoundException(id);
+            throw UsuarioNotFoundException.withId(id);
         }
         usuario.setId(id);
         return usuarioRepository.save(usuario);
