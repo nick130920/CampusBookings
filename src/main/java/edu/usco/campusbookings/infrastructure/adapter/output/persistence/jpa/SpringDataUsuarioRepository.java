@@ -2,6 +2,8 @@ package edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa;
 
 import edu.usco.campusbookings.domain.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,4 +14,12 @@ public interface SpringDataUsuarioRepository extends JpaRepository<Usuario, Long
     Optional<Usuario> findByEmail(String email);
 
     List<Usuario> getUsuariosByRol_Nombre(String rol);
+
+    @Query("SELECT u FROM Usuario u WHERE " +
+           "LOWER(u.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(u.apellido) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Usuario> searchUsuarios(@Param("searchTerm") String searchTerm);
+
+    List<Usuario> findByRolId(Long rolId);
 }

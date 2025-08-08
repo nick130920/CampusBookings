@@ -66,4 +66,20 @@ public interface UsuarioRepositoryPort {
 	 * @return true if the Usuario exists, false otherwise
 	 */
 	boolean existsById(Long id);
+
+	/**
+	 * Search usuarios by term (nombre, apellido, email).
+	 *
+	 * @param searchTerm the search term
+	 * @return list of usuarios matching the search term
+	 */
+	List<Usuario> searchUsuarios(String searchTerm);
+
+	/**
+	 * Find usuarios by role ID.
+	 *
+	 * @param roleId the role ID
+	 * @return list of usuarios with the specified role
+	 */
+	List<Usuario> findByRolId(Long roleId);
 }
