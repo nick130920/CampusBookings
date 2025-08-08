@@ -2,6 +2,7 @@ package edu.usco.campusbookings.infrastructure.adapter.input.controller.admin;
 
 import edu.usco.campusbookings.application.dto.request.UpdateUsuarioRolRequest;
 import edu.usco.campusbookings.application.dto.response.UsuarioDetailResponse;
+import edu.usco.campusbookings.application.dto.response.UserPermissionsResponse;
 import edu.usco.campusbookings.application.port.input.UserManagementUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,6 +52,21 @@ public class UserManagementController {
         log.info("Solicitud para obtener usuario con ID: {}", userId);
         UsuarioDetailResponse user = userManagementUseCase.getUserById(userId);
         return ResponseEntity.ok(user);
+    }
+
+    @Operation(summary = "Obtener permisos del usuario", description = "Obtiene todos los permisos del usuario basados en su rol")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Permisos obtenidos exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "403", description = "Sin permisos")
+    })
+    @GetMapping("/{userId}/permissions")
+    @PreAuthorize("hasRole('ADMIN') or @userManagementService.isCurrentUser(#userId)")
+    public ResponseEntity<UserPermissionsResponse> getUserPermissions(
+            @Parameter(description = "ID del usuario") @PathVariable Long userId) {
+        log.info("Solicitud para obtener permisos del usuario con ID: {}", userId);
+        UserPermissionsResponse permissions = userManagementUseCase.getUserPermissions(userId);
+        return ResponseEntity.ok(permissions);
     }
 
     @Operation(summary = "Buscar usuarios", description = "Busca usuarios por nombre, apellido o email")

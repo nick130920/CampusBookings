@@ -2,6 +2,7 @@ package edu.usco.campusbookings.application.service;
 
 import edu.usco.campusbookings.application.dto.request.UpdateUsuarioRolRequest;
 import edu.usco.campusbookings.application.dto.response.UsuarioDetailResponse;
+import edu.usco.campusbookings.application.dto.response.UserPermissionsResponse;
 import edu.usco.campusbookings.application.exception.UsuarioNotFoundException;
 import edu.usco.campusbookings.application.exception.RolNotFoundException;
 
@@ -83,6 +84,32 @@ public class UserManagementService implements UserManagementUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public UserPermissionsResponse getUserPermissions(Long userId) {
+        log.debug("Obteniendo permisos para usuario ID: {}", userId);
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> UsuarioNotFoundException.withId(userId));
+
+        if (usuario.getRol() == null) {
+            log.warn("Usuario {} no tiene rol asignado", userId);
+            return new UserPermissionsResponse(userId, "NONE", List.of());
+        }
+
+        Rol rol = usuario.getRol();
+        List<UserPermissionsResponse.PermissionDto> permissions = rol.getPermissions().stream()
+                .map(permission -> new UserPermissionsResponse.PermissionDto(
+                        permission.getId(),
+                        permission.getName(),
+                        permission.getDescription(),
+                        permission.getResource(),
+                        permission.getAction()
+                ))
+                .collect(Collectors.toList());
+
+        return new UserPermissionsResponse(userId, rol.getNombre(), permissions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<UsuarioDetailResponse> getUsersByRole(Long roleId) {
         log.debug("Obteniendo usuarios con rol ID: {}", roleId);
         List<Usuario> usuarios = usuarioRepository.findByRolId(roleId);
@@ -115,5 +142,15 @@ public class UserManagementService implements UserManagementUseCase {
                 .createdAt(rol.getCreatedDate())
                 .updatedAt(rol.getModifiedDate())
                 .build();
+    }
+
+    /**
+     * Verifica si el usuario actual es el mismo que se está consultando
+     * (usado en @PreAuthorize para permitir que los usuarios vean sus propios permisos)
+     */
+    public boolean isCurrentUser(Long userId) {
+        // En un caso real, obtendríamos el usuario actual del contexto de seguridad
+        // Por ahora, solo permitiremos que administradores accedan a cualquier usuario
+        return false; // Los usuarios regulares no pueden ver permisos por ahora
     }
 }

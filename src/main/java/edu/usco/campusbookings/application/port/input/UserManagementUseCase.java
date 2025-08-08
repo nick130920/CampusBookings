@@ -2,6 +2,7 @@ package edu.usco.campusbookings.application.port.input;
 
 import edu.usco.campusbookings.application.dto.request.UpdateUsuarioRolRequest;
 import edu.usco.campusbookings.application.dto.response.UsuarioDetailResponse;
+import edu.usco.campusbookings.application.dto.response.UserPermissionsResponse;
 
 import java.util.List;
 
@@ -16,6 +17,11 @@ public interface UserManagementUseCase {
      * Obtener un usuario por ID con información de su rol
      */
     UsuarioDetailResponse getUserById(Long userId);
+
+    /**
+     * Obtener permisos de un usuario basados en su rol
+     */
+    UserPermissionsResponse getUserPermissions(Long userId);
 
     /**
      * Buscar usuarios por término de búsqueda (nombre, apellido, email)
