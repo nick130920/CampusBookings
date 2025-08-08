@@ -110,6 +110,7 @@ public class GlobalExceptionHandler {
         }
         
         logger.warn("Error de autenticación: {}", ex.getMessage());
+        logger.debug("Detalles completos del error de autenticación:", ex);
         ErrorResponse errorResponse = new ErrorResponse(
             LocalDateTime.now(),
             HttpStatus.UNAUTHORIZED.value(),

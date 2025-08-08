@@ -7,6 +7,7 @@ import edu.usco.campusbookings.domain.model.Rol;
 import edu.usco.campusbookings.domain.model.Usuario;
 import edu.usco.campusbookings.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final UsuarioService usuarioService;
@@ -73,12 +75,26 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-            )
-        );
+        log.info("Iniciando autenticación para email: {}", request.getEmail());
+        
+        try {
+            // Verificar si el usuario existe antes de intentar autenticar
+            var usuarioCheck = usuarioService.findByEmail(request.getEmail());
+            log.info("Usuario encontrado: {}, Rol: {}", usuarioCheck.getEmail(), 
+                    usuarioCheck.getRol() != null ? usuarioCheck.getRol().getNombre() : "null");
+            
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+                )
+            );
+            
+            log.info("Autenticación exitosa para: {}", request.getEmail());
+        } catch (Exception e) {
+            log.error("Error en autenticación para {}: {}", request.getEmail(), e.getMessage(), e);
+            throw e;
+        }
 
         var usuario = usuarioService.findByEmail(request.getEmail());
         
