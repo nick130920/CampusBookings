@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -29,25 +30,30 @@ public class DataInitializer implements ApplicationRunner {
     private final SpringDataPermissionRepository permissionRepository;
 
     @Override
-    @Transactional
     public void run(ApplicationArguments args) throws Exception {
         log.info("Iniciando carga de datos por defecto...");
         
-        // Solo cargar datos si no existen
-        if (permissionRepository.count() == 0) {
-            createDefaultPermissions();
+        try {
+            // Solo cargar datos si no existen
+            if (permissionRepository.count() == 0) {
+                createDefaultPermissions();
+            }
+            
+            if (rolRepository.count() == 0) {
+                createDefaultRoles();
+            } else {
+                // Si los roles ya existen, verificar que tengan permisos asignados
+                updateExistingRolesWithPermissions();
+            }
+            
+            log.info("Carga de datos por defecto completada");
+        } catch (Exception e) {
+            log.error("Error durante la inicialización de datos: {}", e.getMessage(), e);
+            throw e;
         }
-        
-        if (rolRepository.count() == 0) {
-            createDefaultRoles();
-        } else {
-            // Si los roles ya existen, verificar que tengan permisos asignados
-            updateExistingRolesWithPermissions();
-        }
-        
-        log.info("Carga de datos por defecto completada");
     }
 
+    @Transactional
     private void createDefaultPermissions() {
         log.info("Creando permisos por defecto...");
         
@@ -165,6 +171,7 @@ public class DataInitializer implements ApplicationRunner {
         log.info("Creados {} permisos por defecto", permissions.size());
     }
 
+    @Transactional
     private void createDefaultRoles() {
         log.info("Creando roles por defecto...");
         
@@ -210,20 +217,26 @@ public class DataInitializer implements ApplicationRunner {
         log.info("Creados 3 roles por defecto: ADMIN, COORDINATOR, USER");
     }
 
+    @Transactional
     private void updateExistingRolesWithPermissions() {
         log.info("Verificando permisos de roles existentes...");
         
-        List<Rol> roles = rolRepository.findAll();
-        List<Permission> allPermissions = permissionRepository.findAll();
+        // Crear copias de las listas para evitar ConcurrentModificationException
+        List<Rol> roles = List.copyOf(rolRepository.findAll());
+        List<Permission> allPermissions = List.copyOf(permissionRepository.findAll());
+        
+        // Lista para acumular roles que necesitan ser actualizados
+        List<Rol> rolesToUpdate = new ArrayList<>();
         
         for (Rol role : roles) {
             if (role.getPermissions() == null || role.getPermissions().isEmpty()) {
-                log.info("Asignando permisos al rol existente: {}", role.getNombre());
+                log.info("Preparando asignación de permisos al rol existente: {}", role.getNombre());
                 
+                // Crear un nuevo HashSet para evitar problemas de concurrencia
                 Set<Permission> permissions = new HashSet<>();
                 switch (role.getNombre()) {
                     case "ADMIN":
-                        permissions.addAll(allPermissions);
+                        permissions = new HashSet<>(allPermissions);
                         break;
                     case "COORDINATOR":
                         permissions.addAll(getPermissionsByActions(allPermissions, "READ"));
@@ -237,9 +250,18 @@ public class DataInitializer implements ApplicationRunner {
                         break;
                 }
                 
-                role.setPermissions(permissions);
-                rolRepository.save(role);
+                // Solo asignar si se encontraron permisos
+                if (!permissions.isEmpty()) {
+                    role.setPermissions(permissions);
+                    rolesToUpdate.add(role);
+                }
             }
+        }
+        
+        // Guardar todos los roles actualizados en una sola operación
+        if (!rolesToUpdate.isEmpty()) {
+            rolRepository.saveAll(rolesToUpdate);
+            log.info("Actualizados {} roles con permisos", rolesToUpdate.size());
         }
     }
 
