@@ -3,8 +3,10 @@ package edu.usco.campusbookings.infrastructure.adapter.input.controller.dev;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataPermissionRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataRolRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataUsuarioRepository;
+import edu.usco.campusbookings.infrastructure.config.DataInitializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ public class DatabaseResetController {
     private final SpringDataUsuarioRepository usuarioRepository;
     private final SpringDataRolRepository rolRepository;
     private final SpringDataPermissionRepository permissionRepository;
+    private final DataInitializer dataInitializer;
 
     @PostMapping("/reset-users-roles")
     @Transactional
@@ -81,6 +84,72 @@ public class DatabaseResetController {
             
         } catch (Exception e) {
             log.error("Error durante el reset de base de datos: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
+    @PostMapping("/reset-and-reinitialize")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> resetAndReinitialize() {
+        log.warn("🔥 INICIANDO RESET COMPLETO Y REINICIALIZACIÓN - OPERACIÓN DESTRUCTIVA");
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 1. Hacer reset completo
+            ResponseEntity<Map<String, Object>> resetResponse = resetUsersAndRoles();
+            if (!resetResponse.getStatusCode().is2xxSuccessful()) {
+                return resetResponse;
+            }
+            
+            // 2. Forzar reinicialización de datos
+            log.info("🔄 Iniciando reinicialización de datos por defecto...");
+            // Llamar directamente a los métodos de inicialización
+            try {
+                log.info("Ejecutando createDefaultPermissions...");
+                java.lang.reflect.Method createPermissions = DataInitializer.class.getDeclaredMethod("createDefaultPermissions");
+                createPermissions.setAccessible(true);
+                createPermissions.invoke(dataInitializer);
+                
+                log.info("Ejecutando createDefaultRoles...");
+                java.lang.reflect.Method createRoles = DataInitializer.class.getDeclaredMethod("createDefaultRoles");
+                createRoles.setAccessible(true);
+                createRoles.invoke(dataInitializer);
+                
+                log.info("Ejecutando createDefaultAdminUser...");
+                java.lang.reflect.Method createAdmin = DataInitializer.class.getDeclaredMethod("createDefaultAdminUser");
+                createAdmin.setAccessible(true);
+                createAdmin.invoke(dataInitializer);
+                
+            } catch (Exception reflectionEx) {
+                log.warn("Error usando reflexión, intentando método alternativo: {}", reflectionEx.getMessage());
+                // Método alternativo más simple
+                dataInitializer.run(new org.springframework.boot.DefaultApplicationArguments());
+            }
+            
+            // 3. Verificar estado después de reinicialización
+            long usersAfter = usuarioRepository.count();
+            long rolesAfter = rolRepository.count();
+            long permissionsAfter = permissionRepository.count();
+            
+            response.put("success", true);
+            response.put("message", "Reset y reinicialización completados exitosamente");
+            response.put("finalUsers", usersAfter);
+            response.put("finalRoles", rolesAfter);
+            response.put("finalPermissions", permissionsAfter);
+            
+            // Verificar usuario admin
+            boolean adminExists = usuarioRepository.findByEmail("admin@usco.edu.co").isPresent();
+            response.put("adminUserCreated", adminExists);
+            
+            log.info("✅ RESET Y REINICIALIZACIÓN COMPLETADOS");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("Error durante reset y reinicialización: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("error", e.getMessage());
             return ResponseEntity.internalServerError().body(response);
