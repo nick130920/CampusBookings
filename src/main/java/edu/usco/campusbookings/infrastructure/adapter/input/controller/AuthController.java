@@ -51,7 +51,7 @@ public class AuthController {
         userInfo.put("nombre", usuario.getNombre());
         userInfo.put("apellido", usuario.getApellido());
         userInfo.put("email", usuario.getEmail());
-        userInfo.put("rol", usuario.getRol() != null ? usuario.getRol().getNombre() : "USUARIO");
+        userInfo.put("rol", usuario.getRol() != null ? usuario.getRol().getNombre() : "USER");
         userInfo.put("isAdmin", usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre()));
         
         return ResponseEntity.ok(userInfo);

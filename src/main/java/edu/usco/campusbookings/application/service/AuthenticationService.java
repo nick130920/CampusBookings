@@ -28,9 +28,9 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        // Buscar rol por defecto "USUARIO"
-        Rol rolUsuario = rolService.findByNombre("USUARIO")
-            .orElseThrow(() -> new IllegalStateException("Rol USUARIO no encontrado en la base de datos"));
+        // Buscar rol por defecto "USER"
+        Rol rolUsuario = rolService.findByNombre("USER")
+            .orElseThrow(() -> new IllegalStateException("Rol USER no encontrado en la base de datos"));
         
         var usuario = Usuario.builder()
             .nombre(request.getNombre())
@@ -43,7 +43,7 @@ public class AuthenticationService {
         usuario = usuarioService.save(usuario);
         
         // Crear UserDetails con el rol real del usuario
-        String roleName = usuario.getRol() != null ? usuario.getRol().getNombre() : "USUARIO";
+        String roleName = usuario.getRol() != null ? usuario.getRol().getNombre() : "USER";
         String springRole = "ADMIN".equals(roleName) ? "ADMIN" : "USER";
         
         UserDetails userDetails = User.builder()
@@ -83,7 +83,7 @@ public class AuthenticationService {
         var usuario = usuarioService.findByEmail(request.getEmail());
         
         // Usar el rol real del usuario
-        String roleName = usuario.getRol() != null ? usuario.getRol().getNombre() : "USUARIO";
+        String roleName = usuario.getRol() != null ? usuario.getRol().getNombre() : "USER";
         String springRole = "ADMIN".equals(roleName) ? "ADMIN" : "USER";
         
         UserDetails userDetails = User.builder()

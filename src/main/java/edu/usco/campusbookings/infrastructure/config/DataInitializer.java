@@ -2,12 +2,15 @@ package edu.usco.campusbookings.infrastructure.config;
 
 import edu.usco.campusbookings.domain.model.Permission;
 import edu.usco.campusbookings.domain.model.Rol;
+import edu.usco.campusbookings.domain.model.Usuario;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataPermissionRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataRolRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,8 @@ public class DataInitializer implements ApplicationRunner {
 
     private final SpringDataRolRepository rolRepository;
     private final SpringDataPermissionRepository permissionRepository;
+    private final SpringDataUsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -54,6 +59,11 @@ public class DataInitializer implements ApplicationRunner {
                 } else {
                     log.info("Para forzar actualización de permisos en roles existentes, establecer variable de entorno FORCE_ROLE_PERMISSION_UPDATE=true");
                 }
+            }
+            
+            // Crear usuario administrador por defecto si no existe
+            if (usuarioRepository.count() == 0) {
+                createDefaultAdminUser();
             }
             
             log.info("Carga de datos por defecto completada");
@@ -397,5 +407,33 @@ public class DataInitializer implements ApplicationRunner {
             log.error("Error en getPermissionsByNamesSafe: {}", e.getMessage());
         }
         return result;
+    }
+    
+    @Transactional
+    private void createDefaultAdminUser() {
+        log.info("Creando usuario administrador por defecto...");
+        
+        try {
+            // Buscar rol ADMIN
+            Rol adminRole = rolRepository.findByNombre("ADMIN")
+                .orElseThrow(() -> new IllegalStateException("Rol ADMIN no encontrado. Debe crearse primero."));
+            
+            // Crear usuario administrador por defecto
+            Usuario adminUser = Usuario.builder()
+                .nombre("Administrador")
+                .apellido("Sistema")
+                .email("admin@usco.edu.co")
+                .password(passwordEncoder.encode("AdminUSCO2024!"))
+                .rol(adminRole)
+                .build();
+            
+            usuarioRepository.save(adminUser);
+            log.info("Usuario administrador creado exitosamente - Email: admin@usco.edu.co");
+            log.warn("⚠️  IMPORTANTE: Cambiar la contraseña por defecto del administrador después del primer login");
+            
+        } catch (Exception e) {
+            log.error("Error creando usuario administrador por defecto: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 }
