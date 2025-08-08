@@ -33,6 +33,7 @@ public class Permission extends Auditable {
     private String action; // ej: "CREATE", "READ", "UPDATE", "DELETE"
 
     @ManyToMany(mappedBy = "permissions")
+    @EqualsAndHashCode.Exclude
     private Set<Rol> roles;
 
     // Constructor de conveniencia para crear permisos

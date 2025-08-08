@@ -32,6 +32,7 @@ public class Rol extends Auditable {
     private Boolean activo = true;
 
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
     private List<Usuario> usuarios;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -40,6 +41,7 @@ public class Rol extends Auditable {
         joinColumns = @JoinColumn(name = "rol_id"),
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
+    @EqualsAndHashCode.Exclude
     private Set<Permission> permissions;
 
     // Constructor de conveniencia

@@ -49,5 +49,6 @@ public class Usuario extends Auditable {
     private Rol rol;
 
     @OneToMany(mappedBy = "usuario") 
+    @EqualsAndHashCode.Exclude
     private List<Reserva> reservas;
 }
