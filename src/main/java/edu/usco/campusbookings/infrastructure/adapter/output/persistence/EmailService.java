@@ -238,7 +238,7 @@ public class EmailService implements EmailServicePort {
     }
 
     private String buildPasswordResetEmailContent(String nombre, String codigo) {
-        return """
+        String template = """
             <!DOCTYPE html>
             <html lang="es">
             <head>
@@ -250,7 +250,7 @@ public class EmailService implements EmailServicePort {
                 <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                     
                     <!-- Header -->
-                    <div style="background: linear-gradient(135deg, #8B1538 0%, #A91D3A 100%); color: white; padding: 30px 20px; text-align: center;">
+                    <div style="background: linear-gradient(135deg, #8B1538 0%%, #A91D3A 100%%); color: white; padding: 30px 20px; text-align: center;">
                         <h1 style="margin: 0; font-size: 24px; font-weight: bold;">🔐 Recuperación de Contraseña</h1>
                         <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Universidad Surcolombiana</p>
                     </div>
@@ -299,6 +299,8 @@ public class EmailService implements EmailServicePort {
                 </div>
             </body>
             </html>
-            """.formatted(nombre, codigo);
+            """;
+            
+        return String.format(template, nombre, codigo);
     }
 }
