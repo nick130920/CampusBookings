@@ -156,6 +156,57 @@ public class DatabaseResetController {
         }
     }
     
+    @PostMapping("/create-admin-user")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> createAdminUser() {
+        log.info("🔧 CREANDO USUARIO ADMINISTRADOR SI NO EXISTE");
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Verificar si ya existe
+            if (usuarioRepository.findByEmail("admin@usco.edu.co").isPresent()) {
+                response.put("success", true);
+                response.put("message", "Usuario admin ya existe");
+                response.put("created", false);
+                return ResponseEntity.ok(response);
+            }
+            
+            // Buscar rol ADMIN
+            var adminRoleOptional = rolRepository.findByNombre("ADMIN");
+            if (adminRoleOptional.isEmpty()) {
+                response.put("success", false);
+                response.put("error", "Rol ADMIN no encontrado en la base de datos");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Crear usuario admin
+            var adminUser = new edu.usco.campusbookings.domain.model.Usuario();
+            adminUser.setNombre("Administrador");
+            adminUser.setApellido("Sistema");
+            adminUser.setEmail("admin@usco.edu.co");
+            adminUser.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder(12).encode("AdminUSCO2024!"));
+            adminUser.setRol(adminRoleOptional.get());
+            
+            usuarioRepository.save(adminUser);
+            
+            response.put("success", true);
+            response.put("message", "Usuario administrador creado exitosamente");
+            response.put("email", "admin@usco.edu.co");
+            response.put("created", true);
+            
+            log.info("✅ Usuario administrador creado exitosamente");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("Error creando usuario administrador: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getDatabaseStatus() {
         Map<String, Object> status = new HashMap<>();
