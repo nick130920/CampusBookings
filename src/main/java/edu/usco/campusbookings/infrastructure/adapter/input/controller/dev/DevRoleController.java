@@ -6,7 +6,6 @@ import edu.usco.campusbookings.application.port.input.RoleManagementUseCase;
 import edu.usco.campusbookings.application.port.input.PermissionManagementUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/dev")
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!prod")  // No se carga en producción
+// @Profile("!prod")  // Temporalmente habilitado para producción
 public class DevRoleController {
 
     private final RoleManagementUseCase roleManagementUseCase;
