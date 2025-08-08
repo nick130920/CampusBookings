@@ -153,4 +153,14 @@ public class RolRepository implements RolRepositoryPort {
 		return springDataRolRepository.findByNombre(nombre).isPresent();
 	}
 
+	/**
+	 * Returns a list of all rols with permissions loaded.
+	 *
+	 * @return a list of all rols with permissions
+	 */
+	@Override
+	public List<Rol> findAllWithPermissions() {
+		return springDataRolRepository.findAllWithPermissions();
+	}
+
 }

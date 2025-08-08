@@ -98,4 +98,11 @@ public interface RolRepositoryPort {
 	 * @return true if exists, false otherwise
 	 */
 	boolean existsByNombre(String nombre);
+
+	/**
+	 * Get all rols with permissions loaded.
+	 *
+	 * @return all rols with permissions
+	 */
+	List<Rol> findAllWithPermissions();
 }

@@ -62,8 +62,8 @@ public class SecurityConfig {
                 // Documentación API (solo en desarrollo)
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 
-                // Endpoints de desarrollo para roles y base de datos (solo en desarrollo)
-                .requestMatchers("/api/dev/roles/**", "/api/dev/permissions/**", "/api/dev/database/**").permitAll()
+                // Endpoints de desarrollo para roles (solo en desarrollo)
+                .requestMatchers("/api/dev/roles/**", "/api/dev/permissions/**").permitAll()
                 
                 // WebSocket endpoints
                 .requestMatchers("/ws/**").permitAll()

@@ -118,8 +118,15 @@ public class RoleManagementService implements RoleManagementUseCase {
     @Transactional(readOnly = true)
     public List<RolResponse> getAllRoles() {
         log.debug("Obteniendo todos los roles");
-        List<Rol> roles = rolRepository.findAll();
-        return rolMapper.toResponseList(roles);
+        try {
+            // Usar consulta específica que carga permisos de forma segura
+            List<Rol> roles = rolRepository.findAllWithPermissions();
+            log.debug("Roles cargados exitosamente: {}", roles.size());
+            return rolMapper.toResponseList(roles);
+        } catch (Exception e) {
+            log.error("Error obteniendo roles: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override

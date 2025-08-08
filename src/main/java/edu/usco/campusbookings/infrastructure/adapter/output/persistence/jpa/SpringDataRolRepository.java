@@ -24,4 +24,7 @@ public interface SpringDataRolRepository extends JpaRepository<Rol, Long> {
     
     @Query("SELECT r FROM Rol r WHERE r.nombre LIKE %:searchTerm% OR r.descripcion LIKE %:searchTerm%")
     List<Rol> findBySearchTerm(@Param("searchTerm") String searchTerm);
+    
+    @Query("SELECT r FROM Rol r LEFT JOIN FETCH r.permissions")
+    List<Rol> findAllWithPermissions();
 }
