@@ -61,7 +61,7 @@ public class UserManagementController {
         @ApiResponse(responseCode = "403", description = "Sin permisos")
     })
     @GetMapping("/{userId}/permissions")
-    @PreAuthorize("hasRole('ADMIN') or @userManagementService.isCurrentUser(#userId)")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserPermissionsResponse> getUserPermissions(
             @Parameter(description = "ID del usuario") @PathVariable Long userId) {
         log.info("Solicitud para obtener permisos del usuario con ID: {}", userId);
