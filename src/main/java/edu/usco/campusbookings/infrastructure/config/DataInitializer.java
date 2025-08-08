@@ -42,8 +42,18 @@ public class DataInitializer implements ApplicationRunner {
             if (rolRepository.count() == 0) {
                 createDefaultRoles();
             } else {
-                // Si los roles ya existen, verificar que tengan permisos asignados
-                updateExistingRolesWithPermissions();
+                // En producción, evitar actualización automática de roles existentes para prevenir errores
+                long rolesCount = rolRepository.count();
+                log.info("Encontrados {} roles existentes. Saltando actualización automática para evitar errores de concurrencia.", rolesCount);
+                
+                // Solo actualizar si está específicamente habilitado via variable de entorno
+                String forceUpdate = System.getenv("FORCE_ROLE_PERMISSION_UPDATE");
+                if ("true".equals(forceUpdate)) {
+                    log.warn("FORCE_ROLE_PERMISSION_UPDATE=true detectado. Intentando actualización de roles existentes...");
+                    updateExistingRolesWithPermissions();
+                } else {
+                    log.info("Para forzar actualización de permisos en roles existentes, establecer variable de entorno FORCE_ROLE_PERMISSION_UPDATE=true");
+                }
             }
             
             log.info("Carga de datos por defecto completada");
@@ -221,47 +231,105 @@ public class DataInitializer implements ApplicationRunner {
     private void updateExistingRolesWithPermissions() {
         log.info("Verificando permisos de roles existentes...");
         
-        // Crear copias de las listas para evitar ConcurrentModificationException
-        List<Rol> roles = List.copyOf(rolRepository.findAll());
-        List<Permission> allPermissions = List.copyOf(permissionRepository.findAll());
-        
-        // Lista para acumular roles que necesitan ser actualizados
-        List<Rol> rolesToUpdate = new ArrayList<>();
-        
-        for (Rol role : roles) {
-            if (role.getPermissions() == null || role.getPermissions().isEmpty()) {
-                log.info("Preparando asignación de permisos al rol existente: {}", role.getNombre());
-                
-                // Crear un nuevo HashSet para evitar problemas de concurrencia
-                Set<Permission> permissions = new HashSet<>();
-                switch (role.getNombre()) {
-                    case "ADMIN":
-                        permissions = new HashSet<>(allPermissions);
-                        break;
-                    case "COORDINATOR":
-                        permissions.addAll(getPermissionsByActions(allPermissions, "READ"));
-                        permissions.addAll(getPermissionsByResources(allPermissions, "SCENARIOS"));
-                        permissions.addAll(getPermissionsByResources(allPermissions, "RESERVATIONS"));
-                        permissions.addAll(getPermissionsByActions(allPermissions, "VIEW"));
-                        break;
-                    case "USER":
-                        permissions.addAll(getPermissionsByNames(allPermissions, 
-                            "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS"));
-                        break;
-                }
-                
-                // Solo asignar si se encontraron permisos
-                if (!permissions.isEmpty()) {
-                    role.setPermissions(permissions);
-                    rolesToUpdate.add(role);
+        try {
+            // Obtener datos sin usar copias primero para ver si ese es el problema
+            List<Rol> originalRoles = rolRepository.findAll();
+            List<Permission> originalPermissions = permissionRepository.findAll();
+            
+            log.info("Encontrados {} roles y {} permisos en base de datos", 
+                    originalRoles.size(), originalPermissions.size());
+            
+            // Crear listas completamente nuevas con datos copiados
+            List<Rol> rolesToProcess = new ArrayList<>();
+            List<Permission> permissionsToUse = new ArrayList<>();
+            
+            // Copiar manualmente los datos para evitar referencias a entidades managed
+            for (Permission p : originalPermissions) {
+                permissionsToUse.add(p);
+            }
+            
+            for (Rol r : originalRoles) {
+                rolesToProcess.add(r);
+            }
+            
+            log.info("Creadas copias de trabajo: {} roles, {} permisos", 
+                    rolesToProcess.size(), permissionsToUse.size());
+            
+            // Lista para acumular roles que necesitan ser actualizados
+            List<Rol> rolesToUpdate = new ArrayList<>();
+            
+            // Procesar cada rol de forma individual y segura
+            for (int i = 0; i < rolesToProcess.size(); i++) {
+                try {
+                    Rol role = rolesToProcess.get(i);
+                    log.debug("Procesando rol {} de {}: {}", i + 1, rolesToProcess.size(), role.getNombre());
+                    
+                    if (role.getPermissions() == null || role.getPermissions().isEmpty()) {
+                        log.info("Preparando asignación de permisos al rol existente: {}", role.getNombre());
+                        
+                        // Crear un nuevo HashSet completamente limpio
+                        Set<Permission> permissions = new HashSet<>();
+                        
+                        switch (role.getNombre()) {
+                            case "ADMIN":
+                                permissions.addAll(permissionsToUse);
+                                log.debug("Asignando {} permisos a ADMIN", permissions.size());
+                                break;
+                            case "COORDINATOR":
+                                Set<Permission> readPerms = getPermissionsByActionsSafe(permissionsToUse, "READ");
+                                Set<Permission> scenarioPerms = getPermissionsByResourcesSafe(permissionsToUse, "SCENARIOS");
+                                Set<Permission> reservationPerms = getPermissionsByResourcesSafe(permissionsToUse, "RESERVATIONS");
+                                Set<Permission> viewPerms = getPermissionsByActionsSafe(permissionsToUse, "VIEW");
+                                
+                                permissions.addAll(readPerms);
+                                permissions.addAll(scenarioPerms);
+                                permissions.addAll(reservationPerms);
+                                permissions.addAll(viewPerms);
+                                log.debug("Asignando {} permisos a COORDINATOR", permissions.size());
+                                break;
+                            case "USER":
+                                Set<Permission> userPerms = getPermissionsByNamesSafe(permissionsToUse, 
+                                    "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS");
+                                permissions.addAll(userPerms);
+                                log.debug("Asignando {} permisos a USER", permissions.size());
+                                break;
+                            default:
+                                log.warn("Rol desconocido: {}, saltando...", role.getNombre());
+                                continue;
+                        }
+                        
+                        // Solo asignar si se encontraron permisos
+                        if (!permissions.isEmpty()) {
+                            role.setPermissions(permissions);
+                            rolesToUpdate.add(role);
+                            log.debug("Rol {} agregado para actualización con {} permisos", 
+                                    role.getNombre(), permissions.size());
+                        } else {
+                            log.warn("No se encontraron permisos para el rol: {}", role.getNombre());
+                        }
+                    } else {
+                        log.debug("Rol {} ya tiene {} permisos asignados", 
+                                role.getNombre(), role.getPermissions().size());
+                    }
+                    
+                } catch (Exception e) {
+                    log.error("Error procesando rol individual: {}", e.getMessage(), e);
+                    // Continuar con el siguiente rol
                 }
             }
-        }
-        
-        // Guardar todos los roles actualizados en una sola operación
-        if (!rolesToUpdate.isEmpty()) {
-            rolRepository.saveAll(rolesToUpdate);
-            log.info("Actualizados {} roles con permisos", rolesToUpdate.size());
+            
+            // Guardar todos los roles actualizados en una sola operación
+            if (!rolesToUpdate.isEmpty()) {
+                log.info("Guardando {} roles actualizados...", rolesToUpdate.size());
+                rolRepository.saveAll(rolesToUpdate);
+                log.info("Actualizados {} roles con permisos exitosamente", rolesToUpdate.size());
+            } else {
+                log.info("No hay roles que necesiten actualización de permisos");
+            }
+            
+        } catch (Exception e) {
+            log.error("Error en updateExistingRolesWithPermissions: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -282,5 +350,52 @@ public class DataInitializer implements ApplicationRunner {
         return new HashSet<>(permissions.stream()
             .filter(p -> nameSet.contains(p.getName()))
             .toList());
+    }
+
+    // Métodos seguros que usan iteración manual para evitar ConcurrentModificationException
+    private Set<Permission> getPermissionsByActionsSafe(List<Permission> permissions, String action) {
+        Set<Permission> result = new HashSet<>();
+        try {
+            for (int i = 0; i < permissions.size(); i++) {
+                Permission p = permissions.get(i);
+                if (p != null && action.equals(p.getAction())) {
+                    result.add(p);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error en getPermissionsByActionsSafe para action '{}': {}", action, e.getMessage());
+        }
+        return result;
+    }
+
+    private Set<Permission> getPermissionsByResourcesSafe(List<Permission> permissions, String resource) {
+        Set<Permission> result = new HashSet<>();
+        try {
+            for (int i = 0; i < permissions.size(); i++) {
+                Permission p = permissions.get(i);
+                if (p != null && resource.equals(p.getResource())) {
+                    result.add(p);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error en getPermissionsByResourcesSafe para resource '{}': {}", resource, e.getMessage());
+        }
+        return result;
+    }
+
+    private Set<Permission> getPermissionsByNamesSafe(List<Permission> permissions, String... names) {
+        Set<Permission> result = new HashSet<>();
+        Set<String> nameSet = new HashSet<>(Arrays.asList(names));
+        try {
+            for (int i = 0; i < permissions.size(); i++) {
+                Permission p = permissions.get(i);
+                if (p != null && nameSet.contains(p.getName())) {
+                    result.add(p);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error en getPermissionsByNamesSafe: {}", e.getMessage());
+        }
+        return result;
     }
 }
