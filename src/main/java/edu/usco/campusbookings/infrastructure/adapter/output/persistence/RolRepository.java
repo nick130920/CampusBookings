@@ -163,4 +163,15 @@ public class RolRepository implements RolRepositoryPort {
 		return springDataRolRepository.findAllWithPermissions();
 	}
 
+	/**
+	 * Counts usuarios by rol ID.
+	 *
+	 * @param rolId the rol ID
+	 * @return count of usuarios
+	 */
+	@Override
+	public long countUsuariosByRolId(Long rolId) {
+		return springDataRolRepository.countUsuariosByRolId(rolId);
+	}
+
 }

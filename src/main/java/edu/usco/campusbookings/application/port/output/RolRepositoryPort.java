@@ -105,4 +105,12 @@ public interface RolRepositoryPort {
 	 * @return all rols with permissions
 	 */
 	List<Rol> findAllWithPermissions();
+
+	/**
+	 * Count usuarios by rol ID.
+	 *
+	 * @param rolId the rol ID
+	 * @return count of usuarios
+	 */
+	long countUsuariosByRolId(Long rolId);
 }
