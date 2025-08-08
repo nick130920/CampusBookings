@@ -62,8 +62,22 @@ public class DataInitializer implements ApplicationRunner {
             }
             
             // Crear usuario administrador por defecto si no existe
-            if (usuarioRepository.count() == 0) {
+            long userCount = usuarioRepository.count();
+            log.info("Encontrados {} usuarios en la base de datos", userCount);
+            if (userCount == 0) {
                 createDefaultAdminUser();
+            } else {
+                log.info("Ya existen usuarios en la base de datos, saltando creación de admin por defecto");
+                // Verificar si existe usuario admin
+                try {
+                    usuarioRepository.findByEmail("admin@usco.edu.co")
+                        .ifPresentOrElse(
+                            admin -> log.info("Usuario admin existe: {}", admin.getEmail()),
+                            () -> log.warn("⚠️  No se encontró usuario admin por defecto. Considerar crearlo manualmente.")
+                        );
+                } catch (Exception e) {
+                    log.error("Error verificando usuario admin: {}", e.getMessage());
+                }
             }
             
             log.info("Carga de datos por defecto completada");

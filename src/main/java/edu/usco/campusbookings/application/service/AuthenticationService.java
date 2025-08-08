@@ -83,6 +83,12 @@ public class AuthenticationService {
             log.info("Usuario encontrado: {}, Rol: {}", usuarioCheck.getEmail(), 
                     usuarioCheck.getRol() != null ? usuarioCheck.getRol().getNombre() : "null");
             
+            // Verificar que el usuario tiene rol asignado
+            if (usuarioCheck.getRol() == null) {
+                log.error("Usuario {} no tiene rol asignado", request.getEmail());
+                throw new RuntimeException("Usuario sin rol asignado");
+            }
+            
             authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     request.getEmail(),
