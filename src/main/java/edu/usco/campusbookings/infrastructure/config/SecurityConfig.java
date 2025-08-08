@@ -77,6 +77,7 @@ public class SecurityConfig {
                 // API protegidas por roles
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/coordinator/**").hasAnyRole("ADMIN", "COORDINATOR")
+                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN", "COORDINATOR")
                 
                 // Cualquier otra request requiere autenticación
                 .anyRequest().authenticated()
