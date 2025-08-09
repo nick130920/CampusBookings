@@ -31,8 +31,8 @@ public class ScenarioTypePermission extends Auditable {
     @Column(name = "action", nullable = false, length = 20)
     private String action;
 
-    @Column(name = "active", nullable = false)
-    private boolean active = true;
+    @Column(name = "active", nullable = true)
+    private Boolean active = true;
 }
 
 

@@ -15,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(name = "spring.jpa.hibernate.ddl-auto", havingValue = "update")
+// Ejecutar siempre, pero de forma segura
+//@ConditionalOnProperty(name = "spring.jpa.hibernate.ddl-auto", havingValue = "update")
 public class ActiveFieldMigration {
 
     private final JdbcTemplate jdbcTemplate;
@@ -54,10 +55,11 @@ public class ActiveFieldMigration {
             );
             log.info("Actualizados {} registros con active = TRUE", updated);
             
-            // 3. Aplicar restricción NOT NULL
-            jdbcTemplate.execute(
-                "ALTER TABLE scenario_type_permissions ALTER COLUMN active SET NOT NULL"
-            );
+            // 3. NO aplicar restricción NOT NULL por ahora para evitar errores
+            // jdbcTemplate.execute(
+            //     "ALTER TABLE scenario_type_permissions ALTER COLUMN active SET NOT NULL"
+            // );
+            log.info("Campo 'active' agregado como nullable para compatibilidad");
             
             log.info("Migración de campo 'active' completada exitosamente");
             

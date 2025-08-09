@@ -20,7 +20,7 @@ public class ScenarioTypePermissionMapper {
                 .usuario(mapUsuario(permission))
                 .tipoEscenario(mapTipoEscenario(permission))
                 .action(permission.getAction())
-                .active(permission.isActive())
+                .active(permission.getActive() != null ? permission.getActive() : true)
                 .createdDate(permission.getCreatedDate())
                 .modifiedDate(permission.getModifiedDate())
                 .build();
