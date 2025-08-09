@@ -143,6 +143,16 @@ public class UsuarioService implements UsuarioUseCase {
                 .orElseThrow(() -> UsuarioNotFoundException.withEmail(email));
     }
 
+    /**
+     * Busca un usuario por email cargando eagerly el rol y sus permisos.
+     * Útil para verificaciones de permisos.
+     */
+    @Transactional(readOnly = true)
+    public Usuario findByEmailWithPermissions(String email) {
+        return usuarioRepository.findByEmailWithPermissions(email)
+                .orElseThrow(() -> UsuarioNotFoundException.withEmail(email));
+    }
+
     @Override
     @Transactional
     public Usuario update(Long id, Usuario usuario) {

@@ -13,6 +13,16 @@ import java.util.Optional;
 public interface SpringDataUsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByEmail(String email);
 
+    /**
+     * Busca un usuario por email cargando eagerly el rol y sus permisos
+     * Evita el problema de LazyInitializationException
+     */
+    @Query("SELECT u FROM Usuario u " +
+           "LEFT JOIN FETCH u.rol r " +
+           "LEFT JOIN FETCH r.permissions " +
+           "WHERE u.email = :email")
+    Optional<Usuario> findByEmailWithPermissions(@Param("email") String email);
+
     List<Usuario> getUsuariosByRol_Nombre(String rol);
 
     @Query("SELECT u FROM Usuario u WHERE " +

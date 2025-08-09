@@ -45,6 +45,14 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
         return usuarioRepository.findByEmail(email);
     }
 
+    /**
+     * Busca un usuario por email cargando eagerly el rol y sus permisos
+     */
+    @Override
+    public Optional<Usuario> findByEmailWithPermissions(String email) {
+        return usuarioRepository.findByEmailWithPermissions(email);
+    }
+
     @Override
     public List<Usuario> getUsuariosByRole(String role) {
         return usuarioRepository.getUsuariosByRol_Nombre(role);

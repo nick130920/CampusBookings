@@ -53,6 +53,14 @@ public interface UsuarioRepositoryPort {
 	Optional<Usuario> findByEmail(String email);
 
 	/**
+	 * Find a Usuario by email with permissions eagerly loaded.
+	 *
+	 * @param email the email of the Usuario
+	 * @return the Usuario with permissions if found, optional empty if not found
+	 */
+	Optional<Usuario> findByEmailWithPermissions(String email);
+
+	/**
 	 * Find all usuarios with a specific role.
 	 *
 	 * @param role the role to search for

@@ -40,7 +40,7 @@ public class PermissionAspect {
         log.debug("Verificando permisos para usuario: {}", userEmail);
 
         try {
-            Usuario usuario = usuarioService.findByEmail(userEmail);
+            Usuario usuario = usuarioService.findByEmailWithPermissions(userEmail);
             
             // Si es ADMIN, permitir todo
             if (usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre())) {
