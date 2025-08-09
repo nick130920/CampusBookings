@@ -21,11 +21,12 @@ import java.util.List;
 
 /**
  * Configuration class to load initial data into the database.
- * This will only run when the 'dev' or 'local' profile is active.
+ * DISABLED: Conflictúa con DataInitializer - usando solo DataInitializer
  */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+//@Component // DISABLED - Conflicto con DataInitializer
 public class InitialDataLoader {
 
     private final SpringDataRolRepository rolRepository;
@@ -34,9 +35,10 @@ public class InitialDataLoader {
     private final EstadoReservaJpaRepository estadoReservaRepository;
     private final SpringDataEscenarioRepository escenarioRepository;
 
-    @PostConstruct
-    @Transactional
-    public void loadInitialData() {
+    // DISABLED - Usando DataInitializer en su lugar
+    // @PostConstruct
+    // @Transactional
+    public void loadInitialData_DISABLED() {
         if (rolRepository.count() == 0) {
             log.info("Loading initial roles...");
             createRoles();

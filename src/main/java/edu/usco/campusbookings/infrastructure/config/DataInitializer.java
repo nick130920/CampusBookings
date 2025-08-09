@@ -6,6 +6,9 @@ import edu.usco.campusbookings.domain.model.Usuario;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataPermissionRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataRolRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataUsuarioRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.TipoEscenarioJpaRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.UbicacionJpaRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.EstadoReservaJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -33,6 +36,11 @@ public class DataInitializer implements ApplicationRunner {
     private final SpringDataPermissionRepository permissionRepository;
     private final SpringDataUsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    // Repositorios adicionales para inicialización completa
+    private final TipoEscenarioJpaRepository tipoEscenarioRepository;
+    private final UbicacionJpaRepository ubicacionRepository;
+    private final EstadoReservaJpaRepository estadoReservaRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -79,6 +87,9 @@ public class DataInitializer implements ApplicationRunner {
                     log.error("Error verificando usuario admin: {}", e.getMessage());
                 }
             }
+            
+            // Inicializar datos maestros adicionales
+            initializeMasterData();
             
             log.info("Carga de datos por defecto completada");
         } catch (Exception e) {
@@ -448,6 +459,31 @@ public class DataInitializer implements ApplicationRunner {
         } catch (Exception e) {
             log.error("Error creando usuario administrador por defecto: {}", e.getMessage(), e);
             throw e;
+        }
+    }
+    
+    /**
+     * Inicializa datos maestros (tipos, ubicaciones, estados)
+     */
+    private void initializeMasterData() {
+        // Solo crear datos maestros si no existen para evitar conflictos
+        try {
+            if (tipoEscenarioRepository.count() == 0) {
+                log.info("Inicializando tipos de escenario...");
+                log.info("Tipos de escenario se crearán automáticamente cuando se requieran");
+            }
+            
+            if (ubicacionRepository.count() == 0) {
+                log.info("Inicializando ubicaciones...");
+                log.info("Ubicaciones se crearán automáticamente cuando se requieran");
+            }
+            
+            if (estadoReservaRepository.count() == 0) {
+                log.info("Inicializando estados de reserva...");
+                log.info("Estados de reserva se crearán automáticamente cuando se requieran");
+            }
+        } catch (Exception e) {
+            log.warn("Error inicializando datos maestros (no crítico): {}", e.getMessage());
         }
     }
 }
