@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import edu.usco.campusbookings.application.port.output.ScenarioTypePermissionRepositoryPort;
 
 /**
  * Aspecto que maneja la validación de permisos usando la anotación @RequiresPermission
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class PermissionAspect {
 
     private final UsuarioService usuarioService;
+    private final ScenarioTypePermissionRepositoryPort scenarioTypePermissionRepositoryPort;
 
     @Around("@annotation(requiresPermission)")
     public Object checkPermission(ProceedingJoinPoint joinPoint, RequiresPermission requiresPermission) throws Throwable {
@@ -49,7 +51,7 @@ public class PermissionAspect {
             }
 
             // Verificar si el usuario tiene el permiso específico
-            if (hasPermission(usuario, requiresPermission.resource(), requiresPermission.action())) {
+            if (hasPermission(usuario, requiresPermission.resource(), requiresPermission.action(), joinPoint)) {
                 log.debug("Usuario {} tiene el permiso requerido", userEmail);
                 return joinPoint.proceed();
             } else {
@@ -64,7 +66,7 @@ public class PermissionAspect {
         }
     }
 
-    private boolean hasPermission(Usuario usuario, String resource, String action) {
+    private boolean hasPermission(Usuario usuario, String resource, String action, ProceedingJoinPoint joinPoint) {
         if (usuario.getRol() == null) {
             return false;
         }
@@ -87,6 +89,31 @@ public class PermissionAspect {
                     "MANAGE".equals(permission.getAction()));
 
         boolean hasPermission = hasSpecificPermission || hasManagePermission;
+
+        // Reglas adicionales: si es ESCENARIOS y acción UPDATE/CREATE/DELETE, permitir por tipo asignado
+        if (!hasPermission && "ESCENARIOS".equals(resource) && ("UPDATE".equals(action) || "CREATE".equals(action) || "DELETE".equals(action))) {
+            // Intentar inferir el tipo de escenario a partir de los argumentos
+            String tipoInferido = null;
+            for (Object arg : joinPoint.getArgs()) {
+                if (arg instanceof edu.usco.campusbookings.application.dto.request.EscenarioRequest req) {
+                    tipoInferido = req.getTipo();
+                    break;
+                }
+            }
+            if (tipoInferido != null) {
+                boolean hasTypePermission = scenarioTypePermissionRepositoryPort
+                    .existsByUsuarioEmailAndTipoNombreAndAction(usuario.getEmail(), tipoInferido, action);
+                if (!hasTypePermission && "UPDATE".equals(action)) {
+                    // Si tiene MANAGE por tipo, también permitir
+                    hasTypePermission = scenarioTypePermissionRepositoryPort
+                        .existsByUsuarioEmailAndTipoNombreAndAction(usuario.getEmail(), tipoInferido, "MANAGE");
+                }
+                if (hasTypePermission) {
+                    log.debug("Usuario {} tiene permiso por tipo '{}' para acción {}", usuario.getEmail(), tipoInferido, action);
+                    return true;
+                }
+            }
+        }
         
         log.debug("Usuario {} - Rol: {} - Permiso {}-{}: {}", 
             usuario.getEmail(), rol.getNombre(), resource, action, hasPermission);
