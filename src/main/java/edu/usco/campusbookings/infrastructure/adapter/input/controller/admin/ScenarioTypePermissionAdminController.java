@@ -1,7 +1,7 @@
 package edu.usco.campusbookings.infrastructure.adapter.input.controller.admin;
 
+import edu.usco.campusbookings.application.dto.response.ScenarioTypePermissionResponse;
 import edu.usco.campusbookings.application.port.input.ScenarioTypePermissionUseCase;
-import edu.usco.campusbookings.domain.model.ScenarioTypePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,12 +34,12 @@ public class ScenarioTypePermissionAdminController {
         @ApiResponse(responseCode = "403", description = "Sin permisos de administrador")
     })
     @PostMapping("/assign")
-    public ResponseEntity<ScenarioTypePermission> assignPermission(
+    public ResponseEntity<ScenarioTypePermissionResponse> assignPermission(
             @Parameter(description = "Email del usuario") @RequestParam String userEmail,
             @Parameter(description = "Nombre del tipo de escenario") @RequestParam String tipoNombre,
             @Parameter(description = "Acción del permiso") @RequestParam String action) {
         log.info("Asignando permiso {} para tipo {} al usuario {}", action, tipoNombre, userEmail);
-        ScenarioTypePermission permission = useCase.assignPermissionToUser(userEmail, tipoNombre, action);
+        ScenarioTypePermissionResponse permission = useCase.assignPermissionToUser(userEmail, tipoNombre, action);
         return ResponseEntity.ok(permission);
     }
 
@@ -68,10 +68,10 @@ public class ScenarioTypePermissionAdminController {
         @ApiResponse(responseCode = "403", description = "Sin permisos de administrador")
     })
     @GetMapping("/user/{email}")
-    public ResponseEntity<List<ScenarioTypePermission>> getUserPermissions(
+    public ResponseEntity<List<ScenarioTypePermissionResponse>> getUserPermissions(
             @Parameter(description = "Email del usuario") @PathVariable String email) {
         log.info("Obteniendo permisos por tipo para usuario: {}", email);
-        List<ScenarioTypePermission> permissions = useCase.getPermissionsForUser(email);
+        List<ScenarioTypePermissionResponse> permissions = useCase.getPermissionsForUser(email);
         return ResponseEntity.ok(permissions);
     }
 }

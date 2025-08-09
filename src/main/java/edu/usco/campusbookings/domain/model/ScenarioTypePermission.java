@@ -30,6 +30,9 @@ public class ScenarioTypePermission extends Auditable {
     // Acciones: READ, CREATE, UPDATE, DELETE, MANAGE
     @Column(name = "action", nullable = false, length = 20)
     private String action;
+
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 }
 
 
