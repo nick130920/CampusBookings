@@ -16,6 +16,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ public class DataInitializer implements ApplicationRunner {
             // Solo cargar datos si no existen
             if (permissionRepository.count() == 0) {
                 createDefaultPermissions();
+                log.info("Esperando a que se complete la persistencia de permisos...");
             }
             
             if (rolRepository.count() == 0) {
@@ -98,7 +100,7 @@ public class DataInitializer implements ApplicationRunner {
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void createDefaultPermissions() {
         log.info("Creando permisos por defecto...");
         
@@ -219,12 +221,13 @@ public class DataInitializer implements ApplicationRunner {
         log.info("Creados {} permisos por defecto", permissions.size());
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void createDefaultRoles() {
         log.info("Creando roles por defecto...");
         
-        // Obtener todos los permisos
+        // Obtener todos los permisos recién persistidos
         List<Permission> allPermissions = permissionRepository.findAll();
+        log.info("Obtenidos {} permisos de la base de datos para asignar a roles", allPermissions.size());
         
         // Crear rol ADMIN con todos los permisos
         Set<Permission> adminPermissions = new HashSet<>(allPermissions);
