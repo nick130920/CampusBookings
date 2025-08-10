@@ -206,7 +206,7 @@ CREATE TABLE reserva (
 | **EstadoReserva** | Estados de reserva (PENDIENTE, APROBADA, RECHAZADA) |
 | **Ubicacion** | Ubicaciones físicas de los escenarios |
 | **HorarioDisponible** | Horarios disponibles por escenario |
-| **ColaEspera** | Sistema de cola para reservas |
+
 | **Notificacion** | Notificaciones del sistema |
 | **Feedback** | Retroalimentación de usuarios |
 | **Reporte** | Reportes del sistema |
