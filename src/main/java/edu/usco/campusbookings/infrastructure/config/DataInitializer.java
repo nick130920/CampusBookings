@@ -229,42 +229,47 @@ public class DataInitializer implements ApplicationRunner {
         List<Permission> allPermissions = permissionRepository.findAll();
         log.info("Obtenidos {} permisos de la base de datos para asignar a roles", allPermissions.size());
         
-        // Crear rol ADMIN con todos los permisos
-        Set<Permission> adminPermissions = new HashSet<>(allPermissions);
+        // Crear roles sin permisos primero
         Rol adminRole = Rol.builder()
             .nombre("ADMIN")
             .descripcion("Administrador del sistema con acceso completo")
             .activo(true)
-            .permissions(adminPermissions)
             .build();
-        
-        // Crear rol COORDINATOR con permisos limitados
-        Set<Permission> coordinatorPermissions = new HashSet<>();
-        coordinatorPermissions.addAll(getPermissionsByActions(allPermissions, "READ"));
-        coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "SCENARIOS"));
-        coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "RESERVATIONS"));
-        coordinatorPermissions.addAll(getPermissionsByActions(allPermissions, "VIEW"));
         
         Rol coordinatorRole = Rol.builder()
             .nombre("COORDINATOR")
             .descripcion("Coordinador con permisos de gestión de escenarios y reservas")
             .activo(true)
-            .permissions(coordinatorPermissions)
             .build();
-        
-        // Crear rol USER con permisos básicos
-        Set<Permission> userPermissions = new HashSet<>();
-        userPermissions.addAll(getPermissionsByNames(allPermissions, 
-            "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS"));
         
         Rol userRole = Rol.builder()
             .nombre("USER")
             .descripcion("Usuario básico con permisos de reserva")
             .activo(true)
-            .permissions(userPermissions)
             .build();
         
-        // Guardar roles uno por uno para evitar problemas de detached entity
+        // Guardar roles primero
+        adminRole = rolRepository.save(adminRole);
+        coordinatorRole = rolRepository.save(coordinatorRole);
+        userRole = rolRepository.save(userRole);
+        
+        // Ahora asignar permisos a los roles ya persistidos
+        Set<Permission> adminPermissions = new HashSet<>(allPermissions);
+        adminRole.setPermissions(adminPermissions);
+        
+        Set<Permission> coordinatorPermissions = new HashSet<>();
+        coordinatorPermissions.addAll(getPermissionsByActions(allPermissions, "READ"));
+        coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "SCENARIOS"));
+        coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "RESERVATIONS"));
+        coordinatorPermissions.addAll(getPermissionsByActions(allPermissions, "VIEW"));
+        coordinatorRole.setPermissions(coordinatorPermissions);
+        
+        Set<Permission> userPermissions = new HashSet<>();
+        userPermissions.addAll(getPermissionsByNames(allPermissions, 
+            "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS"));
+        userRole.setPermissions(userPermissions);
+        
+        // Guardar roles con permisos
         rolRepository.save(adminRole);
         rolRepository.save(coordinatorRole);
         rolRepository.save(userRole);
