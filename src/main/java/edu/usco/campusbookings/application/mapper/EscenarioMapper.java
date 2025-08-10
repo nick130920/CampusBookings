@@ -10,7 +10,6 @@ import edu.usco.campusbookings.domain.model.Ubicacion;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
@@ -27,8 +26,6 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring")
 public interface EscenarioMapper {
-
-    EscenarioMapper INSTANCE = Mappers.getMapper(EscenarioMapper.class);
     
     /**
      * Converts a string representation of a scenario type to a TipoEscenario entity.

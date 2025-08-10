@@ -3,7 +3,6 @@ package edu.usco.campusbookings.application.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
 import edu.usco.campusbookings.application.dto.request.ReservaRequest;
 import edu.usco.campusbookings.application.dto.response.ReservaResponse;
@@ -14,7 +13,6 @@ import edu.usco.campusbookings.domain.model.Reserva;
  */
 @Mapper(componentModel = "spring", uses = {EscenarioMapper.class})
 public interface ReservaMapper {
-    ReservaMapper INSTANCE = Mappers.getMapper(ReservaMapper.class);
 
     @Mapping(target = "usuario", ignore = true)
     @Mapping(target = "estado", ignore = true)

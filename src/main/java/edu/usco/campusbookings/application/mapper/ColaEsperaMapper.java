@@ -4,7 +4,6 @@ import edu.usco.campusbookings.application.dto.request.ColaEsperaRequest;
 import edu.usco.campusbookings.application.dto.response.ColaEsperaResponse;
 import edu.usco.campusbookings.domain.model.ColaEspera;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
@@ -21,8 +20,6 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring")
 public interface ColaEsperaMapper {
-
-    ColaEsperaMapper INSTANCE = Mappers.getMapper(ColaEsperaMapper.class);
 
     /**
      * Converts a ColaEsperaRequest DTO to a ColaEspera entity.
