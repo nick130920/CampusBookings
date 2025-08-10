@@ -114,13 +114,13 @@ public interface AlertaReservaJpaRepository extends JpaRepository<AlertaReserva,
      * Encuentra estadísticas de alertas por usuario
      */
     @Query("SELECT a.reserva.usuario.id, COUNT(a) FROM AlertaReserva a " +
-           "WHERE a.fechaCreacion >= :fechaDesde GROUP BY a.reserva.usuario.id")
+           "WHERE a.createdDate >= :fechaDesde GROUP BY a.reserva.usuario.id")
     List<Object[]> findEstadisticasAlertasPorUsuario(@Param("fechaDesde") LocalDateTime fechaDesde);
 
     /**
      * Encuentra alertas que requieren limpieza (muy antiguas y completadas)
      */
     @Query("SELECT a FROM AlertaReserva a WHERE a.estado IN ('ENVIADO', 'CANCELADO') " +
-           "AND a.fechaModificacion < :fechaLimite")
+           "AND a.modifiedDate < :fechaLimite")
     List<AlertaReserva> findAlertasParaLimpieza(@Param("fechaLimite") LocalDateTime fechaLimite);
 }
