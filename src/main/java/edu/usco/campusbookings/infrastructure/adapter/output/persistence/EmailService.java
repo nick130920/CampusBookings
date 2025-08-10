@@ -36,8 +36,8 @@ public class EmailService implements EmailServicePort {
     @Value("${mail.reservas.subject-prefix:[CampusBookings USCO]}")
     private String subjectPrefix;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale.of("es", "ES"));
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm", Locale.of("es", "ES"));
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm", new Locale("es", "ES"));
 
     @Override
     public void sendConfirmationEmail(String to, String subject, String body) {
