@@ -2,19 +2,15 @@ package edu.usco.campusbookings.infrastructure.config;
 
 import edu.usco.campusbookings.domain.model.Escenario;
 import edu.usco.campusbookings.domain.model.EstadoReserva;
-import edu.usco.campusbookings.domain.model.Rol;
 import edu.usco.campusbookings.domain.model.TipoEscenario;
 import edu.usco.campusbookings.domain.model.Ubicacion;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.EstadoReservaJpaRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataEscenarioRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.TipoEscenarioJpaRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.UbicacionJpaRepository;
-import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataRolRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +25,6 @@ import java.util.List;
 //@Component // DISABLED - Conflicto con DataInitializer
 public class InitialDataLoader {
 
-    private final SpringDataRolRepository rolRepository;
     private final TipoEscenarioJpaRepository tipoEscenarioRepository;
     private final UbicacionJpaRepository ubicacionRepository;
     private final EstadoReservaJpaRepository estadoReservaRepository;
@@ -39,11 +34,6 @@ public class InitialDataLoader {
     // @PostConstruct
     // @Transactional
     public void loadInitialData_DISABLED() {
-        if (rolRepository.count() == 0) {
-            log.info("Loading initial roles...");
-            createRoles();
-        }
-
         if (tipoEscenarioRepository.count() == 0) {
             log.info("Loading initial scenario types...");
             createTipoEscenarios();
@@ -63,19 +53,6 @@ public class InitialDataLoader {
             log.info("Loading initial USCO scenarios...");
             createEscenariosUSCO();
         }
-    }
-
-    private void createRoles() {
-        Rol admin = Rol.builder()
-                .nombre("ADMIN")
-                .build();
-
-        Rol usuario = Rol.builder()
-                .nombre("USUARIO")
-                .build();
-
-        rolRepository.saveAll(List.of(admin, usuario));
-        log.info("Created initial roles: ADMIN, USUARIO");
     }
 
     private void createTipoEscenarios() {

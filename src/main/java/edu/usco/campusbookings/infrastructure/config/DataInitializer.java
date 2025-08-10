@@ -3,12 +3,17 @@ package edu.usco.campusbookings.infrastructure.config;
 import edu.usco.campusbookings.domain.model.Permission;
 import edu.usco.campusbookings.domain.model.Rol;
 import edu.usco.campusbookings.domain.model.Usuario;
+import edu.usco.campusbookings.domain.model.TipoEscenario;
+import edu.usco.campusbookings.domain.model.Ubicacion;
+import edu.usco.campusbookings.domain.model.EstadoReserva;
+import edu.usco.campusbookings.domain.model.Escenario;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataPermissionRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataRolRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataUsuarioRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.TipoEscenarioJpaRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.UbicacionJpaRepository;
 import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.EstadoReservaJpaRepository;
+import edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa.SpringDataEscenarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -42,6 +47,7 @@ public class DataInitializer implements ApplicationRunner {
     private final TipoEscenarioJpaRepository tipoEscenarioRepository;
     private final UbicacionJpaRepository ubicacionRepository;
     private final EstadoReservaJpaRepository estadoReservaRepository;
+    private final SpringDataEscenarioRepository escenarioRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -479,27 +485,304 @@ public class DataInitializer implements ApplicationRunner {
     }
     
     /**
-     * Inicializa datos maestros (tipos, ubicaciones, estados)
+     * Inicializa datos maestros (tipos, ubicaciones, estados, escenarios)
      */
     private void initializeMasterData() {
-        // Solo crear datos maestros si no existen para evitar conflictos
         try {
             if (tipoEscenarioRepository.count() == 0) {
-                log.info("Inicializando tipos de escenario...");
-                log.info("Tipos de escenario se crearán automáticamente cuando se requieran");
+                log.info("Creando tipos de escenario...");
+                createTipoEscenarios();
             }
             
             if (ubicacionRepository.count() == 0) {
-                log.info("Inicializando ubicaciones...");
-                log.info("Ubicaciones se crearán automáticamente cuando se requieran");
+                log.info("Creando ubicaciones...");
+                createUbicaciones();
             }
             
             if (estadoReservaRepository.count() == 0) {
-                log.info("Inicializando estados de reserva...");
-                log.info("Estados de reserva se crearán automáticamente cuando se requieran");
+                log.info("Creando estados de reserva...");
+                createEstadosReserva();
+            }
+            
+            if (escenarioRepository.count() == 0) {
+                log.info("Creando escenarios USCO...");
+                createEscenariosUSCO();
             }
         } catch (Exception e) {
-            log.warn("Error inicializando datos maestros (no crítico): {}", e.getMessage());
+            log.error("Error inicializando datos maestros: {}", e.getMessage(), e);
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void createTipoEscenarios() {
+        List<TipoEscenario> tipos = Arrays.asList(
+                TipoEscenario.builder()
+                        .nombre("Deportivo")
+                        .descripcion("Espacios destinados a actividades deportivas y recreativas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Auditorio")
+                        .descripcion("Espacios para eventos, conferencias y presentaciones")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Laboratorio/Didáctico")
+                        .descripcion("Espacios de aprendizaje práctico y experimentación")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Laboratorio")
+                        .descripcion("Laboratorios especializados para investigación y práctica")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Biblioteca")
+                        .descripcion("Espacios de estudio, consulta y recursos bibliográficos")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Sala de Cómputo")
+                        .descripcion("Salas equipadas con computadores y tecnología")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Restaurante")
+                        .descripcion("Espacios de alimentación estudiantil y universitaria")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Cafetería")
+                        .descripcion("Espacios de encuentro y alimentación informal")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Administrativo")
+                        .descripcion("Espacios destinados a actividades administrativas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Bloque Académico")
+                        .descripcion("Conjuntos de aulas para clases y actividades académicas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Edificio Académico")
+                        .descripcion("Edificios completos destinados a actividades académicas")
+                        .build(),
+                TipoEscenario.builder()
+                        .nombre("Investigación/Práctica")
+                        .descripcion("Espacios destinados a investigación y prácticas especializadas")
+                        .build()
+        );
+
+        tipoEscenarioRepository.saveAll(tipos);
+        log.info("Creados {} tipos de escenario", tipos.size());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void createUbicaciones() {
+        // Sede Central
+        Ubicacion sedeCentral = Ubicacion.builder()
+                .nombre("Sede Central")
+                .direccion("Avenida Pastrana Borrero - Carrera 1")
+                .ciudad("Neiva")
+                .pais("Colombia")
+                .build();
+
+        // Subsede Salud
+        Ubicacion subsedeSalud = Ubicacion.builder()
+                .nombre("Subsede Salud")
+                .direccion("Calle 9 # 14-03")
+                .ciudad("Neiva")
+                .pais("Colombia")
+                .build();
+
+        // Sede Neiva Centro (Torre Administrativa)
+        Ubicacion sedeNeivaCentro = Ubicacion.builder()
+                .nombre("Sede Neiva Centro")
+                .direccion("Carrera 5 No. 23-40")
+                .ciudad("Neiva")
+                .pais("Colombia")
+                .build();
+
+        // Sede Garzón
+        Ubicacion sedeGarzon = Ubicacion.builder()
+                .nombre("Sede Garzón")
+                .direccion("Vereda Las Termitas")
+                .ciudad("Garzón")
+                .pais("Colombia")
+                .build();
+
+        // Sede Pitalito
+        Ubicacion sedePitalito = Ubicacion.builder()
+                .nombre("Sede Pitalito")
+                .direccion("Kilómetro 1 vía Vereda El Macal")
+                .ciudad("Pitalito")
+                .pais("Colombia")
+                .build();
+
+        // Sede La Plata
+        Ubicacion sedeLaPlata = Ubicacion.builder()
+                .nombre("Sede La Plata")
+                .direccion("Kilómetro 1 vía a Fátima")
+                .ciudad("La Plata")
+                .pais("Colombia")
+                .build();
+
+        List<Ubicacion> ubicaciones = List.of(sedeCentral, subsedeSalud, sedeNeivaCentro, sedeGarzon, sedePitalito, sedeLaPlata);
+        ubicacionRepository.saveAll(ubicaciones);
+        log.info("Creadas {} ubicaciones", ubicaciones.size());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void createEstadosReserva() {
+        EstadoReserva pendiente = EstadoReserva.builder()
+                .nombre("PENDIENTE")
+                .build();
+
+        EstadoReserva aprobada = EstadoReserva.builder()
+                .nombre("APROBADA")
+                .build();
+
+        EstadoReserva rechazada = EstadoReserva.builder()
+                .nombre("RECHAZADA")
+                .build();
+
+        EstadoReserva cancelada = EstadoReserva.builder()
+                .nombre("CANCELADA")
+                .build();
+
+        List<EstadoReserva> estados = List.of(pendiente, aprobada, rechazada, cancelada);
+        estadoReservaRepository.saveAll(estados);
+        log.info("Creados {} estados de reserva: PENDIENTE, APROBADA, RECHAZADA, CANCELADA", estados.size());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void createEscenariosUSCO() {
+        // Obtener ubicaciones
+        Ubicacion sedeCentral = ubicacionRepository.findByNombre("Sede Central").orElse(null);
+        Ubicacion subsedeSalud = ubicacionRepository.findByNombre("Subsede Salud").orElse(null);
+        Ubicacion sedeNeivaCentro = ubicacionRepository.findByNombre("Sede Neiva Centro").orElse(null);
+        Ubicacion sedeGarzon = ubicacionRepository.findByNombre("Sede Garzón").orElse(null);
+        Ubicacion sedePitalito = ubicacionRepository.findByNombre("Sede Pitalito").orElse(null);
+        Ubicacion sedeLaPlata = ubicacionRepository.findByNombre("Sede La Plata").orElse(null);
+
+        // Obtener tipos de escenario
+        TipoEscenario deportivo = tipoEscenarioRepository.findByNombre("Deportivo").orElse(null);
+        TipoEscenario auditorio = tipoEscenarioRepository.findByNombre("Auditorio").orElse(null);
+        TipoEscenario laboratorioDida = tipoEscenarioRepository.findByNombre("Laboratorio/Didáctico").orElse(null);
+        TipoEscenario laboratorio = tipoEscenarioRepository.findByNombre("Laboratorio").orElse(null);
+        TipoEscenario biblioteca = tipoEscenarioRepository.findByNombre("Biblioteca").orElse(null);
+        TipoEscenario salaComputo = tipoEscenarioRepository.findByNombre("Sala de Cómputo").orElse(null);
+        TipoEscenario restaurante = tipoEscenarioRepository.findByNombre("Restaurante").orElse(null);
+        TipoEscenario cafeteria = tipoEscenarioRepository.findByNombre("Cafetería").orElse(null);
+        TipoEscenario administrativo = tipoEscenarioRepository.findByNombre("Administrativo").orElse(null);
+        TipoEscenario bloqueAcademico = tipoEscenarioRepository.findByNombre("Bloque Académico").orElse(null);
+        TipoEscenario edificioAcademico = tipoEscenarioRepository.findByNombre("Edificio Académico").orElse(null);
+        TipoEscenario investigacionPractica = tipoEscenarioRepository.findByNombre("Investigación/Práctica").orElse(null);
+
+        List<Escenario> escenarios = Arrays.asList(
+            // Escenarios basados en el CSV oficial de la USCO
+
+            // Escenarios Deportivos
+            Escenario.builder()
+                .nombre("Cancha de Microfútbol")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
+                .capacidad(200)
+                .descripcion("Cancha de concreto 40x20m con graderías; arcos fútbol sala; pared tenis; normativa FIFA.")
+                .recursos("Área deportiva, cancha de concreto, graderías, arcos de fútbol sala")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Piscina")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
+                .capacidad(50)
+                .descripcion("Piscina semiolímpica 25x10m; profundidad 1.2-2.1m; seis poyetes; baños y vestiers.")
+                .recursos("Área deportiva, piscina semiolímpica, baños, vestiers")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Coliseo César Eduardo Medina Perdomo")
+                .tipo(deportivo)
+                .ubicacion(sedeCentral)
+                .capacidad(500)
+                .descripcion("Coliseo cubierto 20.7x31.7m; piso NBA Robbins; tableros vidrio; demarcación baloncesto y voleibol.")
+                .recursos("Bloque 21, coliseo cubierto, piso NBA, tableros de vidrio")
+                .disponible(true)
+                .build(),
+
+            // Auditorios
+            Escenario.builder()
+                .nombre("Auditorio Olga Tony Vidales")
+                .tipo(auditorio)
+                .ubicacion(sedeCentral)
+                .capacidad(300)
+                .descripcion("Auditorio renovado; sistema audiovisual moderno; nuevo techo y electricidad.")
+                .recursos("Bloque 02, sistema audiovisual, techo renovado")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Auditorio Facultad Economía y Administración")
+                .tipo(auditorio)
+                .ubicacion(sedeCentral)
+                .capacidad(700)
+                .descripcion("Auditorio 860m2 acústica; 260m2 aislamiento; aire 87Tn; proyector láser; sonido e iluminación profesional.")
+                .recursos("Bloque 30, acústica profesional, aire acondicionado, proyector láser")
+                .disponible(true)
+                .build(),
+
+            // Laboratorios
+            Escenario.builder()
+                .nombre("Centro STEM+")
+                .tipo(laboratorioDida)
+                .ubicacion(sedeCentral)
+                .capacidad(31)
+                .descripcion("31 PCs diseño 3D; 20 gafas VR; pantallas táctiles; cámaras 360; IA; metaverso.")
+                .recursos("Bloque 30, 31 PCs especializados, 20 gafas VR, pantallas táctiles")
+                .disponible(true)
+                .build(),
+
+            Escenario.builder()
+                .nombre("Laboratorio Biología")
+                .tipo(laboratorio)
+                .ubicacion(sedeCentral)
+                .capacidad(30)
+                .descripcion("Dotación 243M COP; espectrofotómetro; purificador agua Tipo I/III.")
+                .recursos("Bloque 10, espectrofotómetro, purificador de agua")
+                .disponible(true)
+                .build(),
+
+            // Bibliotecas
+            Escenario.builder()
+                .nombre("Biblioteca Central Rafael Cortés Murcia")
+                .tipo(biblioteca)
+                .ubicacion(sedeCentral)
+                .capacidad(200)
+                .descripcion("Sala general; hemeroteca; sala virtual Ecopetrol; bases de datos.")
+                .recursos("Biblioteca, sala general, hemeroteca, bases de datos")
+                .disponible(true)
+                .build(),
+
+            // Restaurantes
+            Escenario.builder()
+                .nombre("Restaurante La Venada")
+                .tipo(restaurante)
+                .ubicacion(sedeCentral)
+                .capacidad(600)
+                .descripcion("Servicio subvencionado: 260 desayunos; 600 almuerzos; 340 cenas diarias.")
+                .recursos("Bloque 20, cocina industrial, comedor")
+                .disponible(true)
+                .build(),
+
+            // Bloques Académicos
+            Escenario.builder()
+                .nombre("Bloque 09 Aulas UNO")
+                .tipo(bloqueAcademico)
+                .ubicacion(sedeCentral)
+                .capacidad(200)
+                .descripcion("Conjunto de aulas A-09-XXX; capacidades variables.")
+                .recursos("Bloque 09, aulas múltiples")
+                .disponible(true)
+                .build()
+        );
+
+        escenarioRepository.saveAll(escenarios);
+        log.info("Creados {} escenarios iniciales de la USCO con datos reales", escenarios.size());
     }
 }
