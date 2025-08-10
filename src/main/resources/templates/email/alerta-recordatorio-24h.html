@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio: Reserva Mañana - CampusBookings USCO</title>
+    <style>
+        /* Reset y base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333333;
+            line-height: 1.6;
+        }
+        
+        /* Contenedor principal */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Header con branding USCO */
+        .email-header {
+            background: linear-gradient(135deg, #8F141B 0%, #B91C26 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .usco-logo {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .usco-subtitle {
+            color: #DFD4A6;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Contenido del email */
+        .email-content {
+            padding: 40px 30px;
+        }
+        
+        .email-title {
+            color: #8F141B;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .greeting strong {
+            color: #8F141B;
+        }
+        
+        /* Tarjeta de recordatorio */
+        .recordatorio-card {
+            background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+            border-left: 4px solid #ff9800;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .recordatorio-card::before {
+            content: "⏰";
+            font-size: 32px;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        
+        .reserva-info {
+            display: table;
+            width: 100%;
+        }
+        
+        .info-row {
+            display: table-row;
+        }
+        
+        .info-label {
+            display: table-cell;
+            font-weight: bold;
+            color: #e65100;
+            padding: 8px 15px 8px 0;
+            width: 35%;
+            vertical-align: top;
+        }
+        
+        .info-value {
+            display: table-cell;
+            padding: 8px 0;
+            color: #333333;
+            vertical-align: top;
+        }
+        
+        /* Countdown timer visual */
+        .countdown-banner {
+            background: linear-gradient(135deg, #ff5722 0%, #ff9800 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .countdown-time {
+            font-size: 48px;
+            display: block;
+            margin: 10px 0;
+        }
+        
+        /* Botón de acción */
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8F141B 0%, #B91C26 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .action-center {
+            text-align: center;
+        }
+        
+        /* Preparativos */
+        .preparativos {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .preparativos h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .preparativos ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .preparativos li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .preparativos li::before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Footer */
+        .email-footer {
+            background-color: #4D626C;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .footer-links {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: #DFD4A6;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-copyright {
+            color: #839198;
+            font-size: 11px;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            .email-content {
+                padding: 20px 15px !important;
+            }
+            
+            .email-header {
+                padding: 20px 15px !important;
+            }
+            
+            .recordatorio-card {
+                padding: 15px !important;
+                margin: 15px 0 !important;
+            }
+            
+            .info-label, .info-value {
+                display: block !important;
+                width: 100% !important;
+                padding: 5px 0 !important;
+            }
+            
+            .countdown-time {
+                font-size: 36px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="usco-logo">CampusBookings</div>
+            <div class="usco-subtitle">Universidad Surcolombiana</div>
+        </div>
+        
+        <!-- Contenido del email -->
+        <div class="email-content">
+            <h1 class="email-title">⏰ ¡Tu reserva es mañana!</h1>
+            
+            <div class="countdown-banner">
+                <span>Tu reserva comienza en:</span>
+                <span class="countdown-time">24h</span>
+                <span>¡No olvides prepararte!</span>
+            </div>
+            
+            <div class="greeting">
+                Hola <strong th:text="${nombreUsuario + ' ' + apellidoUsuario}">Usuario</strong>,
+            </div>
+            
+            <p>Te recordamos que <strong>mañana tienes una reserva confirmada</strong> en nuestras instalaciones. 
+               Es un buen momento para preparar todo lo que necesites para tu evento.</p>
+            
+            <!-- Información de la reserva -->
+            <div class="recordatorio-card">
+                <h3 style="color: #e65100; margin-bottom: 15px;">📅 Detalles de tu Reserva</h3>
+                
+                <div class="reserva-info">
+                    <div class="info-row">
+                        <div class="info-label">🆔 ID de Reserva:</div>
+                        <div class="info-value"><strong th:text="${reservaId}">#12345</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🏢 Escenario:</div>
+                        <div class="info-value" th:text="${escenarioNombre}">Aula Magna</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📅 Fecha:</div>
+                        <div class="info-value"><strong th:text="${fechaReserva}">16 de marzo de 2025</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🕒 Horario:</div>
+                        <div class="info-value">
+                            <strong><span th:text="${horaInicio}">14:00</span> - <span th:text="${horaFin}">16:00</span></strong>
+                        </div>
+                    </div>
+                    <div class="info-row" th:if="${escenarioUbicacion}">
+                        <div class="info-label">📍 Ubicación:</div>
+                        <div class="info-value" th:text="${escenarioUbicacion}">Edificio Principal</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Preparativos recomendados -->
+            <div class="preparativos">
+                <h3>✅ Preparativos Recomendados</h3>
+                <ul>
+                    <li>Revisa los equipos y materiales que necesitarás</li>
+                    <li>Confirma la asistencia de los participantes</li>
+                    <li>Prepara la presentación o material de apoyo</li>
+                    <li>Verifica los requerimientos técnicos del escenario</li>
+                    <li>Planifica llegar 15 minutos antes del horario</li>
+                </ul>
+            </div>
+            
+            <div class="action-center">
+                <a href="#" class="action-button">Ver Detalles de la Reserva</a>
+            </div>
+            
+            <p style="margin-top: 25px; color: #666;">
+                Te enviaremos más recordatorios conforme se acerque la hora de tu reserva.
+            </p>
+            
+            <p style="margin-top: 15px; color: #666;">
+                <strong>¡Estamos listos para recibirte mañana!</strong><br>
+                Equipo de Gestión de Reservas - USCO
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <div class="footer-links">
+                <a href="https://www.usco.edu.co/">USCO</a>
+                <a href="mailto:namc1309@gmail.com">Soporte</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 Universidad Surcolombiana - CampusBookings<br>
+                Sistema de Gestión de Reservas de Escenarios
+            </div>
+        </div>
+    </div>
+</body>
+</html>

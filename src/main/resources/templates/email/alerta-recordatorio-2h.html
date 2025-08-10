@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Tu reserva comienza en 2 horas! - CampusBookings USCO</title>
+    <style>
+        /* Reset y base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333333;
+            line-height: 1.6;
+        }
+        
+        /* Contenedor principal */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Header con branding USCO */
+        .email-header {
+            background: linear-gradient(135deg, #ff5722 0%, #ff9800 100%);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .usco-logo {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .usco-subtitle {
+            color: #fff3e0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Contenido del email */
+        .email-content {
+            padding: 40px 30px;
+        }
+        
+        .email-title {
+            color: #ff5722;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .greeting strong {
+            color: #ff5722;
+        }
+        
+        /* Tarjeta de urgencia */
+        .urgencia-card {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-left: 4px solid #f44336;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+        
+        .urgencia-card::before {
+            content: "🚨";
+            font-size: 32px;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+        
+        .reserva-info {
+            display: table;
+            width: 100%;
+        }
+        
+        .info-row {
+            display: table-row;
+        }
+        
+        .info-label {
+            display: table-cell;
+            font-weight: bold;
+            color: #c62828;
+            padding: 8px 15px 8px 0;
+            width: 35%;
+            vertical-align: top;
+        }
+        
+        .info-value {
+            display: table-cell;
+            padding: 8px 0;
+            color: #333333;
+            vertical-align: top;
+        }
+        
+        /* Countdown timer visual */
+        .countdown-banner {
+            background: linear-gradient(135deg, #f44336 0%, #ff5722 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .countdown-time {
+            font-size: 48px;
+            display: block;
+            margin: 10px 0;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+        
+        /* Lista de últimos preparativos */
+        .ultimos-preparativos {
+            background-color: #fff3e0;
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .ultimos-preparativos h3 {
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+        
+        .ultimos-preparativos ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .ultimos-preparativos li {
+            padding: 8px 0;
+            position: relative;
+            padding-left: 30px;
+            font-weight: 500;
+        }
+        
+        .ultimos-preparativos li::before {
+            content: "⚡";
+            color: #ff9800;
+            font-size: 18px;
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Botón de acción urgente */
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #f44336 0%, #ff5722 100%);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .action-center {
+            text-align: center;
+        }
+        
+        /* Footer */
+        .email-footer {
+            background-color: #4D626C;
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .footer-links {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: #DFD4A6;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-copyright {
+            color: #839198;
+            font-size: 11px;
+        }
+        
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            .email-content {
+                padding: 20px 15px !important;
+            }
+            
+            .email-header {
+                padding: 20px 15px !important;
+            }
+            
+            .urgencia-card {
+                padding: 15px !important;
+                margin: 15px 0 !important;
+            }
+            
+            .info-label, .info-value {
+                display: block !important;
+                width: 100% !important;
+                padding: 5px 0 !important;
+            }
+            
+            .countdown-time {
+                font-size: 36px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="usco-logo">CampusBookings</div>
+            <div class="usco-subtitle">Universidad Surcolombiana</div>
+        </div>
+        
+        <!-- Contenido del email -->
+        <div class="email-content">
+            <h1 class="email-title">🚨 ¡Es hora de partir!</h1>
+            
+            <div class="countdown-banner">
+                <span>Tu reserva comienza en:</span>
+                <span class="countdown-time">2h</span>
+                <span>¡Prepárate para salir!</span>
+            </div>
+            
+            <div class="greeting">
+                <strong th:text="${nombreUsuario + ' ' + apellidoUsuario}">Usuario</strong>,
+            </div>
+            
+            <p><strong>Tu reserva comienza en solo 2 horas</strong>. Es el momento perfecto para hacer los 
+               últimos preparativos y asegurarte de que todo esté listo para tu evento.</p>
+            
+            <!-- Información de la reserva -->
+            <div class="urgencia-card">
+                <h3 style="color: #c62828; margin-bottom: 15px;">⏰ Tu Reserva Inminente</h3>
+                
+                <div class="reserva-info">
+                    <div class="info-row">
+                        <div class="info-label">🆔 ID de Reserva:</div>
+                        <div class="info-value"><strong th:text="${reservaId}">#12345</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🏢 Escenario:</div>
+                        <div class="info-value" th:text="${escenarioNombre}">Aula Magna</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🕒 Horario:</div>
+                        <div class="info-value">
+                            <strong style="color: #f44336;"><span th:text="${horaInicio}">14:00</span> - <span th:text="${horaFin}">16:00</span></strong>
+                        </div>
+                    </div>
+                    <div class="info-row" th:if="${escenarioUbicacion}">
+                        <div class="info-label">📍 Ubicación:</div>
+                        <div class="info-value" th:text="${escenarioUbicacion}">Edificio Principal</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">⏱️ Tiempo de viaje recomendado:</div>
+                        <div class="info-value"><strong>20-30 minutos</strong></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Últimos preparativos -->
+            <div class="ultimos-preparativos">
+                <h3>🔥 Últimos Preparativos</h3>
+                <ul>
+                    <li>Revisa que tengas todos los materiales necesarios</li>
+                    <li>Confirma la dirección y planifica tu ruta</li>
+                    <li>Carga tu dispositivo móvil por si necesitas contactar</li>
+                    <li>Lleva este email como comprobante de reserva</li>
+                    <li>¡Sal con tiempo suficiente para llegar puntual!</li>
+                </ul>
+            </div>
+            
+            <div class="action-center">
+                <a href="#" class="action-button">🗺️ Ver Ubicación del Escenario</a>
+            </div>
+            
+            <p style="margin-top: 25px; color: #666; background-color: #fff3e0; padding: 15px; border-radius: 8px;">
+                <strong>💡 Recuerda:</strong> Debes llegar 15 minutos antes del horario de inicio para realizar 
+                el check-in y familiarizarte con el espacio.
+            </p>
+            
+            <p style="margin-top: 15px; color: #666;">
+                <strong>¡Te esperamos en 2 horas!</strong><br>
+                Equipo de Gestión de Reservas - USCO
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <div class="footer-links">
+                <a href="https://www.usco.edu.co/">USCO</a>
+                <a href="mailto:namc1309@gmail.com">Soporte</a>
+            </div>
+            <div class="footer-copyright">
+                © 2025 Universidad Surcolombiana - CampusBookings<br>
+                Sistema de Gestión de Reservas de Escenarios
+            </div>
+        </div>
+    </div>
+</body>
+</html>

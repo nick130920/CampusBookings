@@ -27,6 +27,7 @@ import edu.usco.campusbookings.application.dto.response.ReservaResponse;
 import edu.usco.campusbookings.application.exception.InvalidReservaException;
 import edu.usco.campusbookings.application.exception.ReservaNotFoundException;
 import edu.usco.campusbookings.application.mapper.ReservaMapper;
+import edu.usco.campusbookings.application.port.input.AlertaReservaUseCase;
 import edu.usco.campusbookings.application.port.input.ReservaUseCase;
 import edu.usco.campusbookings.application.port.output.EmailServicePort;
 import edu.usco.campusbookings.application.port.output.ReservaPersistencePort;
@@ -51,6 +52,7 @@ public class ReservaService implements ReservaUseCase {
     private final UsuarioService usuarioService;
     private final EmailServicePort emailService;
     private final NotificationService notificationService;
+    private final AlertaReservaUseCase alertaReservaUseCase;
 
     @Override
     @Transactional
@@ -130,6 +132,15 @@ public class ReservaService implements ReservaUseCase {
                 
             } catch (Exception e) {
                 log.error("Error sending notifications for reservation ID: {}", savedReserva.getId(), e);
+                // No lanzamos excepción para no afectar la creación de la reserva
+            }
+
+            // Crear alertas automáticas para la nueva reserva
+            try {
+                alertaReservaUseCase.crearAlertasParaReserva(savedReserva);
+                log.info("Automatic alerts created for reservation ID: {}", savedReserva.getId());
+            } catch (Exception e) {
+                log.error("Error creating alerts for reservation ID: {}", savedReserva.getId(), e);
                 // No lanzamos excepción para no afectar la creación de la reserva
             }
         
@@ -256,6 +267,15 @@ public class ReservaService implements ReservaUseCase {
                                 updatedReserva.getUsuario().getEmail(), updatedReserva.getId());
                     } catch (Exception e) {
                         log.error("Error sending cancellation email for reservation ID: {}", updatedReserva.getId(), e);
+                        // No lanzamos excepción para no afectar la cancelación
+                    }
+
+                    // Eliminar alertas asociadas a la reserva cancelada
+                    try {
+                        alertaReservaUseCase.eliminarAlertasDeReservaCancelada(updatedReserva.getId());
+                        log.info("Alerts canceled for reservation ID: {}", updatedReserva.getId());
+                    } catch (Exception e) {
+                        log.error("Error canceling alerts for reservation ID: {}", updatedReserva.getId(), e);
                         // No lanzamos excepción para no afectar la cancelación
                     }
                     

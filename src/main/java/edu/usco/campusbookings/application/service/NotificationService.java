@@ -1,6 +1,7 @@
 package edu.usco.campusbookings.application.service;
 
 import edu.usco.campusbookings.application.dto.notification.ReservaNotificationDto;
+import edu.usco.campusbookings.domain.model.AlertaReserva;
 import edu.usco.campusbookings.domain.model.Reserva;
 import edu.usco.campusbookings.infrastructure.adapter.input.handler.NotificationWebSocketHandler;
 import lombok.RequiredArgsConstructor;
@@ -161,5 +162,44 @@ public class NotificationService {
         } catch (Exception e) {
             log.error("❌ Error sending admin notification: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Envía alerta por WebSocket
+     */
+    public void enviarAlertaWebSocket(AlertaReserva alerta) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(alerta.getReserva().getId())
+                .usuarioId(alerta.getReserva().getUsuario().getId())
+                .usuarioEmail(alerta.getReserva().getUsuario().getEmail())
+                .escenarioNombre(alerta.getReserva().getEscenario().getNombre())
+                .estadoAnterior(null)
+                .estadoNuevo("ALERTA")
+                .mensaje(alerta.getMensaje())
+                .fechaInicio(alerta.getReserva().getFechaInicio())
+                .fechaFin(alerta.getReserva().getFechaFin())
+                .timestamp(LocalDateTime.now())
+                .tipo(mapearTipoAlerta(alerta.getTipo()))
+                .build();
+
+        enviarNotificacionPrivada(alerta.getReserva().getUsuario().getId(), notification);
+        log.info("Alert WebSocket notification sent for alerta ID: {} to user: {}", 
+                alerta.getId(), alerta.getReserva().getUsuario().getEmail());
+    }
+
+    /**
+     * Mapea tipos de alerta a tipos de notificación
+     */
+    private ReservaNotificationDto.NotificationType mapearTipoAlerta(AlertaReserva.TipoAlerta tipoAlerta) {
+        return switch (tipoAlerta) {
+            case RECORDATORIO_24H, RECORDATORIO_2H, RECORDATORIO_30MIN -> 
+                ReservaNotificationDto.NotificationType.RESERVA_APROBADA; // Reutilizamos este tipo
+            case CONFIRMACION_LLEGADA -> 
+                ReservaNotificationDto.NotificationType.RESERVA_APROBADA;
+            case EXPIRACION_RESERVA, CANCELACION_AUTOMATICA -> 
+                ReservaNotificationDto.NotificationType.RESERVA_CANCELADA;
+            case CAMBIO_ESTADO -> 
+                ReservaNotificationDto.NotificationType.NUEVA_RESERVA_ADMIN;
+        };
     }
 }

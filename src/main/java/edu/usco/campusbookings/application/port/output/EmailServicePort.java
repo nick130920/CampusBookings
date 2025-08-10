@@ -1,5 +1,6 @@
 package edu.usco.campusbookings.application.port.output;
 
+import edu.usco.campusbookings.domain.model.AlertaReserva;
 import edu.usco.campusbookings.domain.model.Reserva;
 
 /**
@@ -59,4 +60,10 @@ public interface EmailServicePort {
      * @param codigo Código de verificación de 6 dígitos
      */
     void sendPasswordResetEmail(String destinatario, String nombre, String codigo);
+
+    /**
+     * Envía un correo de alerta de reserva según el tipo especificado
+     * @param alerta La alerta de reserva a enviar
+     */
+    void enviarCorreoAlertaReserva(AlertaReserva alerta);
 }

@@ -9,6 +9,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import edu.usco.campusbookings.application.port.output.EmailServicePort;
+import edu.usco.campusbookings.domain.model.AlertaReserva;
 import edu.usco.campusbookings.domain.model.Reserva;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -35,8 +36,8 @@ public class EmailService implements EmailServicePort {
     @Value("${mail.reservas.subject-prefix:[CampusBookings USCO]}")
     private String subjectPrefix;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm", new Locale("es", "ES"));
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale.of("es", "ES"));
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm", Locale.of("es", "ES"));
 
     @Override
     public void sendConfirmationEmail(String to, String subject, String body) {
@@ -302,5 +303,91 @@ public class EmailService implements EmailServicePort {
             """;
             
         return String.format(template, nombre, codigo);
+    }
+
+    @Override
+    public void enviarCorreoAlertaReserva(AlertaReserva alerta) {
+        try {
+            String template = obtenerPlantillaAlerta(alerta.getTipo());
+            Context context = crearContextoAlerta(alerta);
+            
+            String subject = obtenerAsuntoAlerta(alerta.getTipo(), alerta.getReserva().getEscenario().getNombre());
+            
+            sendHtmlEmail(alerta.getReserva().getUsuario().getEmail(), subject, template, context);
+            
+            log.info("Email de alerta {} enviado a {}", alerta.getTipo(), alerta.getReserva().getUsuario().getEmail());
+            
+        } catch (Exception e) {
+            log.error("Error enviando email de alerta {}: {}", alerta.getTipo(), e.getMessage(), e);
+            throw new RuntimeException("Error enviando email de alerta", e);
+        }
+    }
+
+    /**
+     * Obtiene la plantilla correspondiente según el tipo de alerta
+     */
+    private String obtenerPlantillaAlerta(AlertaReserva.TipoAlerta tipo) {
+        return switch (tipo) {
+            case RECORDATORIO_24H -> "email/alerta-recordatorio-24h";
+            case RECORDATORIO_2H -> "email/alerta-recordatorio-2h";
+            case RECORDATORIO_30MIN -> "email/alerta-recordatorio-30min";
+            case CONFIRMACION_LLEGADA -> "email/alerta-recordatorio-30min"; // Reutilizamos
+            case EXPIRACION_RESERVA, CANCELACION_AUTOMATICA -> "email/reserva-cancelada";
+            case CAMBIO_ESTADO -> "email/reserva-aprobada";
+        };
+    }
+
+    /**
+     * Crea el contexto para las plantillas de alerta
+     */
+    private Context crearContextoAlerta(AlertaReserva alerta) {
+        Context context = new Context();
+        Reserva reserva = alerta.getReserva();
+        
+        // Datos del usuario
+        context.setVariable("nombreUsuario", reserva.getUsuario().getNombre());
+        context.setVariable("apellidoUsuario", reserva.getUsuario().getApellido());
+        
+        // Datos de la reserva
+        context.setVariable("reservaId", reserva.getId());
+        context.setVariable("escenarioNombre", reserva.getEscenario().getNombre());
+        context.setVariable("fechaReserva", reserva.getFechaInicio().format(DATE_FORMATTER));
+        context.setVariable("horaInicio", reserva.getFechaInicio().format(TIME_FORMATTER));
+        context.setVariable("horaFin", reserva.getFechaFin().format(TIME_FORMATTER));
+        context.setVariable("observaciones", reserva.getObservaciones());
+        
+        // Datos del escenario si están disponibles
+        if (reserva.getEscenario().getTipo() != null) {
+            context.setVariable("escenarioTipo", reserva.getEscenario().getTipo().getNombre());
+        }
+        context.setVariable("escenarioUbicacion", reserva.getEscenario().getUbicacion());
+        
+        // Datos específicos de la alerta
+        context.setVariable("tipoAlerta", alerta.getTipo().getDescripcion());
+        context.setVariable("mensajeAlerta", alerta.getMensaje());
+        
+        return context;
+    }
+
+    /**
+     * Obtiene el asunto del email según el tipo de alerta
+     */
+    private String obtenerAsuntoAlerta(AlertaReserva.TipoAlerta tipo, String escenario) {
+        return switch (tipo) {
+            case RECORDATORIO_24H -> 
+                String.format("Recordatorio: Tu reserva de %s es mañana", escenario);
+            case RECORDATORIO_2H -> 
+                String.format("¡Tu reserva de %s comienza en 2 horas!", escenario);
+            case RECORDATORIO_30MIN -> 
+                String.format("¡ÚLTIMA LLAMADA! Tu reserva de %s en 30 minutos", escenario);
+            case CONFIRMACION_LLEGADA -> 
+                String.format("Confirma tu llegada a %s", escenario);
+            case EXPIRACION_RESERVA -> 
+                String.format("Tu reserva de %s ha expirado", escenario);
+            case CANCELACION_AUTOMATICA -> 
+                String.format("Reserva de %s cancelada automáticamente", escenario);
+            case CAMBIO_ESTADO -> 
+                String.format("Cambio en tu reserva de %s", escenario);
+        };
     }
 }
