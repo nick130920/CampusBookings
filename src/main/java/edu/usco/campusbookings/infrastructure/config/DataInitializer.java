@@ -212,7 +212,10 @@ public class DataInitializer implements ApplicationRunner {
                 .build()
         );
         
-        permissionRepository.saveAll(permissions);
+        // Guardar permisos uno por uno para evitar problemas de detached entity
+        for (Permission permission : permissions) {
+            permissionRepository.save(permission);
+        }
         log.info("Creados {} permisos por defecto", permissions.size());
     }
 
@@ -258,7 +261,10 @@ public class DataInitializer implements ApplicationRunner {
             .permissions(userPermissions)
             .build();
         
-        rolRepository.saveAll(Arrays.asList(adminRole, coordinatorRole, userRole));
+        // Guardar roles uno por uno para evitar problemas de detached entity
+        rolRepository.save(adminRole);
+        rolRepository.save(coordinatorRole);
+        rolRepository.save(userRole);
         log.info("Creados 3 roles por defecto: ADMIN, COORDINATOR, USER");
     }
 
@@ -353,10 +359,12 @@ public class DataInitializer implements ApplicationRunner {
                 }
             }
             
-            // Guardar todos los roles actualizados en una sola operación
+            // Guardar los roles actualizados uno por uno
             if (!rolesToUpdate.isEmpty()) {
                 log.info("Guardando {} roles actualizados...", rolesToUpdate.size());
-                rolRepository.saveAll(rolesToUpdate);
+                for (Rol rol : rolesToUpdate) {
+                    rolRepository.save(rol);
+                }
                 log.info("Actualizados {} roles con permisos exitosamente", rolesToUpdate.size());
             } else {
                 log.info("No hay roles que necesiten actualización de permisos");
