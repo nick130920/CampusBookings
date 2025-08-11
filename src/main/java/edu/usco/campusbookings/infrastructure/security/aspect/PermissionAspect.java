@@ -1,7 +1,6 @@
 package edu.usco.campusbookings.infrastructure.security.aspect;
 
 import edu.usco.campusbookings.application.service.UsuarioService;
-import edu.usco.campusbookings.domain.model.Permission;
 import edu.usco.campusbookings.domain.model.Rol;
 import edu.usco.campusbookings.domain.model.Usuario;
 import edu.usco.campusbookings.infrastructure.security.annotation.RequiresPermission;
@@ -14,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import edu.usco.campusbookings.application.port.output.ScenarioTypePermissionRepositoryPort;
 
 /**
@@ -29,6 +29,7 @@ public class PermissionAspect {
     private final ScenarioTypePermissionRepositoryPort scenarioTypePermissionRepositoryPort;
 
     @Around("@annotation(requiresPermission)")
+    @Transactional(readOnly = true)
     public Object checkPermission(ProceedingJoinPoint joinPoint, RequiresPermission requiresPermission) throws Throwable {
         log.debug("Verificando permiso: {} - {}", requiresPermission.resource(), requiresPermission.action());
         
@@ -43,6 +44,11 @@ public class PermissionAspect {
 
         try {
             Usuario usuario = usuarioService.findByEmailWithPermissions(userEmail);
+            
+            if (usuario == null) {
+                log.warn("Usuario {} no encontrado", userEmail);
+                throw new AccessDeniedException("Usuario no encontrado");
+            }
             
             // Si es ADMIN, permitir todo
             if (usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre())) {
@@ -60,20 +66,33 @@ public class PermissionAspect {
                 throw new AccessDeniedException(requiresPermission.message());
             }
             
+        } catch (AccessDeniedException e) {
+            // Re-lanzar las excepciones de acceso denegado sin logging adicional
+            throw e;
         } catch (Exception e) {
-            log.error("Error verificando permisos para usuario {}: {}", userEmail, e.getMessage());
+            log.error("Error verificando permisos para usuario {}: {}", userEmail, e.getMessage(), e);
             throw new AccessDeniedException("Error verificando permisos: " + e.getMessage());
         }
     }
 
     private boolean hasPermission(Usuario usuario, String resource, String action, ProceedingJoinPoint joinPoint) {
         if (usuario.getRol() == null) {
+            log.debug("Usuario {} no tiene rol asignado", usuario.getEmail());
             return false;
         }
 
         Rol rol = usuario.getRol();
-        log.debug("Usuario {} Tiene permisos, {} ", usuario.getEmail(), rol.getPermissions().toString());
-        if (rol.getPermissions() == null || rol.getPermissions().isEmpty()) {
+        
+        // Verificar que los permisos están disponibles
+        try {
+            if (rol.getPermissions() == null || rol.getPermissions().isEmpty()) {
+                log.debug("Usuario {} - Rol {} no tiene permisos asignados", usuario.getEmail(), rol.getNombre());
+                return false;
+            }
+            log.debug("Usuario {} - Rol {} tiene {} permisos", usuario.getEmail(), rol.getNombre(), rol.getPermissions().size());
+        } catch (Exception e) {
+            log.error("Error accediendo a permisos del rol {} para usuario {}: {}", 
+                rol.getNombre(), usuario.getEmail(), e.getMessage());
             return false;
         }
 

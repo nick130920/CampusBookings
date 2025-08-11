@@ -1,6 +1,7 @@
 package edu.usco.campusbookings.infrastructure.adapter.output.persistence.jpa;
 
 import edu.usco.campusbookings.domain.model.Usuario;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,12 +16,10 @@ public interface SpringDataUsuarioRepository extends JpaRepository<Usuario, Long
 
     /**
      * Busca un usuario por email cargando eagerly el rol y sus permisos
-     * Evita el problema de LazyInitializationException
+     * Evita el problema de LazyInitializationException usando EntityGraph
      */
-    @Query("SELECT u FROM Usuario u " +
-           "LEFT JOIN FETCH u.rol r " +
-           "LEFT JOIN FETCH r.permissions " +
-           "WHERE u.email = :email")
+    @EntityGraph(attributePaths = {"rol", "rol.permissions"})
+    @Query("SELECT u FROM Usuario u WHERE u.email = :email")
     Optional<Usuario> findByEmailWithPermissions(@Param("email") String email);
 
     List<Usuario> getUsuariosByRol_Nombre(String rol);

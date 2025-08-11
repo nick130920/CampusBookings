@@ -35,7 +35,7 @@ public class Rol extends Auditable {
     @EqualsAndHashCode.Exclude
     private List<Usuario> usuarios;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "rol_permissions",
         joinColumns = @JoinColumn(name = "rol_id"),
