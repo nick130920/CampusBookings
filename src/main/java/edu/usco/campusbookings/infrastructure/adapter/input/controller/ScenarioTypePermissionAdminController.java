@@ -1,4 +1,4 @@
-package edu.usco.campusbookings.infrastructure.adapter.input.controller.admin;
+package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 
 import edu.usco.campusbookings.application.dto.response.ScenarioTypePermissionResponse;
 import edu.usco.campusbookings.application.port.input.ScenarioTypePermissionUseCase;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/scenario-type-permissions")
+@RequestMapping("/api/v1/scenario-type-permissions")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Administración de Permisos por Tipo de Escenario", 

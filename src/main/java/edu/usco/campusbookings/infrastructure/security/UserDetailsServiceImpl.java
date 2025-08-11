@@ -38,7 +38,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 String userRol = usuario.getRol().getNombre();
                 if ("ADMIN".equals(userRol)) {
                     roleName = "ROLE_ADMIN";
-                } else if ("USER".equals(userRol)) { // CORREGIDO: USER en lugar de USUARIO
+                } else if ("USER".equals(userRol)) { 
                     roleName = "ROLE_USER";
                 } else if ("COORDINATOR".equals(userRol)) {
                     roleName = "ROLE_COORDINATOR";
