@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class ScenarioTypePermissionService implements ScenarioTypePermissionUseCase {
 
-    private final ScenarioTypePermissionRepositoryPort repository;
+    private final ScenarioTypePermissionRepositoryPort scenarioTypePermissionRepositoryPort;
     private final UsuarioRepositoryPort usuarioRepositoryPort;
     private final TipoEscenarioRepositoryPort tipoEscenarioRepositoryPort;
     private final ScenarioTypePermissionMapper mapper;
@@ -43,7 +43,7 @@ public class ScenarioTypePermissionService implements ScenarioTypePermissionUseC
         perm.setAction(action);
         perm.setActive(true);
         
-        ScenarioTypePermission saved = repository.save(perm);
+        ScenarioTypePermission saved = scenarioTypePermissionRepositoryPort.save(perm);
         log.info("Permiso asignado exitosamente con ID: {}", saved.getId());
         
         return mapper.toResponse(saved);
@@ -61,7 +61,8 @@ public class ScenarioTypePermissionService implements ScenarioTypePermissionUseC
     @Transactional(readOnly = true)
     public List<ScenarioTypePermissionResponse> getPermissionsForUser(String userEmail) {
         log.info("Obteniendo permisos por tipo para usuario: {}", userEmail);
-        List<ScenarioTypePermission> permissions = repository.findByUsuarioEmail(userEmail);
+        List<ScenarioTypePermission> permissions = scenarioTypePermissionRepositoryPort.findByUsuarioEmail(userEmail);
+        log.info("Permisos obtenidos para usuario: {} - {}", userEmail, permissions.toString());
         return mapper.toResponseList(permissions);
     }
 }
