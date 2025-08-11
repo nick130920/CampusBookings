@@ -82,7 +82,8 @@ public class PermissionAspect {
         }
 
         Rol rol = usuario.getRol();
-        log.debug("Usuario {} - Rol {} tiene permisos, {} ", usuario.getEmail(), rol.getNombre(), rol.getPermissions().toString());
+        log.debug("Usuario {} - Rol {} tiene {} permisos", usuario.getEmail(), rol.getNombre(), 
+            rol.getPermissions() != null ? rol.getPermissions().size() : 0);
         
         // Verificar que los permisos están disponibles
         try {
@@ -90,7 +91,14 @@ public class PermissionAspect {
                 log.debug("Usuario {} - Rol {} no tiene permisos asignados", usuario.getEmail(), rol.getNombre());
                 return false;
             }
-            log.debug("Usuario {} - Rol {} tiene {} permisos", usuario.getEmail(), rol.getNombre(), rol.getPermissions().size());
+            
+            // Log detallado de permisos para debugging
+            if (log.isDebugEnabled()) {
+                log.debug("Usuario {} - Rol {} tiene {} permisos", usuario.getEmail(), rol.getNombre(), rol.getPermissions().size());
+                rol.getPermissions().forEach(permission -> 
+                    log.debug("  - Permiso: {} ({}:{})", permission.getName(), permission.getResource(), permission.getAction())
+                );
+            }
         } catch (Exception e) {
             log.error("Error accediendo a permisos del rol {} para usuario {}: {}", 
                 rol.getNombre(), usuario.getEmail(), e.getMessage());

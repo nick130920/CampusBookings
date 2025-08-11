@@ -32,8 +32,9 @@ public class Permission extends Auditable {
     @Column(nullable = false)
     private String action; // ej: "CREATE", "READ", "UPDATE", "DELETE"
 
-    @ManyToMany(mappedBy = "permissions")
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<Rol> roles;
 
     // Constructor de conveniencia para crear permisos

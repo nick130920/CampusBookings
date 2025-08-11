@@ -42,6 +42,7 @@ public class Rol extends Auditable {
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<Permission> permissions;
 
     // Constructor de conveniencia
