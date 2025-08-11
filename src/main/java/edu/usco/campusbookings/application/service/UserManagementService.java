@@ -27,6 +27,7 @@ public class UserManagementService implements UserManagementUseCase {
 
     private final UsuarioRepositoryPort usuarioRepository;
     private final RolRepositoryPort rolRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional(readOnly = true)
@@ -78,6 +79,20 @@ public class UserManagementService implements UserManagementUseCase {
         Usuario usuarioActualizado = usuarioRepository.save(usuario);
         log.info("Rol del usuario {} cambiado de {} a {}", 
                 usuario.getEmail(), rolAnterior, nuevoRol.getNombre());
+        
+        // Enviar notificación WebSocket al usuario sobre el cambio de rol
+        try {
+            notificationService.notificarCambioRolUsuario(
+                    usuarioActualizado.getId(),
+                    usuarioActualizado.getEmail(),
+                    rolAnterior,
+                    nuevoRol.getNombre()
+            );
+        } catch (Exception e) {
+            log.error("Error enviando notificación de cambio de rol al usuario {}: {}", 
+                    usuarioActualizado.getEmail(), e.getMessage());
+            // No interrumpir la operación por error en notificación
+        }
         
         return mapToUsuarioDetailResponse(usuarioActualizado);
     }

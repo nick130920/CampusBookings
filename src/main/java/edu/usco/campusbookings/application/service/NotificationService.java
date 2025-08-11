@@ -188,6 +188,29 @@ public class NotificationService {
     }
 
     /**
+     * Envía notificación cuando se actualiza el rol de un usuario
+     */
+    public void notificarCambioRolUsuario(Long usuarioId, String usuarioEmail, String rolAnterior, String rolNuevo) {
+        ReservaNotificationDto notification = ReservaNotificationDto.builder()
+                .reservaId(null) // No aplica para cambios de rol
+                .usuarioId(usuarioId)
+                .usuarioEmail(usuarioEmail)
+                .escenarioNombre(null) // No aplica para cambios de rol
+                .estadoAnterior(rolAnterior)
+                .estadoNuevo(rolNuevo)
+                .mensaje(String.format("Tu rol ha sido actualizado de %s a %s", rolAnterior, rolNuevo))
+                .fechaInicio(null) // No aplica para cambios de rol
+                .fechaFin(null) // No aplica para cambios de rol
+                .timestamp(LocalDateTime.now())
+                .tipo(ReservaNotificationDto.NotificationType.USER_ROLE_UPDATED)
+                .build();
+        
+        enviarNotificacionPrivada(usuarioId, notification);
+        log.info("Role change notification sent to user: {} - Role changed from {} to {}", 
+                usuarioEmail, rolAnterior, rolNuevo);
+    }
+
+    /**
      * Mapea tipos de alerta a tipos de notificación
      */
     private ReservaNotificationDto.NotificationType mapearTipoAlerta(AlertaReserva.TipoAlerta tipoAlerta) {

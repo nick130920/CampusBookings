@@ -31,6 +31,7 @@ public class ReservaNotificationDto {
         RESERVA_RECHAZADA, 
         RESERVA_CANCELADA,
         RESERVA_AUTO_RECHAZADA,
-        NUEVA_RESERVA_ADMIN
+        NUEVA_RESERVA_ADMIN,
+        USER_ROLE_UPDATED
     }
 }
