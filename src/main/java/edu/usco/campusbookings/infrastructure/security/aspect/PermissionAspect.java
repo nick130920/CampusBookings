@@ -82,6 +82,7 @@ public class PermissionAspect {
         }
 
         Rol rol = usuario.getRol();
+        log.debug("Usuario {} - Rol {} tiene permisos, {} ", usuario.getEmail(), rol.getNombre(), rol.getPermissions().toString());
         
         // Verificar que los permisos están disponibles
         try {
