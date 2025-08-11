@@ -11,6 +11,12 @@ public interface ScenarioTypePermissionRepositoryPort {
     List<ScenarioTypePermission> findByUsuarioEmail(String email);
 
     boolean existsByUsuarioEmailAndTipoNombreAndAction(String email, String tipoNombre, String action);
+    
+    Optional<ScenarioTypePermission> findByUsuarioEmailAndTipoNombreAndAction(String email, String tipoNombre, String action);
+    
+    void delete(ScenarioTypePermission permission);
+    
+    void deleteByUsuarioEmailAndTipoNombreAndAction(String email, String tipoNombre, String action);
 }
 
 

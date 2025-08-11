@@ -52,9 +52,27 @@ public class ScenarioTypePermissionService implements ScenarioTypePermissionUseC
     @Override
     @Transactional
     public void revokePermissionFromUser(String userEmail, String tipoNombre, String action) {
-        // Simplificación: en una implementación completa, se buscaría y eliminaría.
-        // Aquí, podría añadirse un método delete en el repositorio si se requiere.
-        throw new UnsupportedOperationException("Revocar permisos aún no implementado");
+        log.info("Revocando permiso {} para tipo {} del usuario {}", action, tipoNombre, userEmail);
+        
+        // Verificar que el usuario existe
+        usuarioRepositoryPort.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + userEmail));
+
+        // Verificar que el tipo de escenario existe
+        tipoEscenarioRepositoryPort.findByNombre(tipoNombre)
+                .orElseThrow(() -> new IllegalArgumentException("Tipo de escenario no encontrado: " + tipoNombre));
+
+        // Buscar el permiso específico
+        ScenarioTypePermission permiso = scenarioTypePermissionRepositoryPort
+                .findByUsuarioEmailAndTipoNombreAndAction(userEmail, tipoNombre, action)
+                .orElseThrow(() -> new IllegalArgumentException(
+                    String.format("No se encontró el permiso %s para el tipo %s del usuario %s", 
+                                  action, tipoNombre, userEmail)));
+
+        // Eliminar el permiso
+        scenarioTypePermissionRepositoryPort.delete(permiso);
+        
+        log.info("Permiso {} para tipo {} revocado exitosamente del usuario {}", action, tipoNombre, userEmail);
     }
 
     @Override

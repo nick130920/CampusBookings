@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,6 +28,21 @@ public class ScenarioTypePermissionRepository implements ScenarioTypePermissionR
     @Override
     public boolean existsByUsuarioEmailAndTipoNombreAndAction(String email, String tipoNombre, String action) {
         return springRepo.existsByUsuarioEmailAndTipoNombreAndAction(email, tipoNombre, action);
+    }
+    
+    @Override
+    public Optional<ScenarioTypePermission> findByUsuarioEmailAndTipoNombreAndAction(String email, String tipoNombre, String action) {
+        return springRepo.findByUsuarioEmailAndTipoNombreAndAction(email, tipoNombre, action);
+    }
+    
+    @Override
+    public void delete(ScenarioTypePermission permission) {
+        springRepo.delete(permission);
+    }
+    
+    @Override
+    public void deleteByUsuarioEmailAndTipoNombreAndAction(String email, String tipoNombre, String action) {
+        springRepo.deleteByUsuarioEmailAndTipoNombreAndAction(email, tipoNombre, action);
     }
 }
 

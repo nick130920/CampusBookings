@@ -53,6 +53,7 @@ public class ReservaService implements ReservaUseCase {
     private final EmailServicePort emailService;
     private final NotificationService notificationService;
     private final AlertaReservaUseCase alertaReservaUseCase;
+    private final GoogleCalendarService googleCalendarService;
 
     @Override
     @Transactional
@@ -143,6 +144,19 @@ public class ReservaService implements ReservaUseCase {
                 log.error("Error creating alerts for reservation ID: {}", savedReserva.getId(), e);
                 // No lanzamos excepción para no afectar la creación de la reserva
             }
+
+            // Sincronizar con Google Calendar si el usuario está conectado
+            try {
+                String eventId = googleCalendarService.syncReservationWithCalendar(savedReserva);
+                if (eventId != null) {
+                    savedReserva.setGoogleCalendarEventId(eventId);
+                    reservaPersistencePort.save(savedReserva);
+                    log.info("Reservation synced with Google Calendar, event ID: {}", eventId);
+                }
+            } catch (Exception e) {
+                log.error("Error syncing reservation with Google Calendar for reservation ID: {}", savedReserva.getId(), e);
+                // No lanzamos excepción para no afectar la creación de la reserva
+            }
         
         return reservaMapper.toDto(savedReserva);
     }
@@ -189,6 +203,19 @@ public class ReservaService implements ReservaUseCase {
                         
                     } catch (Exception e) {
                         log.error("Error sending approval notifications for reservation ID: {}", updatedReserva.getId(), e);
+                        // No lanzamos excepción para no afectar la aprobación
+                    }
+
+                    // Sincronizar con Google Calendar al aprobar
+                    try {
+                        String eventId = googleCalendarService.syncReservationWithCalendar(updatedReserva);
+                        if (eventId != null) {
+                            updatedReserva.setGoogleCalendarEventId(eventId);
+                            reservaPersistencePort.save(updatedReserva);
+                            log.info("Approved reservation synced with Google Calendar, event ID: {}", eventId);
+                        }
+                    } catch (Exception e) {
+                        log.error("Error syncing approved reservation with Google Calendar for reservation ID: {}", updatedReserva.getId(), e);
                         // No lanzamos excepción para no afectar la aprobación
                     }
                     
@@ -276,6 +303,19 @@ public class ReservaService implements ReservaUseCase {
                         log.info("Alerts canceled for reservation ID: {}", updatedReserva.getId());
                     } catch (Exception e) {
                         log.error("Error canceling alerts for reservation ID: {}", updatedReserva.getId(), e);
+                        // No lanzamos excepción para no afectar la cancelación
+                    }
+
+                    // Eliminar evento de Google Calendar si existe
+                    try {
+                        if (updatedReserva.getGoogleCalendarEventId() != null) {
+                            googleCalendarService.deleteEventFromCalendar(updatedReserva.getGoogleCalendarEventId());
+                            updatedReserva.setGoogleCalendarEventId(null);
+                            reservaPersistencePort.save(updatedReserva);
+                            log.info("Google Calendar event deleted for canceled reservation ID: {}", updatedReserva.getId());
+                        }
+                    } catch (Exception e) {
+                        log.error("Error deleting Google Calendar event for reservation ID: {}", updatedReserva.getId(), e);
                         // No lanzamos excepción para no afectar la cancelación
                     }
                     

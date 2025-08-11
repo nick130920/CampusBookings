@@ -51,4 +51,14 @@ public class Usuario extends Auditable {
     @OneToMany(mappedBy = "usuario") 
     @EqualsAndHashCode.Exclude
     private List<Reserva> reservas;
+    
+    // Google Calendar Integration
+    @Column(name = "google_access_token", length = 2048)
+    private String googleAccessToken;
+    
+    @Column(name = "google_refresh_token", length = 512)
+    private String googleRefreshToken;
+    
+    @Column(name = "google_calendar_connected")
+    private Boolean googleCalendarConnected = false;
 }

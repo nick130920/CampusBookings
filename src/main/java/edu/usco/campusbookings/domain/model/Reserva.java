@@ -43,4 +43,8 @@ public class Reserva extends Auditable {
 
     private String observaciones;
     private String motivoRechazo;
+    
+    // Google Calendar Integration
+    @Column(name = "google_calendar_event_id")
+    private String googleCalendarEventId;
 }
