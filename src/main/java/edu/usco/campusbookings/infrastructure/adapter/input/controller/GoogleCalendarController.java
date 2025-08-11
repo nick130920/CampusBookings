@@ -24,7 +24,7 @@ public class GoogleCalendarController {
     private final GoogleCalendarUseCase googleCalendarUseCase;
 
     @GetMapping("/authorization-url")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Obtener URL de autorización de Google Calendar")
     public ResponseEntity<GoogleCalendarStatusResponse> getAuthorizationUrl() {
         log.info("Solicitud de URL de autorización de Google Calendar");
@@ -33,7 +33,7 @@ public class GoogleCalendarController {
     }
 
     @PostMapping("/connect")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Conectar cuenta con Google Calendar")
     public ResponseEntity<GoogleCalendarStatusResponse> connectToGoogleCalendar(
             @RequestBody GoogleCalendarAuthRequest request) {
@@ -43,7 +43,7 @@ public class GoogleCalendarController {
     }
 
     @PostMapping("/disconnect")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Desconectar cuenta de Google Calendar")
     public ResponseEntity<GoogleCalendarStatusResponse> disconnectFromGoogleCalendar() {
         log.info("Solicitud de desconexión de Google Calendar");
@@ -52,7 +52,7 @@ public class GoogleCalendarController {
     }
 
     @GetMapping("/status")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Obtener estado de conexión con Google Calendar")
     public ResponseEntity<GoogleCalendarStatusResponse> getConnectionStatus() {
         GoogleCalendarStatusResponse response = googleCalendarUseCase.getConnectionStatus();
@@ -60,7 +60,7 @@ public class GoogleCalendarController {
     }
 
     @PostMapping("/sync-all")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Sincronizar todas las reservas con Google Calendar")
     public ResponseEntity<Void> syncAllReservations() {
         log.info("Solicitud de sincronización masiva con Google Calendar");
