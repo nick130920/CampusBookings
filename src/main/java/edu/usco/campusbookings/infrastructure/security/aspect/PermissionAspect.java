@@ -49,7 +49,7 @@ public class PermissionAspect {
                 log.debug("Usuario {} es ADMIN, acceso permitido", userEmail);
                 return joinPoint.proceed();
             }
-
+            
             // Verificar si el usuario tiene el permiso específico
             if (hasPermission(usuario, requiresPermission.resource(), requiresPermission.action(), joinPoint)) {
                 log.debug("Usuario {} tiene el permiso requerido", userEmail);
@@ -72,6 +72,7 @@ public class PermissionAspect {
         }
 
         Rol rol = usuario.getRol();
+        log.debug("Usuario {} Tiene permisos, {} ", usuario.getEmail(), rol.getPermissions().toString());
         if (rol.getPermissions() == null || rol.getPermissions().isEmpty()) {
             return false;
         }

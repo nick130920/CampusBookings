@@ -3,11 +3,9 @@ package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 import edu.usco.campusbookings.application.dto.request.ActualizarConfiguracionRequest;
 import edu.usco.campusbookings.application.dto.response.ConfiguracionResponse;
 import edu.usco.campusbookings.application.port.input.ConfiguracionSistemaUseCase;
-import edu.usco.campusbookings.infrastructure.exception.ErrorResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +20,6 @@ public class ConfiguracionSistemaController {
 
     private final ConfiguracionSistemaUseCase configuracionUseCase;
 
-    @Autowired
     public ConfiguracionSistemaController(ConfiguracionSistemaUseCase configuracionUseCase) {
         this.configuracionUseCase = configuracionUseCase;
     }
