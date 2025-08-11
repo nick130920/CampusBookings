@@ -217,6 +217,58 @@ public class DataInitializer implements ApplicationRunner {
                 .description("Permite gestionar configuración del sistema")
                 .resource("SYSTEM_CONFIG")
                 .action("MANAGE")
+                .build(),
+            
+            // Permisos de Feedback
+            Permission.builder()
+                .name("CREATE_FEEDBACK")
+                .description("Permite crear feedback de escenarios")
+                .resource("FEEDBACK")
+                .action("CREATE")
+                .build(),
+            Permission.builder()
+                .name("READ_FEEDBACK")
+                .description("Permite leer feedback de escenarios")
+                .resource("FEEDBACK")
+                .action("READ")
+                .build(),
+            Permission.builder()
+                .name("UPDATE_FEEDBACK")
+                .description("Permite actualizar feedback existente")
+                .resource("FEEDBACK")
+                .action("UPDATE")
+                .build(),
+            Permission.builder()
+                .name("DELETE_FEEDBACK")
+                .description("Permite eliminar feedback")
+                .resource("FEEDBACK")
+                .action("DELETE")
+                .build(),
+            
+            // Permisos de Alertas
+            Permission.builder()
+                .name("CREATE_ALERTS")
+                .description("Permite crear alertas de reservas")
+                .resource("ALERTS")
+                .action("CREATE")
+                .build(),
+            Permission.builder()
+                .name("READ_ALERTS")
+                .description("Permite leer alertas de reservas")
+                .resource("ALERTS")
+                .action("READ")
+                .build(),
+            Permission.builder()
+                .name("UPDATE_ALERTS")
+                .description("Permite actualizar alertas existentes")
+                .resource("ALERTS")
+                .action("UPDATE")
+                .build(),
+            Permission.builder()
+                .name("DELETE_ALERTS")
+                .description("Permite eliminar alertas")
+                .resource("ALERTS")
+                .action("DELETE")
                 .build()
         );
         
@@ -267,12 +319,15 @@ public class DataInitializer implements ApplicationRunner {
         coordinatorPermissions.addAll(getPermissionsByActions(allPermissions, "READ"));
         coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "SCENARIOS"));
         coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "RESERVATIONS"));
+        coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "FEEDBACK"));
+        coordinatorPermissions.addAll(getPermissionsByResources(allPermissions, "ALERTS"));
         coordinatorPermissions.addAll(getPermissionsByActions(allPermissions, "VIEW"));
         coordinatorRole.setPermissions(coordinatorPermissions);
         
         Set<Permission> userPermissions = new HashSet<>();
         userPermissions.addAll(getPermissionsByNames(allPermissions, 
-            "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS"));
+            "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS",
+            "CREATE_FEEDBACK", "READ_FEEDBACK", "UPDATE_FEEDBACK", "DELETE_FEEDBACK"));
         userRole.setPermissions(userPermissions);
         
         // Guardar roles con permisos
@@ -334,17 +389,22 @@ public class DataInitializer implements ApplicationRunner {
                                 Set<Permission> readPerms = getPermissionsByActionsSafe(permissionsToUse, "READ");
                                 Set<Permission> scenarioPerms = getPermissionsByResourcesSafe(permissionsToUse, "SCENARIOS");
                                 Set<Permission> reservationPerms = getPermissionsByResourcesSafe(permissionsToUse, "RESERVATIONS");
+                                Set<Permission> feedbackPerms = getPermissionsByResourcesSafe(permissionsToUse, "FEEDBACK");
+                                Set<Permission> alertsPerms = getPermissionsByResourcesSafe(permissionsToUse, "ALERTS");
                                 Set<Permission> viewPerms = getPermissionsByActionsSafe(permissionsToUse, "VIEW");
                                 
                                 permissions.addAll(readPerms);
                                 permissions.addAll(scenarioPerms);
                                 permissions.addAll(reservationPerms);
+                                permissions.addAll(feedbackPerms);
+                                permissions.addAll(alertsPerms);
                                 permissions.addAll(viewPerms);
                                 log.debug("Asignando {} permisos a COORDINATOR", permissions.size());
                                 break;
                             case "USER":
                                 Set<Permission> userPerms = getPermissionsByNamesSafe(permissionsToUse, 
-                                    "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS");
+                                    "READ_SCENARIOS", "CREATE_RESERVATIONS", "READ_RESERVATIONS", "CANCEL_RESERVATIONS",
+                                    "CREATE_FEEDBACK", "READ_FEEDBACK", "UPDATE_FEEDBACK", "DELETE_FEEDBACK");
                                 permissions.addAll(userPerms);
                                 log.debug("Asignando {} permisos a USER", permissions.size());
                                 break;

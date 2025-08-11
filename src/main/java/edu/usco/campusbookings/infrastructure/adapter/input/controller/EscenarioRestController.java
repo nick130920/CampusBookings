@@ -85,7 +85,7 @@ public class EscenarioRestController {
      * @return the found Escenario response
      */
     @GetMapping("/{id}")
-    @RequiresPermission(resource = "ESCENARIOS", action = "READ")
+    @RequiresPermission(resource = "SCENARIOS", action = "READ")
     public ResponseEntity<EscenarioResponse> getEscenarioById(@PathVariable Long id) {
         return ResponseEntity.ok(escenarioUseCase.findById(id));
     }
@@ -96,7 +96,7 @@ public class EscenarioRestController {
      * @return the list of Escenario responses
      */
     @GetMapping
-    @RequiresPermission(resource = "ESCENARIOS", action = "READ")
+    @RequiresPermission(resource = "SCENARIOS", action = "READ")
     public ResponseEntity<List<EscenarioResponse>> getAllEscenarios() {
         return ResponseEntity.ok(escenarioUseCase.findAll());
     }
@@ -109,7 +109,7 @@ public class EscenarioRestController {
      * @return the created Escenario response
      */
     @PostMapping
-    @RequiresPermission(resource = "ESCENARIOS", action = "CREATE")
+    @RequiresPermission(resource = "SCENARIOS", action = "CREATE")
     public ResponseEntity<EscenarioResponse> createEscenario(@Valid @RequestBody EscenarioRequest escenarioRequest) {
         return ResponseEntity.ok(escenarioUseCase.createEscenario(escenarioRequest));
     }
@@ -121,7 +121,7 @@ public class EscenarioRestController {
      * @return List of created EscenarioResponse objects.
      */
     @PostMapping("/bulk")
-    @RequiresPermission(resource = "ESCENARIOS", action = "CREATE")
+    @RequiresPermission(resource = "SCENARIOS", action = "CREATE")
     public ResponseEntity<List<EscenarioResponse>> createEscenarios(@Valid@RequestBody List<EscenarioRequest> escenarioRequests) {
         return ResponseEntity.ok(escenarioUseCase.createEscenarios(escenarioRequests));
     }
@@ -134,7 +134,7 @@ public class EscenarioRestController {
      * @return the updated Escenario response
      */
     @PutMapping("/{id}")
-    @RequiresPermission(resource = "ESCENARIOS", action = "UPDATE")
+    @RequiresPermission(resource = "SCENARIOS", action = "UPDATE")
     public ResponseEntity<EscenarioResponse> updateEscenario(@PathVariable Long id, @RequestBody EscenarioRequest escenarioRequest) {
         return ResponseEntity.ok(escenarioUseCase.updateEscenario(id, escenarioRequest));
     }
@@ -146,7 +146,7 @@ public class EscenarioRestController {
      * @return 204 No Content response
      */
     @DeleteMapping("/{id}")
-    @RequiresPermission(resource = "ESCENARIOS", action = "DELETE")
+    @RequiresPermission(resource = "SCENARIOS", action = "DELETE")
     public ResponseEntity<Void> deleteEscenario(@PathVariable Long id) {
         escenarioUseCase.deleteById(id);
         return ResponseEntity.noContent().build();

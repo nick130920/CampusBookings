@@ -119,8 +119,8 @@ public class PermissionAspect {
 
         boolean hasPermission = hasSpecificPermission || hasManagePermission;
 
-        // Reglas adicionales: si es ESCENARIOS y acción UPDATE/CREATE/DELETE, permitir por tipo asignado
-        if (!hasPermission && "ESCENARIOS".equals(resource) && ("UPDATE".equals(action) || "CREATE".equals(action) || "DELETE".equals(action))) {
+        // Reglas adicionales: si es SCENARIOS y acción UPDATE/CREATE/DELETE, permitir por tipo asignado
+        if (!hasPermission && "SCENARIOS".equals(resource) && ("UPDATE".equals(action) || "CREATE".equals(action) || "DELETE".equals(action))) {
             // Intentar inferir el tipo de escenario a partir de los argumentos
             String tipoInferido = null;
             for (Object arg : joinPoint.getArgs()) {

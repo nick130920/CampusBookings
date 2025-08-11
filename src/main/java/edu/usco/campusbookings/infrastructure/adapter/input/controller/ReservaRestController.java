@@ -38,7 +38,7 @@ public class ReservaRestController {
     private final ReporteReservasUseCase reporteReservasUseCase;
 
     @PostMapping
-    @RequiresPermission(resource = "RESERVAS", action = "CREATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "CREATE")
     public ResponseEntity<ReservaResponse> crearReserva(
             @Valid @RequestBody ReservaRequest request
     ) {
@@ -46,7 +46,7 @@ public class ReservaRestController {
     }
 
     @PutMapping("/{id}/aprobar")
-    @RequiresPermission(resource = "RESERVAS", action = "MANAGE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "MANAGE")
     public ResponseEntity<ReservaResponse> aprobarReserva(
             @PathVariable Long id
     ) {
