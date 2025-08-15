@@ -2,6 +2,7 @@ package edu.usco.campusbookings.application.port.input;
 
 import edu.usco.campusbookings.application.dto.request.GoogleCalendarAuthRequest;
 import edu.usco.campusbookings.application.dto.response.GoogleCalendarStatusResponse;
+import edu.usco.campusbookings.application.dto.response.GoogleCalendarSyncResponse;
 import edu.usco.campusbookings.domain.model.Reserva;
 
 /**
@@ -42,5 +43,5 @@ public interface GoogleCalendarUseCase {
     /**
      * Sincroniza todas las reservas del usuario con Google Calendar
      */
-    void syncAllUserReservations();
+    GoogleCalendarSyncResponse syncAllUserReservations();
 }

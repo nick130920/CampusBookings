@@ -8,9 +8,11 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import edu.usco.campusbookings.application.dto.request.GoogleCalendarAuthRequest;
 import edu.usco.campusbookings.application.dto.response.GoogleCalendarStatusResponse;
+import edu.usco.campusbookings.application.dto.response.GoogleCalendarSyncResponse;
 import edu.usco.campusbookings.application.exception.GoogleCalendarException;
 import edu.usco.campusbookings.application.port.input.GoogleCalendarUseCase;
 import edu.usco.campusbookings.application.port.output.GoogleCalendarRepositoryPort;
+import edu.usco.campusbookings.application.port.output.ReservaPersistencePort;
 import edu.usco.campusbookings.domain.model.Reserva;
 import edu.usco.campusbookings.domain.model.Usuario;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Date;
 
 /**
@@ -38,6 +40,7 @@ public class GoogleCalendarService implements GoogleCalendarUseCase {
     private final Calendar.Builder calendarBuilder;
     private final GoogleCalendarRepositoryPort googleCalendarRepositoryPort;
     private final UsuarioService usuarioService;
+    private final ReservaPersistencePort reservaPersistencePort;
 
     @Value("${google.calendar.redirect-uri}")
     private String redirectUri;
@@ -200,9 +203,93 @@ public class GoogleCalendarService implements GoogleCalendarUseCase {
 
     @Override
     @Transactional
-    public void syncAllUserReservations() {
-        // Este método se puede implementar más adelante para sincronización masiva
-        log.info("Sincronización masiva de reservas no implementada aún");
+    public GoogleCalendarSyncResponse syncAllUserReservations() {
+        try {
+            Usuario currentUser = getCurrentUser();
+            log.info("Iniciando sincronización masiva de reservas para usuario: {}", currentUser.getEmail());
+            
+            // Verificar si el usuario tiene Google Calendar conectado
+            if (currentUser.getGoogleCalendarConnected() == null || !currentUser.getGoogleCalendarConnected()) {
+                log.warn("Usuario {} no tiene Google Calendar conectado, cancelando sincronización masiva", currentUser.getEmail());
+                return GoogleCalendarSyncResponse.builder()
+                        .success(false)
+                        .connected(false)
+                        .message("Google Calendar no está conectado. Conecte su cuenta primero.")
+                        .totalReservas(0)
+                        .reservasSincronizadas(0)
+                        .errores(0)
+                        .build();
+            }
+
+            // Obtener todas las reservas aprobadas del usuario que no estén ya sincronizadas
+            List<Reserva> reservasParaSincronizar = reservaPersistencePort.findByUsuarioId(currentUser.getId())
+                    .stream()
+                    .filter(reserva -> "APROBADA".equals(reserva.getEstado().getNombre()))
+                    .filter(reserva -> reserva.getGoogleCalendarEventId() == null || reserva.getGoogleCalendarEventId().isEmpty())
+                    .collect(Collectors.toList());
+
+            if (reservasParaSincronizar.isEmpty()) {
+                log.info("No hay reservas para sincronizar para el usuario: {}", currentUser.getEmail());
+                return GoogleCalendarSyncResponse.builder()
+                        .success(true)
+                        .connected(true)
+                        .message("No hay reservas pendientes para sincronizar")
+                        .totalReservas(0)
+                        .reservasSincronizadas(0)
+                        .errores(0)
+                        .build();
+            }
+
+            log.info("Sincronizando {} reservas con Google Calendar para usuario: {}", 
+                    reservasParaSincronizar.size(), currentUser.getEmail());
+
+            int sincronizadas = 0;
+            int errores = 0;
+
+            // Sincronizar cada reserva individualmente
+            for (Reserva reserva : reservasParaSincronizar) {
+                try {
+                    String eventId = syncReservationWithCalendar(reserva);
+                    if (eventId != null) {
+                        reserva.setGoogleCalendarEventId(eventId);
+                        reservaPersistencePort.save(reserva);
+                        sincronizadas++;
+                        log.debug("Reserva ID {} sincronizada exitosamente con evento ID: {}", 
+                                reserva.getId(), eventId);
+                    }
+                } catch (Exception e) {
+                    errores++;
+                    log.error("Error sincronizando reserva ID {} con Google Calendar: {}", 
+                            reserva.getId(), e.getMessage());
+                    // Continuar con la siguiente reserva en caso de error
+                }
+            }
+
+            log.info("Sincronización masiva completada para usuario {}: {} reservas sincronizadas, {} errores", 
+                    currentUser.getEmail(), sincronizadas, errores);
+
+            if (errores > 0) {
+                log.warn("Se produjeron {} errores durante la sincronización masiva", errores);
+            }
+
+            // Crear respuesta con estadísticas
+            return GoogleCalendarSyncResponse.builder()
+                    .success(true)
+                    .connected(true)
+                    .message(String.format("Sincronización completada: %d reservas sincronizadas, %d errores", 
+                            sincronizadas, errores))
+                    .totalReservas(reservasParaSincronizar.size())
+                    .reservasSincronizadas(sincronizadas)
+                    .errores(errores)
+                    .build();
+
+        } catch (GoogleCalendarException e) {
+            // Re-lanzar excepciones específicas de Google Calendar
+            throw e;
+        } catch (Exception e) {
+            log.error("Error general durante la sincronización masiva de reservas", e);
+            throw new GoogleCalendarException("Error durante la sincronización masiva: " + e.getMessage());
+        }
     }
 
     private Calendar getCalendarService(Usuario usuario) throws Exception {

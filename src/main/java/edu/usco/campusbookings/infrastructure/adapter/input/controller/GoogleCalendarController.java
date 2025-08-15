@@ -2,6 +2,7 @@ package edu.usco.campusbookings.infrastructure.adapter.input.controller;
 
 import edu.usco.campusbookings.application.dto.request.GoogleCalendarAuthRequest;
 import edu.usco.campusbookings.application.dto.response.GoogleCalendarStatusResponse;
+import edu.usco.campusbookings.application.dto.response.GoogleCalendarSyncResponse;
 import edu.usco.campusbookings.application.port.input.GoogleCalendarUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,10 +62,31 @@ public class GoogleCalendarController {
 
     @PostMapping("/sync-all")
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Sincronizar todas las reservas con Google Calendar")
-    public ResponseEntity<Void> syncAllReservations() {
-        log.info("Solicitud de sincronización masiva con Google Calendar");
-        googleCalendarUseCase.syncAllUserReservations();
-        return ResponseEntity.ok().build();
+    @Operation(summary = "Sincronizar todas las reservas con Google Calendar", 
+               description = "Sincroniza todas las reservas aprobadas del usuario que no estén ya sincronizadas con Google Calendar")
+    public ResponseEntity<GoogleCalendarSyncResponse> syncAllReservations() {
+        try {
+            log.info("Solicitud de sincronización masiva con Google Calendar");
+            GoogleCalendarSyncResponse response = googleCalendarUseCase.syncAllUserReservations();
+            
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            log.error("Error durante la sincronización masiva", e);
+            
+            GoogleCalendarSyncResponse response = GoogleCalendarSyncResponse.builder()
+                    .success(false)
+                    .connected(false)
+                    .message("Error durante la sincronización: " + e.getMessage())
+                    .totalReservas(0)
+                    .reservasSincronizadas(0)
+                    .errores(1)
+                    .build();
+            
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 }
