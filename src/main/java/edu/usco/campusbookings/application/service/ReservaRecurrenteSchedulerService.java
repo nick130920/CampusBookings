@@ -41,7 +41,7 @@ public class ReservaRecurrenteSchedulerService {
      * Se ejecuta cada 2 horas durante horario laboral para verificar y generar reservas
      * que puedan haberse perdido o necesiten generación inmediata
      */
-    @Scheduled(cron = "0 0 8-18/2 * * MON-FRI") // Cada 2 horas de 8AM a 6PM, Lunes a Viernes
+    @Scheduled(cron = "0 0 8,10,12,14,16,18 * * MON-FRI") // Cada 2 horas de 8AM a 6PM, Lunes a Viernes
     @Async
     public void verificacionHorarioLaboral() {
         log.debug("Verificando reservas recurrentes durante horario laboral");

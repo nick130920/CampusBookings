@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -243,10 +244,10 @@ public class ReservaRecurrenteService implements ReservaRecurrenteUseCase {
         
         validarAccesoReservaRecurrente(reserva);
         
-        // TODO: Implementar eliminación de reservas futuras si se solicita
+        // Implementar eliminación de reservas futuras si se solicita
         if (eliminarReservasFuturas) {
             log.info("Eliminando reservas futuras para configuración recurrente ID: {}", id);
-            // Implementar lógica para eliminar reservas futuras
+            eliminarReservasFuturasGeneradas(reserva);
         }
         
         reservaRecurrentePersistencePort.deleteById(id);
@@ -363,8 +364,7 @@ public class ReservaRecurrenteService implements ReservaRecurrenteUseCase {
     private Usuario getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return usuarioService.findByEmail(email)
-            .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado"));
+        return usuarioService.findByEmail(email);
     }
     
     private boolean esAdmin() {
@@ -467,5 +467,72 @@ public class ReservaRecurrenteService implements ReservaRecurrenteUseCase {
         }
         
         return advertencias;
+    }
+    
+    /**
+     * Elimina las reservas futuras generadas por una configuración recurrente específica
+     */
+    private void eliminarReservasFuturasGeneradas(ReservaRecurrente reservaRecurrente) {
+        try {
+            // Obtener todas las reservas generadas por esta configuración recurrente
+            // que tengan fecha de inicio en el futuro (no han ocurrido aún)
+            LocalDateTime ahora = LocalDateTime.now();
+            
+            // Si la reserva recurrente tiene reservas generadas, las procesamos
+            if (reservaRecurrente.getReservasGeneradas() != null && !reservaRecurrente.getReservasGeneradas().isEmpty()) {
+                
+                List<Long> reservasAEliminar = new ArrayList<>();
+                int reservasEliminadas = 0;
+                int reservasConflicto = 0;
+                
+                for (var reserva : reservaRecurrente.getReservasGeneradas()) {
+                    // Solo eliminar reservas futuras (que no han comenzado)
+                    if (reserva.getFechaInicio().isAfter(ahora)) {
+                        // Verificar el estado de la reserva antes de eliminar
+                        String estadoReserva = reserva.getEstado().getNombre();
+                        
+                        // Solo eliminar si está en estado PENDIENTE o APROBADA
+                        // No eliminar si está EN_CURSO, COMPLETADA, CANCELADA, etc.
+                        if ("PENDIENTE".equals(estadoReserva) || "APROBADA".equals(estadoReserva)) {
+                            reservasAEliminar.add(reserva.getId());
+                            reservasEliminadas++;
+                            
+                            log.debug("Marcando para eliminación reserva ID: {} - Fecha: {} - Estado: {}", 
+                                    reserva.getId(), reserva.getFechaInicio(), estadoReserva);
+                        } else {
+                            reservasConflicto++;
+                            log.warn("No se puede eliminar reserva ID: {} - Estado: {} (no eliminable)", 
+                                    reserva.getId(), estadoReserva);
+                        }
+                    }
+                }
+                
+                // Eliminar las reservas identificadas usando el puerto de persistencia
+                if (!reservasAEliminar.isEmpty()) {
+                    for (Long reservaId : reservasAEliminar) {
+                        try {
+                            reservaPersistencePort.deleteById(reservaId);
+                            log.debug("Reserva eliminada exitosamente: ID {}", reservaId);
+                        } catch (Exception e) {
+                            log.error("Error eliminando reserva ID: {} - {}", reservaId, e.getMessage());
+                        }
+                    }
+                }
+                
+                log.info("Proceso de eliminación completado para configuración ID: {} - " +
+                        "Eliminadas: {} - En conflicto (no eliminadas): {} - Total procesadas: {}", 
+                        reservaRecurrente.getId(), reservasEliminadas, reservasConflicto, 
+                        reservaRecurrente.getReservasGeneradas().size());
+                        
+            } else {
+                log.info("No hay reservas generadas para eliminar en configuración ID: {}", 
+                        reservaRecurrente.getId());
+            }
+            
+        } catch (Exception e) {
+            log.error("Error eliminando reservas futuras para configuración ID: {} - {}", 
+                    reservaRecurrente.getId(), e.getMessage(), e);
+            throw new RuntimeException("Error eliminando reservas futuras: " + e.getMessage(), e);
+        }
     }
 }

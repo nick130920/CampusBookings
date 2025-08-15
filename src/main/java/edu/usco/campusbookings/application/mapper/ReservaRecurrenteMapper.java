@@ -64,10 +64,10 @@ public class ReservaRecurrenteMapper {
                 .activa(entity.getActiva())
                 .maxReservas(entity.getMaxReservas())
                 .reservasGeneradas(entity.getReservasGeneradas() != null ? entity.getReservasGeneradas().size() : 0)
-                .fechaCreacion(entity.getCreatedAt())
-                .fechaActualizacion(entity.getUpdatedAt())
+                .fechaCreacion(entity.getCreatedDate())
+                .fechaActualizacion(entity.getModifiedDate())
                 .creadoPor(entity.getCreatedBy())
-                .actualizadoPor(entity.getUpdatedBy())
+                .actualizadoPor(entity.getModifiedBy())
                 .build();
 
         // Convertir JSON string a lista de días de semana

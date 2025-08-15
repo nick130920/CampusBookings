@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import edu.usco.campusbookings.application.util.validation.ValidDateRange;
@@ -13,6 +14,7 @@ import edu.usco.campusbookings.application.util.validation.ValidDateRange;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ValidDateRange(startField = "fechaInicio", endField = "fechaFin", 
                message = "La fecha de fin debe ser posterior a la fecha de inicio y la duración debe estar entre 30 minutos y 8 horas")
 public class ReservaRequest {
