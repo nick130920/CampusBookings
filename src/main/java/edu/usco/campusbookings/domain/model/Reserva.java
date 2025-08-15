@@ -47,4 +47,9 @@ public class Reserva extends Auditable {
     // Google Calendar Integration
     @Column(name = "google_calendar_event_id")
     private String googleCalendarEventId;
+    
+    // Relación con reserva recurrente (opcional)
+    @ManyToOne
+    @JoinColumn(name = "reserva_recurrente_id")
+    private ReservaRecurrente reservaRecurrente;
 }
