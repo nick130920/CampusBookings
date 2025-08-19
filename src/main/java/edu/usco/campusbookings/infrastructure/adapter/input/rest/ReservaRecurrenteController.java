@@ -44,7 +44,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "403", description = "Sin permisos suficientes")
     })
     @PostMapping("/previsualizar")
-    @RequiresPermission(resource = "RESERVA", action = "CREATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "CREATE")
     public ResponseEntity<ReservaRecurrenteResumeResponse> previsualizarReservasRecurrentes(
             @Valid @RequestBody ReservaRecurrenteRequest request) {
         log.info("Solicitud de previsualización de reservas recurrentes para escenario: {}", request.getEscenarioId());
@@ -64,7 +64,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "409", description = "Conflicto con reservas existentes")
     })
     @PostMapping
-    @RequiresPermission(resource = "RESERVA", action = "CREATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "CREATE")
     public ResponseEntity<ReservaRecurrenteResponse> crearReservaRecurrente(
             @Valid @RequestBody ReservaRecurrenteRequest request) {
         log.info("Solicitud de creación de reserva recurrente para escenario: {}", request.getEscenarioId());
@@ -82,7 +82,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "403", description = "Sin permisos para acceder a los datos del usuario")
     })
     @GetMapping("/usuario/{usuarioId}")
-    @RequiresPermission(resource = "RESERVA", action = "READ")
+    @RequiresPermission(resource = "RESERVATIONS", action = "READ")
     public ResponseEntity<List<ReservaRecurrenteResponse>> obtenerReservasRecurrentesPorUsuario(
             @Parameter(description = "ID del usuario") 
             @PathVariable @NotNull @Positive Long usuarioId) {
@@ -102,7 +102,7 @@ public class ReservaRecurrenteController {
     })
     @GetMapping("/admin/todas")
     @PreAuthorize("hasRole('ADMIN')")
-    @RequiresPermission(resource = "RESERVA", action = "READ_ALL")
+    @RequiresPermission(resource = "RESERVATIONS", action = "READ_ALL")
     public ResponseEntity<List<ReservaRecurrenteResponse>> obtenerTodasLasReservasRecurrentes() {
         log.info("Solicitud admin de todas las reservas recurrentes");
         
@@ -120,7 +120,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "404", description = "Reserva recurrente no encontrada")
     })
     @GetMapping("/{id}")
-    @RequiresPermission(resource = "RESERVA", action = "READ")
+    @RequiresPermission(resource = "RESERVATIONS", action = "READ")
     public ResponseEntity<ReservaRecurrenteResponse> obtenerReservaRecurrentePorId(
             @Parameter(description = "ID de la reserva recurrente") 
             @PathVariable @NotNull @Positive Long id) {
@@ -141,7 +141,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "404", description = "Reserva recurrente no encontrada")
     })
     @PutMapping("/{id}")
-    @RequiresPermission(resource = "RESERVA", action = "UPDATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "UPDATE")
     public ResponseEntity<ReservaRecurrenteResponse> actualizarReservaRecurrente(
             @Parameter(description = "ID de la reserva recurrente") 
             @PathVariable @NotNull @Positive Long id,
@@ -162,7 +162,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "404", description = "Reserva recurrente no encontrada")
     })
     @PatchMapping("/{id}/desactivar")
-    @RequiresPermission(resource = "RESERVA", action = "UPDATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "UPDATE")
     public ResponseEntity<ReservaRecurrenteResponse> desactivarReservaRecurrente(
             @Parameter(description = "ID de la reserva recurrente") 
             @PathVariable @NotNull @Positive Long id) {
@@ -182,7 +182,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "404", description = "Reserva recurrente no encontrada")
     })
     @PatchMapping("/{id}/activar")
-    @RequiresPermission(resource = "RESERVA", action = "UPDATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "UPDATE")
     public ResponseEntity<ReservaRecurrenteResponse> activarReservaRecurrente(
             @Parameter(description = "ID de la reserva recurrente") 
             @PathVariable @NotNull @Positive Long id) {
@@ -202,7 +202,7 @@ public class ReservaRecurrenteController {
         @ApiResponse(responseCode = "404", description = "Reserva recurrente no encontrada")
     })
     @DeleteMapping("/{id}")
-    @RequiresPermission(resource = "RESERVA", action = "DELETE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "DELETE")
     public ResponseEntity<Void> eliminarReservaRecurrente(
             @Parameter(description = "ID de la reserva recurrente") 
             @PathVariable @NotNull @Positive Long id,
@@ -225,7 +225,7 @@ public class ReservaRecurrenteController {
     })
     @PostMapping("/{id}/generar-hasta")
     @PreAuthorize("hasRole('ADMIN')")
-    @RequiresPermission(resource = "RESERVA", action = "CREATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "CREATE")
     public ResponseEntity<List<Long>> generarReservasHastaFecha(
             @Parameter(description = "ID de la configuración recurrente") 
             @PathVariable @NotNull @Positive Long id,
@@ -247,7 +247,7 @@ public class ReservaRecurrenteController {
     })
     @PostMapping("/admin/generar-pendientes")
     @PreAuthorize("hasRole('ADMIN')")
-    @RequiresPermission(resource = "RESERVA", action = "CREATE")
+    @RequiresPermission(resource = "RESERVATIONS", action = "CREATE")
     public ResponseEntity<String> generarReservasPendientes() {
         log.info("Solicitud admin de generación de reservas pendientes");
         
