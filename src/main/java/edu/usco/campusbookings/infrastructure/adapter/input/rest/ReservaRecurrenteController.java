@@ -153,6 +153,28 @@ public class ReservaRecurrenteController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Actualizar reserva recurrente parcialmente", 
+               description = "Actualiza campos específicos de una reserva recurrente (fecha fin, máximo reservas, observaciones)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Reserva recurrente actualizada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+        @ApiResponse(responseCode = "401", description = "Usuario no autenticado"),
+        @ApiResponse(responseCode = "403", description = "Sin permisos para modificar esta reserva"),
+        @ApiResponse(responseCode = "404", description = "Reserva recurrente no encontrada")
+    })
+    @PatchMapping("/{id}")
+    @RequiresPermission(resource = "RESERVATIONS", action = "UPDATE")
+    public ResponseEntity<ReservaRecurrenteResponse> actualizarReservaRecurrenteParcial(
+            @Parameter(description = "ID de la reserva recurrente") 
+            @PathVariable @NotNull @Positive Long id,
+            @RequestBody java.util.Map<String, Object> updates) {
+        log.info("Solicitud de actualización parcial de reserva recurrente ID: {} con campos: {}", id, updates.keySet());
+        
+        ReservaRecurrenteResponse response = reservaRecurrenteUseCase.actualizarReservaRecurrenteParcial(id, updates);
+        
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "Desactivar reserva recurrente", 
                description = "Desactiva una reserva recurrente para que no genere más reservas futuras")
     @ApiResponses(value = {

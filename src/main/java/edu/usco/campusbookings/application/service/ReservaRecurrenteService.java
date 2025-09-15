@@ -208,6 +208,60 @@ public class ReservaRecurrenteService implements ReservaRecurrenteUseCase {
 
     @Override
     @Transactional
+    public ReservaRecurrenteResponse actualizarReservaRecurrenteParcial(Long id, java.util.Map<String, Object> updates) {
+        log.info("Actualizando parcialmente reserva recurrente ID: {} con campos: {}", id, updates.keySet());
+        
+        ReservaRecurrente reserva = reservaRecurrentePersistencePort.findById(id)
+            .orElseThrow(() -> new ReservaNotFoundException("Reserva recurrente no encontrada con ID: " + id));
+        
+        validarAccesoReservaRecurrente(reserva);
+        
+        // Aplicar actualizaciones permitidas
+        if (updates.containsKey("fechaFin")) {
+            String fechaFinStr = updates.get("fechaFin").toString();
+            try {
+                java.time.LocalDate fechaFin = java.time.LocalDate.parse(fechaFinStr);
+                reserva.setFechaFin(fechaFin);
+                log.debug("Actualizada fecha fin a: {}", fechaFin);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Formato de fecha fin inválido: " + fechaFinStr);
+            }
+        }
+        
+        if (updates.containsKey("maxReservas")) {
+            Object maxReservasObj = updates.get("maxReservas");
+            if (maxReservasObj != null) {
+                if (maxReservasObj instanceof Number) {
+                    reserva.setMaxReservas(((Number) maxReservasObj).intValue());
+                } else {
+                    try {
+                        reserva.setMaxReservas(Integer.parseInt(maxReservasObj.toString()));
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Valor de maxReservas inválido: " + maxReservasObj);
+                    }
+                }
+                log.debug("Actualizado maxReservas a: {}", reserva.getMaxReservas());
+            } else {
+                reserva.setMaxReservas(null);
+                log.debug("MaxReservas establecido a null (ilimitado)");
+            }
+        }
+        
+        if (updates.containsKey("observaciones")) {
+            Object observacionesObj = updates.get("observaciones");
+            String observaciones = observacionesObj != null ? observacionesObj.toString() : null;
+            reserva.setObservaciones(observaciones);
+            log.debug("Actualizadas observaciones");
+        }
+        
+        ReservaRecurrente updated = reservaRecurrentePersistencePort.save(reserva);
+        log.info("Reserva recurrente actualizada parcialmente: ID {}", id);
+        
+        return mapper.toResponse(updated);
+    }
+
+    @Override
+    @Transactional
     public ReservaRecurrenteResponse desactivarReservaRecurrente(Long id) {
         ReservaRecurrente reserva = reservaRecurrentePersistencePort.findById(id)
             .orElseThrow(() -> new ReservaNotFoundException("Reserva recurrente no encontrada con ID: " + id));

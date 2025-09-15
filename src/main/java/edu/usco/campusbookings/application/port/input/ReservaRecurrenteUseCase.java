@@ -39,6 +39,11 @@ public interface ReservaRecurrenteUseCase {
     ReservaRecurrenteResponse actualizarReservaRecurrente(Long id, ReservaRecurrenteRequest request);
     
     /**
+     * Actualiza campos específicos de una reserva recurrente
+     */
+    ReservaRecurrenteResponse actualizarReservaRecurrenteParcial(Long id, java.util.Map<String, Object> updates);
+    
+    /**
      * Desactiva una reserva recurrente (no genera más reservas)
      */
     ReservaRecurrenteResponse desactivarReservaRecurrente(Long id);
