@@ -46,13 +46,17 @@ public class PermissionAspect {
             Usuario usuario = usuarioService.findByEmailWithPermissions(userEmail);
             
             if (usuario == null) {
-                log.warn("Usuario {} no encontrado", userEmail);
+                log.warn("🔍 PERMISSION DEBUG - Usuario {} no encontrado en la base de datos", userEmail);
                 throw new AccessDeniedException("Usuario no encontrado");
             }
             
+            log.info("🔍 PERMISSION DEBUG - Usuario encontrado: {} - Rol: {}", 
+                userEmail, usuario.getRol() != null ? usuario.getRol().getNombre() : "NULL");
+            
             // Si es ADMIN, permitir todo
             if (usuario.getRol() != null && "ADMIN".equals(usuario.getRol().getNombre())) {
-                log.debug("Usuario {} es ADMIN, acceso permitido", userEmail);
+                log.info("🔍 PERMISSION DEBUG - Usuario {} es ADMIN, acceso permitido para {} - {}", 
+                    userEmail, requiresPermission.resource(), requiresPermission.action());
                 return joinPoint.proceed();
             }
             
@@ -61,7 +65,7 @@ public class PermissionAspect {
                 log.debug("Usuario {} tiene el permiso requerido", userEmail);
                 return joinPoint.proceed();
             } else {
-                log.warn("Usuario {} no tiene el permiso requerido: {} - {}", 
+                log.warn("🔍 PERMISSION DEBUG - Usuario {} no tiene el permiso requerido: {} - {}", 
                     userEmail, requiresPermission.resource(), requiresPermission.action());
                 throw new AccessDeniedException(requiresPermission.message());
             }
